@@ -1,1 +1,1 @@
-# mCAP.js Client Library
+# mCAP JavaScript Client Library
