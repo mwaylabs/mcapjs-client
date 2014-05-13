@@ -35,12 +35,31 @@
       };
     })
 
-    .service('Collection',function(){
-      return window.mCap.Collection;
+    .provider('mCapApplication', function () {
+
+      var mCap = window.mCap;
+
+      return {
+        setBaseUrl: function (url) {
+          mCap.application.setBaseUrl(url);
+        },
+
+        $get: function(){
+          return window.mCap.application;
+        }
+      };
     })
 
-    .service('Model',function($rootScope){
-      return window.mCap.Model.extend({
+    .service('mCap',function(){
+      return window.mCap;
+    })
+
+    .service('mCapCollection',function(mCap){
+      return mCap.Collection;
+    })
+
+    .service('mCapModel',function($rootScope, mCap){
+      return mCap.Model.extend({
         set: function(){
           // Trigger digest cycle to make calls to set recognizable by angular
           if (!$rootScope.$$phase) {
