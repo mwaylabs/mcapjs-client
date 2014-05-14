@@ -333,9 +333,9 @@
 
   mCap.Model = Backbone.Model.extend({
     idAttribute: 'uuid',
-    selectable: SelectableFactory,
+    selectable: true,
     selectableOptions: {},
-    initialize: function () {
+    constructor: function () {
       // When a model gets removed, make sure to decrement the total count on the collection
       this.on('destroy', function () {
         if (this.collection && this.collection.filterable && this.collection.filterable.getTotalAmount() > 0) {
@@ -344,13 +344,14 @@
       }, this);
 
       if (this.selectable) {
-        this.selectable = new this.selectable(this, this.selectableOptions);
+        this.selectable = new SelectableFactory(this, this.selectableOptions);
       }
 
       if (this.endpoint) {
         this.setEndpoint(this.endpoint);
       }
 
+      return Backbone.Model.prototype.constructor.apply(this, arguments);
     },
 
     setEndpoint: function (endpoint) {
@@ -370,12 +371,28 @@
 
   mCap.Collection = Backbone.Collection.extend({
 
-    selectable: SelectableFactory,
-    filterable: Filterable,
+    selectable: true,
+    filterable: true,
     filterableOptions: {},
     selectableOptions: {},
 
     model: mCap.Model,
+
+    constructor: function () {
+      if (this.selectable) {
+        this.selectable = new SelectableFactory(this, this.selectableOptions);
+      }
+
+      if (this.filterable) {
+        this.filterable = new Filterable(this, this.filterableOptions);
+      }
+
+      if (this.endpoint) {
+        this.setEndpoint(this.endpoint);
+      }
+
+      return Backbone.Collection.prototype.constructor.apply(this, arguments);
+    },
 
     setEndpoint: function (endpoint) {
       this.url = mCap.application.getBaseUrl() + '/' + endpoint;
@@ -395,20 +412,6 @@
         options = params;
       }
       return Backbone.Collection.prototype.sync.apply(this, [method, model, options]);
-    },
-
-    initialize: function () {
-      if (this.selectable) {
-        this.selectable = new this.selectable(this, this.selectableOptions);
-      }
-
-      if (this.filterable) {
-        this.filterable = new this.filterable(this, this.filterableOptions);
-      }
-
-      if (this.endpoint) {
-        this.setEndpoint(this.endpoint);
-      }
     }
 
   });
