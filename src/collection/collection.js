@@ -1,6 +1,4 @@
-var mCap = mCap || {},
-  Backbone = window.Backbone,
-  Filterable = Filterable || {},
+var Filterable = Filterable || {},
   SelectableFactory = SelectableFactory || {};
 
 var Collection = Backbone.Collection.extend({
@@ -29,7 +27,7 @@ var Collection = Backbone.Collection.extend({
   },
 
   setEndpoint: function (endpoint) {
-    this.url = mCap.application.getBaseUrl() + "/" + endpoint;
+    this.url = mCap.application.getBaseUrl() + '/' + endpoint;
   },
 
   parse: function (response) {

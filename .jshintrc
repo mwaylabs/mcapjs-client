@@ -20,23 +20,9 @@
   "smarttabs": true,
   "loopfunc": true,
   "globals": {
-    "moment": false,
-    "d3": false,
-    "angular": false,
-    "RelutionApp": true,
-    "Relution": true,
-    "Holder": false,
-    "_": false,
-    "confirm": false,
-    "mCAP": false,
-    "element" : false,
-    "expect" : false,
-    "xit" : false,
-    "it" : false,
-    "beforeEach" : false,
-    "browser" : false,
-    "by" : false,
-    "describe" : false,
-    "afterEach" : false
+    "Backbone": false,
+    "mCap": false,
+    "angular":true,
+    "_": false
   }
 }

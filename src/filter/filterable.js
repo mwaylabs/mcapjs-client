@@ -1,3 +1,4 @@
+/*jshint unused:false */
 var Filterable = function (collectionInstance, options) {
 
   options = options || {};
@@ -108,7 +109,9 @@ var Filterable = function (collectionInstance, options) {
   };
 
   this.getFilters = function () {
-    return _filterDefinition.apply(this);
+    if (_.isFunction(_filterDefinition)) {
+      return _filterDefinition.apply(this);
+    }
   };
 
   this.resetFilters = function () {
