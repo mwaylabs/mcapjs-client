@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Authentication Example</title>
+  <script src="../../bower_components/underscore/underscore.js"></script>
+  <script src="../../bower_components/backbone/backbone.js"></script>
+  <script src="../../mCap.js"></script>
+  <script src="../../application/mCap.application.js"></script>
+  <script src="../../authentication/mCap.user.js"></script>
+  <script src="../../authentication/mCap.authentication.js"></script>
+
+  <script>
+
+    mCap.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
+
+    mCap.authentication.login({
+      "username": "user",
+      "organization" : "org",
+      "password" : "secure"
+    });
+
+  </script>
+
+
+</head>
+<body>
+
+
+
+
+</body>
+</html>
