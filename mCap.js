@@ -2,8 +2,8 @@
   'use strict';
 
   var mCap = mCap || {},
-    Backbone = window.Backbone,
-    sync = Backbone.sync;
+      Backbone = window.Backbone,
+      sync = Backbone.sync;
 
   Backbone.sync = function (method, model, options) {
     if (_.isUndefined(options.wait)) {
@@ -17,16 +17,16 @@
     options = options || {};
 
     var _collection = collectionInstance,
-      _limit = options.limit,
-      _offset = options.offset,
-      _page = options.page || 1,
-      _perPage = options.perPage || 30,
-      _filterValues = options.filterValues,
-      _initialFilterValues = angular.copy(_filterValues),
-      _filterDefinition = options.filterDefinition,
-      _filters = options.filters,
-      _sortOrder = null,
-      _totalAmount;
+        _limit = options.limit,
+        _offset = options.offset,
+        _page = options.page || 1,
+        _perPage = options.perPage || 30,
+        _initialFilterValues = angular.copy(options.filterValues),
+        _filterDefinition = options.filterDefinition,
+        _sortOrder = null,
+        _totalAmount;
+
+    this.filterValues = options.filterValues;
 
     this.getRequestParams = function (method, model, options) {
       options.params = options.params || {};
@@ -113,33 +113,23 @@
     this.setFilters = function (filterMap) {
 
       _.forEach(filterMap, function (value, key) {
-        if (_.has(_filterValues, key)) {
-          _filterValues[key] = value;
+        if (_.has(this.filterValues, key)) {
+          this.filterValues[key] = value;
         } else {
           throw new Error('Filter named \'' + key + '\' not found, did you add it to filterValues of the model?');
         }
       }, this);
     };
 
-    this.setCustomFilters = function (customFilter) {
-      _filters = customFilter;
-    };
-
     this.getFilters = function () {
-      // Custom filter definition existing?
-      if (_.isFunction(_filterDefinition) && _filters === null) {
-        return _filterDefinition();
-      } else {
-        return this._filters;
-      }
+      return _filterDefinition.apply(this);
     };
 
     this.resetFilters = function () {
-      _filterValues = angular.copy(_initialFilterValues);
-      _filters = null;
+      this.filterValues = angular.copy(_initialFilterValues);
     };
 
-    (function _main() {
+    (function _main () {
       // TODO: load persisted filters into this.filterValues and sortOrder here
       // ....
 
@@ -202,7 +192,7 @@
       });
     };
 
-    (function _main() {
+    (function _main () {
       if (!_collection instanceof Backbone.Collection) {
         throw new Error('First parameter has to be the instance of a collection');
       }
@@ -212,7 +202,7 @@
   var ModelSelectable = function (modelInstance, options) {
 
     var _model = modelInstance,
-      _selected = options.selected || false;
+        _selected = options.selected || false;
 
     this.isDisabled = options.isDisabled || function () {
       return false;
@@ -240,7 +230,7 @@
       }
     };
 
-    (function _main() {
+    (function _main () {
       if (!_model instanceof Backbone.Model) {
         throw new Error('First parameter has to be the instance of a collection');
       }
@@ -266,7 +256,7 @@
       return _baseUrl;
     };
 
-    (function _main() {
+    (function _main () {
       //Initialize stuff
     }());
   };
