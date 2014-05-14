@@ -1,7 +1,7 @@
 var Filter = function () {
   // If it is an invalid value return null otherwise the provided object
   var returnNullOrObjectFor = function (value, object) {
-    return (!angular.isDefined(value) || value === null || value === '') ? null : object;
+    return (!_.isUndefined(value) || value === null || value === '') ? null : object;
   };
 
   // See https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filter
