@@ -1,8 +1,8 @@
-(function () {
+(function (root) {
   'use strict';
 
   var mCap = mCap || {},
-    Backbone = window.Backbone,
+    Backbone = root.Backbone,
     sync = Backbone.sync;
 
   Backbone.sync = function (method, model, options) {
@@ -255,24 +255,6 @@
     }
   };
 
-  var Application = function () {
-
-    var _baseUrl;
-    this.setBaseUrl = function (baseUrl) {
-      _baseUrl = baseUrl;
-    };
-
-    this.getBaseUrl = function () {
-      return _baseUrl;
-    };
-
-    (function _main() {
-      //Initialize stuff
-    }());
-  };
-
-  mCap.application = new Application();
-
   mCap.Filter = function () {
     // If it is an invalid value return null otherwise the provided object
     var returnNullOrObjectFor = function (value, object) {
@@ -333,9 +315,9 @@
 
   mCap.Model = Backbone.Model.extend({
     idAttribute: 'uuid',
-    selectable: SelectableFactory,
-    selectableOptions: {},
-    initialize: function () {
+    selectable: null,
+    endpoint: null,
+    initialize: function (options) {
       // When a model gets removed, make sure to decrement the total count on the collection
       this.on('destroy', function () {
         if (this.collection && this.collection.filterable && this.collection.filterable.getTotalAmount() > 0) {
@@ -343,18 +325,12 @@
         }
       }, this);
 
-      if (this.selectable) {
-        this.selectable = new this.selectable(this, this.selectableOptions);
-      }
-
-      if (this.endpoint) {
-        this.setEndpoint(this.endpoint);
-      }
+      this.selectable = new SelectableFactory(this, {});
 
     },
 
-    setEndpoint: function (endpoint) {
-      this.urlRoot = mCap.application.getBaseUrl() + '/' + endpoint;
+    url: function () {
+      return mCap.application.get('baseUrl') + '/' + this.endpoint;
     },
 
     parse: function (response) {
@@ -378,7 +354,11 @@
     model: mCap.Model,
 
     setEndpoint: function (endpoint) {
-      this.url = mCap.application.getBaseUrl() + '/' + endpoint;
+      this.url = mCap.application.get('baseUrl') + '/' + endpoint;
+    },
+
+    getEndpoint: function (endpoint) {
+      return this.urlRoot;
     },
 
     parse: function (response) {
@@ -413,6 +393,6 @@
 
   });
 
-  window.mCap = mCap;
+  root.mCap = mCap;
 
-}());
+}(this));
