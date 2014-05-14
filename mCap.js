@@ -5,11 +5,11 @@
     Backbone = window.Backbone,
     sync = Backbone.sync;
 
-  Backbone.sync = function(method, model, options){
-    if(_.isUndefined(options.wait)){
+  Backbone.sync = function (method, model, options) {
+    if (_.isUndefined(options.wait)) {
       options.wait = true;
     }
-    return sync.apply(Backbone,[method, model, options]);
+    return sync.apply(Backbone, [method, model, options]);
   };
 
   var Filterable = function (collectionInstance, options) {
@@ -233,11 +233,11 @@
     };
 
     this.toggleSelect = function () {
-        if(this.isSelected()){
-          this.unSelect();
-        } else {
-          this.select();
-        }
+      if (this.isSelected()) {
+        this.unSelect();
+      } else {
+        this.select();
+      }
     };
 
     (function _main() {
