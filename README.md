@@ -16,5 +16,6 @@ A JavaScript library to develop applications for mCAP
        #!/bin/sh 
        grunt jshint  
      ```
+
   * Make sure you set the file permissions to executable `$ chmod +x pre-commit`
 
