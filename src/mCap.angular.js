@@ -1,8 +1,6 @@
-(function () {
+(function (root, angular, Backbone) {
 
   'use strict';
-
-  var Backbone = window.Backbone;
 
   angular.module('mCap', [])
 
@@ -15,8 +13,8 @@
       var sync = Backbone.sync,
         modelSet = Backbone.Model.prototype.set;
 
-      Backbone.sync = function (method, model) {
-        return sync.apply(Backbone, arguments).then(function () {
+      Backbone.sync = function (method, model, options) {
+        return sync.apply(Backbone, [method, model, options]).then(function () {
           return model;
         });
       };
@@ -52,7 +50,7 @@
 
       return {
         setBaseUrl: function (url) {
-          mCap.application.setBaseUrl(url);
+          mCap.application.set('baseUrl',url);
         },
 
         $get: function () {
@@ -73,4 +71,4 @@
       return mCap.Model;
     });
 
-})();
+})(window, angular, Backbone);

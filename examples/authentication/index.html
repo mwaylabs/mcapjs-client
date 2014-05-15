@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Authentication Example</title>
+  <script src="../../bower_components/jquery/dist/jquery.js"></script>
+  <script src="../../bower_components/underscore/underscore.js"></script>
+  <script src="../../bower_components/backbone/backbone.js"></script>
+  <script src="../../mCap.js"></script>
+  <script src="../../application/mCap.application.js"></script>
+  <script src="../../authentication/mCap.user.js"></script>
+  <script src="../../authentication/mCap.authentication.js"></script>
+
+  <script src="password.js"></script>
+
+  <script>
+
+    mCap.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
+
+    mCap.authentication.set('username', 'mhano');
+    mCap.authentication.set('organization', 'mway');
+// set in password.js
+//    mCap.authentication.set('password', 'secure');
+
+
+    var Assets = Backbone.Collection.extend({
+      url: function(){
+        return 'http://coredev4.mwaysolutions.com:/gofer/asset/rest/assets'
+      }
+    });
+    var assets = new Assets();
+
+    var businessLogic = function(){
+      assets.fetch().then(function(){
+        mCap.authentication.logout().always(function(){
+          businessLogic();
+        })
+      });
+    };
+
+
+
+    mCap.authentication.login().then(function(){
+      console.log('Login succ!');
+      businessLogic();
+    }).fail(function(){
+      console.log('Login fail!');
+    }).always(function(){
+      console.log('always');
+    });
+
+  </script>
+
+
+</head>
+<body>
+
+
+
+
+</body>
+</html>
