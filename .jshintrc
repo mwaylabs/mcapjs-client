@@ -20,9 +20,10 @@
   "smarttabs": true,
   "loopfunc": true,
   "globals": {
-    "Backbone": false,
-    "mCap": false,
+    "Backbone": true,
+    "mCap": true,
     "angular":true,
-    "_": false
+    "_": true,
+    "$":true
   }
 }
