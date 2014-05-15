@@ -4,28 +4,18 @@
 
   angular.module('mCap', [])
 
-    .run(function ($http, $rootScope) {
+    .run(function ($http) {
 
       if (!window.mCap) {
         throw new Error('Please include Mcap libary');
       }
 
-      var sync = Backbone.sync,
-        modelSet = Backbone.Model.prototype.set;
+      var sync = Backbone.sync;
 
       Backbone.sync = function (method, model, options) {
         return sync.apply(Backbone, [method, model, options]).then(function () {
           return model;
         });
-      };
-
-      Backbone.Model.prototype.set = function () {
-        // Trigger digest cycle to make calls to set recognizable by angular
-        if (!$rootScope.$$phase) {
-          $rootScope.$apply();
-        }
-
-        return modelSet.apply(this, arguments);
       };
 
       Backbone.ajax = function (options) {
@@ -41,7 +31,6 @@
         // Use angulars $http implementation for requests
         return $http.apply(angular, [options]).then(options.success, options.error);
       };
-
     })
 
     .provider('mCapApplication', function () {
@@ -68,7 +57,16 @@
     })
 
     .service('mCapModel', function ($rootScope, mCap) {
-      return mCap.Model;
+      return mCap.Model.extend({
+        set: function () {
+          // Trigger digest cycle to make calls to set recognizable by angular
+          if (!$rootScope.$$phase) {
+            $rootScope.$apply();
+          }
+
+          return Backbone.Model.prototype.set.apply(this, arguments);
+        }
+      });
     });
 
 })(window, angular, Backbone);
