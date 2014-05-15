@@ -12,8 +12,8 @@
 
       var sync = Backbone.sync;
 
-      Backbone.sync = function (method, model) {
-        return sync.apply(Backbone, arguments).then(function () {
+      Backbone.sync = function (method, model, options) {
+        return sync.apply(Backbone, [method, model, options]).then(function () {
           return model;
         });
       };
