@@ -19,3 +19,23 @@ A JavaScript library to develop applications for mCAP
 
   * Make sure you set the file permissions to executable `$ chmod +x pre-commit`
 
+## Tests
+
+### Install Jasmine: 
+We use Jasmine version 2.0.0 as test suite.
+You find further information here:
+[Jasmine version 2.0.0](http://jasmine.github.io/2.0/introduction.html)
+
+To install the [node version of Jasmine](https://github.com/mhevery/jasmine-node) run:
+
+```
+npm install jasmine-node -g
+```
+
+### Run Karma:
+
+We use [Karma](http://karma-runner.github.io/0.12/index.html) as test runner. To start a test use:
+
+```
+karma start karma.conf.js
+```
