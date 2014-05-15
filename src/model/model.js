@@ -3,6 +3,7 @@ var SelectableFactory = SelectableFactory || {};
 var Model = Backbone.Model.extend({
 
   idAttribute: 'uuid',
+  // default the model is selectable - set to false to turn selectable off
   selectable: true,
   selectableOptions: {},
   constructor: function () {
@@ -17,7 +18,7 @@ var Model = Backbone.Model.extend({
       this.selectable = new SelectableFactory(this, this.selectableOptions);
     }
 
-    if (this.endpoint) {
+    if (typeof this.endpoint === 'string') {
       this.setEndpoint(this.endpoint);
     }
 
@@ -25,12 +26,19 @@ var Model = Backbone.Model.extend({
   },
 
   setEndpoint: function (endpoint) {
-    this.urlRoot = mCap.application.get('baseUrl') + '/' + endpoint;
+    this.urlRoot = function () {
+      if (mCap.application.get('baseUrl').slice(-1) === '/' && endpoint[0] === '/') {
+        return mCap.application.get('baseUrl') + endpoint.substr(1);
+      } else if (mCap.application.get('baseUrl').slice(-1) !== '/' && endpoint[0] !== '/') {
+        return mCap.application.get('baseUrl') + '/' + endpoint;
+      }
+      return mCap.application.get('baseUrl') + endpoint;
+    };
   },
 
   parse: function (response) {
     // For standalone models, parse the response
-    if (response.data && response.data.results) {
+    if (response && response.data && response.data.results  && response.data.results.length >= 0) {
       return response.data.results[0];
       // If Model is embedded in collection, it's already parsed correctly
     } else {
