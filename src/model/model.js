@@ -25,7 +25,7 @@ var Model = Backbone.Model.extend({
   },
 
   setEndpoint: function (endpoint) {
-    this.urlRoot = mCap.application.getBaseUrl() + '/' + endpoint;
+    this.urlRoot = mCap.application.get('baseUrl') + '/' + endpoint;
   },
 
   parse: function (response) {

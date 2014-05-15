@@ -39,15 +39,22 @@ module.exports = function (grunt) {
     uglify: {
       js : {
         files: {
-          '<%= yeoman.dist %>/mCap.min.js': ['<%= yeoman.dist %>/mCap.js']
+          '<%= yeoman.dist %>/mCap.min.js': ['<%= yeoman.dist %>/mCap.js'],
+          '<%= yeoman.dist %>/mCap.angular.min.js': ['<%= yeoman.dist %>/mCap.angular.js']
         }
+      }
+    },
+    copy: {
+      mCapAngular: {
+        src: '<%= yeoman.app %>/mCap.angular.js',
+        dest: '<%= yeoman.dist %>/mCap.angular.js'
       }
     }
   });
 
   grunt.renameTask('regarde', 'watch');
 
-  grunt.registerTask('default', ['watch']);
+  grunt.registerTask('default', ['preprocess:js','copy:mCapAngular','watch']);
 
-  grunt.registerTask('build', ['jshint:all','preprocess:js','uglify:js']);
+  grunt.registerTask('build', ['jshint:all','preprocess:js','copy:mCapAngular','uglify:js']);
 };

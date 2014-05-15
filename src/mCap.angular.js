@@ -1,8 +1,6 @@
-(function () {
+(function (root, angular, Backbone) {
 
   'use strict';
-
-  var Backbone = window.Backbone;
 
   angular.module('mCap', [])
 
@@ -41,7 +39,7 @@
 
       return {
         setBaseUrl: function (url) {
-          mCap.application.setBaseUrl(url);
+          mCap.application.set('baseUrl',url);
         },
 
         $get: function () {
@@ -71,4 +69,4 @@
       });
     });
 
-})();
+})(window, angular, Backbone);
