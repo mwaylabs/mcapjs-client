@@ -312,7 +312,7 @@ describe("mCap Model", function () {
     expect(model.parse({data: {results: [parse4]}})).toEqual(parse4);
     expect(model.parse({data: {results: [parse5]}})).toEqual(parse5);
     expect(model.parse({data: {results: [parse6]}})).toEqual(parse6);
-    expect(model.parse({data: {results: [parse7]}})).toEqual(parse7);
+    expect(model.parse({data: {results: [parse7]}})).toEqual({data: {results: [parse7]}});
     expect(model.parse({data: {results: [parse8]}})).toEqual(parse8);
     expect(model.parse({data: {results: [parse9]}})).toEqual(parse9);
     expect(model.parse({data: {results: [parse10]}})).toEqual(parse10);
