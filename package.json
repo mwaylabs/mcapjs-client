@@ -15,5 +15,8 @@
   },
   "engines": {
     "node": ">=0.8.0"
+  },
+  "scripts": {
+    "test": "karma start karma.conf.js"
   }
 }
