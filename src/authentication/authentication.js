@@ -9,6 +9,7 @@ var Authentication = mCap.Model.extend({
   endpoint: 'gofer/security/rest/auth/',
 
   login: function (options) {
+    var that = this;
     if (typeof options === 'string') {
       this.set('password', options);
     } else if (typeof options === 'object') {
@@ -19,7 +20,7 @@ var Authentication = mCap.Model.extend({
       url: this.url() + 'login'
     }).always(function () {
       if (typeof options === 'string') {
-        this.set('password', '');
+        that.set('password', '');
       }
     });
   },
