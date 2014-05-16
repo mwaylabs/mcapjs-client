@@ -54,3 +54,17 @@ To start a test use:
 ```
 karma start karma.conf.js
 ```
+
+It is also possible to test against a running server:
+Add a `online.conf.js` file to the root:
+
+```
+window.USERNAME = window.USERNAME || 'username';
+window.ORGANIZATION = window.ORGANIZATION || 'org';
+window.PASSWORD = window.PASSWORD || 'password';
+```
+
+
+```
+karma start karma.online.conf.js
+```
