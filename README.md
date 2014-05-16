@@ -34,8 +34,12 @@ npm install jasmine-node -g
 
 ### Run Karma:
 
-We use [Karma](http://karma-runner.github.io/0.12/index.html) as test runner. To start a test use:
-
+We use [Karma](http://karma-runner.github.io/0.12/index.html) as test runner.
+You have to install karma-cli global
+```
+npm install karma-cli -g
+```
+To start a test use:
 ```
 karma start karma.conf.js
 ```
