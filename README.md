@@ -48,7 +48,8 @@ npm install phantomjs -g
 Set phantomjs env variable
 ```
 export PHANTOMJS_BIN=$(which phantomjs)
-``
+```
+
 To start a test use:
 ```
 karma start karma.conf.js
