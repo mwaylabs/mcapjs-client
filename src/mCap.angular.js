@@ -18,7 +18,7 @@
 
         var dfd = $q.defer();
         // Use angulars $http implementation for requests
-        $q.when($http.apply(angular, [options])).then(function(resp){
+        $http.apply(angular, [options]).then(function(resp){
           options.success(resp);
           dfd.resolve(resp);
         },function(resp){
