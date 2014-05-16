@@ -4,7 +4,7 @@
 
   angular.module('mCap', [])
 
-    .run(function ($http) {
+    .run(function ($http, $q) {
 
       if (!window.mCap) {
         throw new Error('Please include Mcap libary');
@@ -12,24 +12,30 @@
 
       var sync = Backbone.sync;
 
-      Backbone.sync = function (method, model, options) {
-        return sync.apply(Backbone, [method, model, options]).then(function () {
-          return model;
-        });
-      };
-
       Backbone.ajax = function (options) {
-
-        // Ignore notifications for given response codes
-        if (options.data) {
-          var requestData = JSON.parse(options.data);
-          options.ignoreHandleResponseCodes = requestData.ignoreHandleResponseCodes;
-        }
-
         // Set HTTP Verb as 'method'
         options.method = options.type;
+
+        var dfd = $q.defer();
         // Use angulars $http implementation for requests
-        return $http.apply(angular, [options]).then(options.success, options.error);
+        $http.apply(angular, [options]).then(function(resp){
+          options.success(resp);
+          dfd.resolve(resp);
+        },function(resp){
+          dfd.reject(resp);
+          options.error(resp);
+        });
+        return dfd.promise;
+      };
+
+      Backbone.sync = function (method, model, options) {
+        var dfd = $q.defer();
+        sync.apply(Backbone, [method, model, options]).then(function () {
+          dfd.resolve(model);
+        },function(resp){
+          dfd.reject(resp);
+        });
+        return dfd.promise;
       };
     })
 

@@ -4,7 +4,10 @@ var ModelSelectable = function (modelInstance, options) {
   var _model = modelInstance,
     _selected = options.selected || false;
 
-  this.isDisabled = options.isDisabled || function () {
+  this.isDisabled = function () {
+    if(options.isDisabled){
+      return options.isDisabled.apply(modelInstance,arguments);
+    }
     return false;
   };
 
@@ -15,6 +18,8 @@ var ModelSelectable = function (modelInstance, options) {
   this.select = function () {
     if (!this.isDisabled()) {
       _selected = true;
+    } else {
+      _selected = false;
     }
   };
 
