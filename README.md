@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mwaylabs/mcapjs-client.svg)](https://travis-ci.org/mwaylabs/mcapjs-client)
+
 # mCAP JavaScript Client Library
 A JavaScript library to develop applications for mCAP
 
