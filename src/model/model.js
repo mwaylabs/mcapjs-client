@@ -5,7 +5,7 @@ var Model = Backbone.Model.extend({
   idAttribute: 'uuid',
   // default the model is selectable - set to false to turn selectable off
   selectable: true,
-  selectableOptions: {},
+  selectableOptions: null,
   constructor: function () {
     // When a model gets removed, make sure to decrement the total count on the collection
     this.on('destroy', function () {
@@ -15,7 +15,8 @@ var Model = Backbone.Model.extend({
     }, this);
 
     if (this.selectable) {
-      this.selectable = new SelectableFactory(this, this.selectableOptions);
+      var options = this.selectableOptions || {};
+      this.selectable = new SelectableFactory(this, options);
     }
 
     if (typeof this.endpoint === 'string') {

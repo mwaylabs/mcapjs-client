@@ -14,8 +14,19 @@ var CollectionSelectable = function (collectionInstance) {
     return selected;
   };
 
+  this.getDisabledModels = function(){
+    var disabled = [];
+    _collection.models.forEach(function (model) {
+      if (model.selectable && model.selectable.isDisabled()) {
+        disabled.push(model);
+      }
+    });
+    return disabled;
+  };
+
   this.allModelsSelected = function () {
-    return this.getSelectedModels().length === _collection.length;
+    var disabledModelsAmount = this.getDisabledModels().length;
+    return this.getSelectedModels().length === _collection.length - disabledModelsAmount;
   };
 
   this.allModelsDisabled = function () {
