@@ -6,10 +6,17 @@
   <script src="../../bower_components/jquery/dist/jquery.js"></script>
   <script src="../../bower_components/underscore/underscore.js"></script>
   <script src="../../bower_components/backbone/backbone.js"></script>
-  <script src="../../mCap.js"></script>
-  <script src="../../application/mCap.application.js"></script>
-  <script src="../../authentication/mCap.user.js"></script>
-  <script src="../../authentication/mCap.authentication.js"></script>
+  <script src="../../src/mCap.js"></script>
+  <script src="../../src/filter/filterable.js"></script>
+  <script src="../../src/filter/filter.js"></script>
+  <script src="../../src/selectable/selectable_collection.js"></script>
+  <script src="../../src/selectable/selectable_model.js"></script>
+  <script src="../../src/selectable/selectable_factory.js"></script>
+  <script src="../../src/model/model.js"></script>
+  <script src="../../src/collection/collection.js"></script>
+  <script src="../../src/application/application.js"></script>
+  <script src="../../src/authentication/user.js"></script>
+  <script src="../../src/authentication/authentication.js"></script>
 
   <script src="password.js"></script>
 
@@ -37,8 +44,6 @@
         })
       });
     };
-
-
 
     mCap.authentication.login().then(function(){
       console.log('Login succ!');

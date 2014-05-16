@@ -15,6 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'online.conf.js',
       'bower_components/jquery/dist/*.js',
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
@@ -34,7 +35,6 @@ module.exports = function(config) {
     // list of files to exclude
     exclude: [
       'src/mCap.angular.js',
-      '**/online/**/*.*',
       'karma.conf.js'
     ],
 

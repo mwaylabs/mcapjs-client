@@ -29,6 +29,7 @@ var Authentication = mCap.Model.extend({
     return this.sync('create', this, {
       url: this.url() + 'logout'
     }).always(function () {
+
     });
   },
 
