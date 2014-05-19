@@ -1,5 +1,15 @@
 var SelectableFactory = SelectableFactory || {};
 
+var wrapError = function (model, options) {
+  var error = options.error;
+  options.error = function (resp) {
+    if (error) {
+      error(model, resp, options);
+    }
+    model.trigger('error', model, resp, options);
+  };
+};
+
 var Model = Backbone.Model.extend({
 
   idAttribute: 'uuid',
@@ -47,31 +57,30 @@ var Model = Backbone.Model.extend({
     }
   },
 
-  initialize: function(){
-    _.bindAll(this, "_markToRevert", "revert");
+  initialize: function () {
+    _.bindAll(this, '_markToRevert', 'revert');
     this._markToRevert();
+    return Backbone.Model.prototype.initialize.apply(this, arguments);
   },
 
-  revert: function() {
-    if( this._revertAttributes ) {
-      this.set(this._revertAttributes, {
-        silent: true
-      });
+  revert: function () {
+    if (this._revertAttributes) {
+      this.attributes = JSON.parse(JSON.stringify(this._revertAttributes));
     }
   },
 
   /**
    * Store attributes to enable a revert - useful for cancel for example
    */
-  _markToRevert: function() {
-    this._revertAttributes = _.clone(this.parse(this.toJSON()));
+  _markToRevert: function () {
+    this._revertAttributes = JSON.parse(JSON.stringify(this.attributes));
   },
 
   /**
    * Check if the model is still in sync with the last saved state.
    * @returns {Boolean|boolean}
    */
-  isInSync: function() {
+  isInSync: function () {
     return _.isEqual(this._revertAttributes, this.attributes);
   },
 
@@ -82,7 +91,7 @@ var Model = Backbone.Model.extend({
    * @param options
    * @returns {*}
    */
-  save: function( key, val, options ) {
+  save: function (key, val, options) {
     var args = this._save(key, val, options);
     return Backbone.Model.prototype.save.apply(this, args);
   },
@@ -95,9 +104,9 @@ var Model = Backbone.Model.extend({
    * @returns {Array}
    * @private
    */
-  _save: function( key, val, options ) {
+  _save: function (key, val, options) {
     // prepare options
-    if( key == null || typeof key === 'object' ) {
+    if (key === null || typeof key === 'object') {
       options = val;
     }
     // make sure options are defined
@@ -108,20 +117,55 @@ var Model = Backbone.Model.extend({
     var model = this;
 
     // overwrite success
-    options.success = function( resp ) {
+    options.success = function (resp) {
       model._markToRevert();
       // call cached success
-      if( success ) {
+      if (success) {
         success(model, resp, options);
       }
     };
 
     // make sure options are the correct paramater
-    if( key == null || typeof key === 'object' ) {
+    if (key === null || typeof key === 'object') {
       val = options;
     }
 
     return [key, val, options];
+  },
+
+  /**
+   * Fetch the model to the server
+   * @param options
+   * @returns {*}
+   */
+  fetch: function (options) {
+    // implement own fetch callback
+    var args = this._fetch(options);
+    return Backbone.Model.prototype.fetch.apply(this, args);
+  },
+
+  /**
+   * Adds markToRevert to successful fetch
+   * @param options
+   * @returns {*[]}
+   * @private
+   */
+  _fetch: function (options) {
+    options = options || {};
+    // cache success
+    var success = options.success;
+    // cache model
+    var model = this;
+
+    // overwrite success
+    options.success = function (resp) {
+      model._markToRevert();
+      // call cached success
+      if (typeof success === 'function') {
+        success(model, resp, options);
+      }
+    };
+    return [options];
   }
 
 });

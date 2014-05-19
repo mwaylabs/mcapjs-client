@@ -37,7 +37,7 @@ describe("mCap Model", function () {
     expect(a.hasOwnProperty('constructor')).toBeFalsy();
     expect(a.hasOwnProperty('setEndpoint')).toBeFalsy();
     expect(a.hasOwnProperty('parse')).toBeFalsy();
-    expect(a.hasOwnProperty('revert')).toBeFalsy();
+    expect(a.hasOwnProperty('revert')).toBeTruthy();
 
     expect(b.hasOwnProperty('idAttribute')).toBeFalsy();
     expect(b.hasOwnProperty('selectable')).toBeTruthy();
@@ -45,7 +45,7 @@ describe("mCap Model", function () {
     expect(b.hasOwnProperty('constructor')).toBeFalsy();
     expect(b.hasOwnProperty('setEndpoint')).toBeFalsy();
     expect(b.hasOwnProperty('parse')).toBeFalsy();
-    expect(b.hasOwnProperty('revert')).toBeFalsy();
+    expect(b.hasOwnProperty('revert')).toBeTruthy();
 
   });
 
@@ -325,17 +325,14 @@ describe("mCap Model", function () {
 
   it("revert implementation", function () {
 
-    expect(typeof mCap.Model.prototype.revert).toBe('function');
-    expect(typeof instance.revert).toBe('function');
-
-    expect(typeof mCap.Model.prototype._markToRevert).toBe('function');
-    expect(typeof instance._markToRevert).toBe('function');
-
-    var Revertable = mCap.Model.extend({
+    var Revertable = mCap.Model.extend();
+    var instance = new Revertable({
       foo: 'bar',
       hello: 'world'
     });
-    var instance = new Revertable();
+
+    expect(typeof mCap.Model.prototype.revert).toBe('function');
+    expect(typeof instance.revert).toBe('function');
 
     expect(instance.get('foo')).toBe('bar');
     expect(instance.attributes.foo).toBe('bar');
@@ -358,11 +355,11 @@ describe("mCap Model", function () {
   });
 
   it("revert with setters", function () {
-    var Revertable = mCap.Model.extend({
+    var Revertable = mCap.Model.extend();
+    var instance = new Revertable({
       foo: 'bar',
       hello: 'world'
     });
-    var instance = new Revertable();
 
     expect(instance.get('foo')).toBe('bar');
     expect(instance.attributes.foo).toBe('bar');
@@ -395,12 +392,11 @@ describe("mCap Model", function () {
 
   it("revert with attributes", function () {
 
-    var Revertable = mCap.Model.extend({
+    var Revertable = mCap.Model.extend();
+    var instance = new Revertable({
       foo: 'bar',
       hello: 'world'
     });
-
-    var instance = new Revertable();
 
     expect(instance.get('foo')).toBe('bar');
     expect(instance.attributes.foo).toBe('bar');
@@ -432,53 +428,205 @@ describe("mCap Model", function () {
 
   });
 
-  it("markToRevert", function () {
+  it("revert add attributes direct association", function () {
 
-    var parseCounter = 0;
-    var toJSONCounter = 0;
+    var Revertable = mCap.Model.extend();
+    var instance = new Revertable({
+      foo: 'bar'
+    });
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBeUndefined();
+    expect(instance.attributes.hello).toBeUndefined();
+    expect(instance.attributes).toEqual(instance._revertAttributes);
+    expect(instance.isInSync()).toBeTruthy();
+
+    instance.attributes.hello = 'world';
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBe('world');
+    expect(instance.attributes.hello).toBe('world');
+    expect(instance._revertAttributes.foo).toBe('bar');
+    expect(instance._revertAttributes.hello).toBeUndefined();
+    expect(instance.isInSync()).toBeFalsy();
+
+    instance.revert();
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBeUndefined();
+    expect(instance.attributes.hello).toBeUndefined();
+    expect(instance.attributes).toEqual(instance._revertAttributes);
+    expect(instance.isInSync()).toBeTruthy();
+
+  });
+
+  it("revert add attributes with set", function () {
+
+    var Revertable = mCap.Model.extend();
+    var instance = new Revertable({
+      foo: 'bar'
+    });
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBeUndefined();
+    expect(instance.attributes.hello).toBeUndefined();
+    expect(instance.attributes).toEqual(instance._revertAttributes);
+    expect(instance.isInSync()).toBeTruthy();
+
+    instance.set('hello', 'world');
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBe('world');
+    expect(instance.attributes.hello).toBe('world');
+    expect(instance._revertAttributes.foo).toBe('bar');
+    expect(instance._revertAttributes.hello).toBeUndefined();
+    expect(instance.isInSync()).toBeFalsy();
+
+    instance.revert();
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBeUndefined();
+    expect(instance.attributes.hello).toBeUndefined();
+    expect(instance.attributes).toEqual(instance._revertAttributes);
+    expect(instance.isInSync()).toBeTruthy();
+
+  });
+
+  it("revert remove attributes", function () {
+
+    var Revertable = mCap.Model.extend();
+    var instance = new Revertable({
+      foo: 'bar',
+      hello: 'world'
+    });
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBe('world');
+    expect(instance.attributes.hello).toBe('world');
+    expect(instance.attributes).toEqual(instance._revertAttributes);
+    expect(instance.isInSync()).toBeTruthy();
+
+    delete instance.attributes.foo;
+    delete instance.attributes.hello;
+
+    expect(instance.get('foo')).toBeUndefined();
+    expect(instance.attributes.foo).toBeUndefined();
+    expect(instance.get('hello')).toBeUndefined();
+    expect(instance.attributes.hello).toBeUndefined();
+    expect(instance._revertAttributes.foo).toBe('bar');
+    expect(instance._revertAttributes.hello).toBe('world');
+    expect(instance.isInSync()).toBeFalsy();
+
+    instance.revert();
+
+    expect(instance.get('foo')).toBe('bar');
+    expect(instance.attributes.foo).toBe('bar');
+    expect(instance.get('hello')).toBe('world');
+    expect(instance.attributes.hello).toBe('world');
+    expect(instance.attributes).toEqual(instance._revertAttributes);
+    expect(instance.isInSync()).toBeTruthy();
+
+  });
+
+
+  it("markToRevert initialize local model", function () {
 
     var Revertable = mCap.Model.extend({
       parse: function(data){
         var _data = {};
-        _data.a = data.b;
-        _data.b = data.a;
+        _data.internal = data.external;
         return _data;
       },
+
       toJSON: function(){
-        var a = this.attributes.b;
-        var b = this.attributes.a;
-        this.attributes.a = a;
-        this.attributes.b = b;
+        this.attributes.external = this.attributes.internal;
+        delete this.attributes.internal;
         return this.attributes;
       }
     });
 
     var instance = new Revertable({
-      foo: 'world',
-      hello: 'bar'
+      internal: 'a'
     });
 
-    expect(instance.get('a')).toBe('a');
-    expect(instance.attributes.a).toBe('a');
-    expect(instance.get('b')).toBe('b');
-    expect(instance.attributes.b).toBe('b');
+    expect(instance.get('internal')).toBe('a');
+    expect(instance.attributes.internal).toBe('a');
+    expect(instance.attributes.external).toBeUndefined();
     expect(instance.attributes).toEqual(instance._revertAttributes);
     expect(instance.isInSync()).toBeTruthy();
-
-    expect(parseCounter).toBe(1);
-    expect(toJSONCounter).toBe(1);
 
     instance._markToRevert();
 
-    expect(parseCounter).toBe(2);
-    expect(toJSONCounter).toBe(2);
-
-    expect(instance.get('a')).toBe('a');
-    expect(instance.attributes.a).toBe('a');
-    expect(instance.get('b')).toBe('b');
-    expect(instance.attributes.b).toBe('b');
+    expect(instance.get('internal')).toBe('a');
+    expect(instance.attributes.internal).toBe('a');
+    expect(instance.attributes.external).toBeUndefined();
     expect(instance.attributes).toEqual(instance._revertAttributes);
     expect(instance.isInSync()).toBeTruthy();
+
+  });
+
+  it("markToRevert model.fetch", function (done) {
+
+    mCap.application.set('baseUrl', 'http://www.mcap.com');
+
+    var server = sinon.fakeServer.create();
+
+    server.respondWith(function (xhr) {
+      if (xhr.method == "GET" && xhr.url ===  instance.url) {
+        xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify({external: 'a'}));
+      }
+    });
+
+    var callback = sinon.spy();
+
+    var Revertable = mCap.Model.extend({
+      url: '/reverteMe',
+      parse: function(data){
+        var _data = {};
+        _data.internal = data.external;
+        return _data;
+      },
+
+      toJSON: function(){
+        this.attributes.external = this.attributes.internal;
+        delete this.attributes.internal;
+        return this.attributes;
+      }
+    });
+
+    var instance = new Revertable();
+
+    instance.fetch().then(function(){
+      expect(instance.get('internal')).toBe('a');
+      expect(instance.attributes.internal).toBe('a');
+      expect(instance.attributes.external).toBeUndefined();
+      expect(instance.attributes).toEqual(instance._revertAttributes);
+      expect(instance.isInSync()).toBeTruthy();
+
+      instance._markToRevert();
+
+      expect(instance.get('internal')).toBe('a');
+      expect(instance.attributes.internal).toBe('a');
+      expect(instance.attributes.external).toBeUndefined();
+      expect(instance.attributes).toEqual(instance._revertAttributes);
+      expect(instance.isInSync()).toBeTruthy();
+
+      callback();
+      done();
+    });
+
+    server.respond();
+
+    server.restore();
+
+    sinon.assert.calledOnce(callback);
 
   });
 
