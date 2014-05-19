@@ -1,4 +1,4 @@
-var Authentication = mCap.Model.extend({
+var Authentication = mCAP.Model.extend({
 
   defaults: {
     'username': '',
@@ -37,7 +37,7 @@ var Authentication = mCap.Model.extend({
     var attributes = {};
     if (data) {
       if (data.user) {
-        attributes.user = new mCap.User(data.user);
+        attributes.user = new mCAP.User(data.user);
       }
     }
     return attributes;
@@ -45,4 +45,4 @@ var Authentication = mCap.Model.extend({
 
 });
 
-mCap.authentication = new Authentication();
+mCAP.authentication = new Authentication();

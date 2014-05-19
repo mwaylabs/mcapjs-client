@@ -1,15 +1,15 @@
-describe("mCap.authentication", function () {
+describe("mCAP.authentication", function () {
 
-  var baseUrl, mCapApplicationAttributes, mCapAuthenticationAttributes, server, callback, responseDataSucc, serverSuccCallback;
+  var baseUrl, mCAPApplicationAttributes, mCAPAuthenticationAttributes, server, callback, responseDataSucc, serverSuccCallback;
 
-  mCapApplicationAttributes = JSON.stringify(mCap.application.attributes);
-  mCapAuthenticationAttributes = JSON.stringify(mCap.authentication.attributes);
+  mCAPApplicationAttributes = JSON.stringify(mCAP.application.attributes);
+  mCAPAuthenticationAttributes = JSON.stringify(mCAP.authentication.attributes);
 
   beforeEach(function () {
-    mCap.application.set('baseUrl', 'http://www.mcap.com');
+    mCAP.application.set('baseUrl', 'http://www.mcap.com');
 
-    mCap.application.attributes = JSON.parse(mCapApplicationAttributes);
-    mCap.authentication.attributes = JSON.parse(mCapAuthenticationAttributes);
+    mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
+    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
 
     server = sinon.fakeServer.create();
     callback = sinon.spy();
@@ -19,7 +19,7 @@ describe("mCap.authentication", function () {
     serverSuccCallback = function (xhr) {
 //      console.log(JSON.stringify(xhr, null, 10));
       var postData = JSON.parse(xhr.requestBody);
-      if (xhr.method == "POST" && xhr.url === mCap.authentication.url() + 'logout') {
+      if (xhr.method == "POST" && xhr.url === mCAP.authentication.url() + 'logout') {
         xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(responseDataSucc));
       }
     }
@@ -28,8 +28,8 @@ describe("mCap.authentication", function () {
   afterEach(function () {
     server.restore();
 
-    mCap.application.attributes = JSON.parse(mCapApplicationAttributes);
-    mCap.authentication.attributes = JSON.parse(mCapAuthenticationAttributes);
+    mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
+    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
   });
 
 
@@ -37,7 +37,7 @@ describe("mCap.authentication", function () {
 
     server.respondWith(serverSuccCallback);
 
-    mCap.authentication.logout().then(function (data) {
+    mCAP.authentication.logout().then(function (data) {
       callback(data);
     }).always(function(data){
       //console.log(data);

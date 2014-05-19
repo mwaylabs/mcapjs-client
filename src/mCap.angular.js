@@ -2,12 +2,12 @@
 
   'use strict';
 
-  angular.module('mCap', [])
+  angular.module('mCAP', [])
 
     .run(function ($http, $q, $rootScope, $timeout) {
 
-      if (!window.mCap) {
-        throw new Error('Please include Mcap libary');
+      if (!window.mCAP) {
+        throw new Error('Please include mCAP libary');
       }
 
       var _sync = Backbone.sync,
@@ -48,31 +48,31 @@
       };
     })
 
-    .provider('mCapApplication', function () {
+    .provider('mCAPApplication', function () {
 
-      var mCap = window.mCap;
+      var mCAP = window.mCAP;
 
       return {
         setBaseUrl: function (url) {
-          mCap.application.set('baseUrl',url);
+          mCAP.application.set('baseUrl',url);
         },
 
         $get: function () {
-          return window.mCap.application;
+          return window.mCAP.application;
         }
       };
     })
 
-    .service('mCap', function () {
-      return window.mCap;
+    .service('mCAP', function () {
+      return window.mCAP;
     })
 
-    .service('mCapCollection', function (mCap) {
-      return mCap.Collection;
+    .service('mCAPCollection', function (mCAP) {
+      return mCAP.Collection;
     })
 
-    .service('mCapModel', function (mCap) {
-      return mCap.Model;
+    .service('mCAPModel', function (mCAP) {
+      return mCAP.Model;
     });
 
 })(window, angular, Backbone);

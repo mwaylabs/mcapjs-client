@@ -5,7 +5,7 @@ var Filter = function () {
   };
 
   // See https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filter
-  // for more information about mcap filter api
+  // for more information about mCAP filter api
   return {
     containsString: function (fieldName, value) {
       return returnNullOrObjectFor(value, {
@@ -56,4 +56,4 @@ var Filter = function () {
 
 };
 
-mCap.Filter = Filter;
+mCAP.Filter = Filter;

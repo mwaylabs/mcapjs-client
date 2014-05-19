@@ -1,15 +1,15 @@
-describe("mCap.authentication", function () {
+describe("mCAP.authentication", function () {
 
-  var mCapApplicationAttributes, mCapAuthenticationAttributes, server, callback, loginResponseDataSucc, serverSuccCallback;
+  var mCAPApplicationAttributes, mCAPAuthenticationAttributes, server, callback, loginResponseDataSucc, serverSuccCallback;
 
-  mCapApplicationAttributes = JSON.stringify(mCap.application.attributes);
-  mCapAuthenticationAttributes = JSON.stringify(mCap.authentication.attributes);
+  mCAPApplicationAttributes = JSON.stringify(mCAP.application.attributes);
+  mCAPAuthenticationAttributes = JSON.stringify(mCAP.authentication.attributes);
 
   beforeEach(function () {
-    mCap.application.set('baseUrl', 'http://www.mcap.com');
+    mCAP.application.set('baseUrl', 'http://www.mcap.com');
 
-    mCap.application.attributes = JSON.parse(mCapApplicationAttributes);
-    mCap.authentication.attributes = JSON.parse(mCapAuthenticationAttributes);
+    mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
+    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
 
     server = sinon.fakeServer.create();
     callback = sinon.spy();
@@ -29,7 +29,7 @@ describe("mCap.authentication", function () {
       expect(postData.organization).toBe('org');
       expect(postData.password).toBe('pass');
 
-      if (xhr.method == "POST" && xhr.url === mCap.authentication.url() + 'login') {
+      if (xhr.method == "POST" && xhr.url === mCAP.authentication.url() + 'login') {
         xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(loginResponseDataSucc));
       }
     }
@@ -38,23 +38,23 @@ describe("mCap.authentication", function () {
   afterEach(function () {
     server.restore();
     // reset the baseurl
-    mCap.application.attributes = JSON.parse(mCapApplicationAttributes);
-    mCap.authentication.attributes = JSON.parse(mCapAuthenticationAttributes);
+    mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
+    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
   });
 
 
   it("Login config with set authentication successful", function () {
 
-    mCap.authentication.set('username', 'm.mustermann');
-    mCap.authentication.set('organization', 'org');
-    mCap.authentication.set('password', 'pass');
+    mCAP.authentication.set('username', 'm.mustermann');
+    mCAP.authentication.set('organization', 'org');
+    mCAP.authentication.set('password', 'pass');
 
     server.respondWith(serverSuccCallback);
 
-    mCap.authentication.login().then(function (data) {
-      expect(mCap.authentication.get('username')).toBe('m.mustermann');
-      expect(mCap.authentication.get('organization')).toBe('org');
-      expect(mCap.authentication.get('password')).toBe('pass');
+    mCAP.authentication.login().then(function (data) {
+      expect(mCAP.authentication.get('username')).toBe('m.mustermann');
+      expect(mCAP.authentication.get('organization')).toBe('org');
+      expect(mCAP.authentication.get('password')).toBe('pass');
       callback(data);
     });
 
@@ -69,15 +69,15 @@ describe("mCap.authentication", function () {
 
     server.respondWith(serverSuccCallback);
 
-    mCap.authentication.login({
+    mCAP.authentication.login({
       username: 'm.mustermann',
       organization: 'org',
       password: 'pass'
     }).then(function (data) {
       callback(data);
-      expect(mCap.authentication.get('username')).toBe('m.mustermann');
-      expect(mCap.authentication.get('organization')).toBe('org');
-      expect(mCap.authentication.get('password')).toBe('pass');
+      expect(mCAP.authentication.get('username')).toBe('m.mustermann');
+      expect(mCAP.authentication.get('organization')).toBe('org');
+      expect(mCAP.authentication.get('password')).toBe('pass');
     });
 
     server.respond();
@@ -88,17 +88,17 @@ describe("mCap.authentication", function () {
 
   it("Login config with set username and organisation successful", function () {
 
-    mCap.authentication.set('username', 'm.mustermann');
-    mCap.authentication.set('organization', 'org');
+    mCAP.authentication.set('username', 'm.mustermann');
+    mCAP.authentication.set('organization', 'org');
 
     server.respondWith(serverSuccCallback);
 
-    expect(mCap.authentication.get('password')).toBe('');
+    expect(mCAP.authentication.get('password')).toBe('');
 
-    mCap.authentication.login('pass').then(function (data) {
-      expect(mCap.authentication.get('username')).toBe('m.mustermann');
-      expect(mCap.authentication.get('organization')).toBe('org');
-      expect(mCap.authentication.get('password')).toBe('');
+    mCAP.authentication.login('pass').then(function (data) {
+      expect(mCAP.authentication.get('username')).toBe('m.mustermann');
+      expect(mCAP.authentication.get('organization')).toBe('org');
+      expect(mCAP.authentication.get('password')).toBe('');
       callback(data);
     });
 

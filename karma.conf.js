@@ -26,7 +26,7 @@ module.exports = function(config) {
       'bower_components/jquery/dist/*.js',
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
-      'src/mCap.js',
+      'src/mcap.js',
       'src/filter/filterable.js',
       'src/selectable/**/*.js',
       'src/model/**/*.js',
@@ -41,7 +41,7 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      'src/mCap.angular.js',
+      'src/mcap.angular.js',
       '**/online/**/*.*',
       'karma.conf.js'
     ],

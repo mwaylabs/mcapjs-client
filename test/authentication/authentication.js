@@ -1,10 +1,10 @@
-describe("mCap.authentication", function () {
+describe("mCAP.authentication", function () {
 
   it("Object definition", function () {
 
     // cache the baseUrl
-    var applicationBaseUrl = mCap.application.get('baseUrl');
-    mCap.application.set('baseUrl', 'http://www.mcap.com');
+    var applicationBaseUrl = mCAP.application.get('baseUrl');
+    mCAP.application.set('baseUrl', 'http://www.mcap.com');
 
     expect(Authentication).toBeDefined();
     expect(Authentication.prototype.defaults).toBeDefined();
@@ -17,23 +17,23 @@ describe("mCap.authentication", function () {
     expect(Authentication.prototype.hasOwnProperty('parse')).toBeTruthy();
 
 
-    expect(mCap.authentication).toBeDefined();
-    expect(mCap.Model.prototype.isPrototypeOf(mCap.authentication)).toBeTruthy();
-    expect(Backbone.Model.prototype.isPrototypeOf(mCap.authentication)).toBeTruthy();
-    expect(mCap.authentication.get('username')).toEqual('');
-    expect(mCap.authentication.get('organization')).toEqual('');
-    expect(mCap.authentication.get('password')).toEqual('');
-    expect(mCap.authentication.endpoint).toEqual('gofer/security/rest/auth/');
-    expect(mCap.authentication.url()).toEqual(mCap.application.get('baseUrl') + '/gofer/security/rest/auth/');
+    expect(mCAP.authentication).toBeDefined();
+    expect(mCAP.Model.prototype.isPrototypeOf(mCAP.authentication)).toBeTruthy();
+    expect(Backbone.Model.prototype.isPrototypeOf(mCAP.authentication)).toBeTruthy();
+    expect(mCAP.authentication.get('username')).toEqual('');
+    expect(mCAP.authentication.get('organization')).toEqual('');
+    expect(mCAP.authentication.get('password')).toEqual('');
+    expect(mCAP.authentication.endpoint).toEqual('gofer/security/rest/auth/');
+    expect(mCAP.authentication.url()).toEqual(mCAP.application.get('baseUrl') + '/gofer/security/rest/auth/');
 
-    expect(typeof mCap.authentication.login).toEqual('function');
-    expect(mCap.authentication.hasOwnProperty('login')).toBeFalsy();
-    expect(typeof mCap.authentication.logout).toEqual('function');
-    expect(mCap.authentication.hasOwnProperty('logout')).toBeFalsy();
-    expect(typeof mCap.authentication.parse).toEqual('function');
-    expect(mCap.authentication.hasOwnProperty('parse')).toBeFalsy();
+    expect(typeof mCAP.authentication.login).toEqual('function');
+    expect(mCAP.authentication.hasOwnProperty('login')).toBeFalsy();
+    expect(typeof mCAP.authentication.logout).toEqual('function');
+    expect(mCAP.authentication.hasOwnProperty('logout')).toBeFalsy();
+    expect(typeof mCAP.authentication.parse).toEqual('function');
+    expect(mCAP.authentication.hasOwnProperty('parse')).toBeFalsy();
 
-    mCap.application.set('baseUrl', applicationBaseUrl);
+    mCAP.application.set('baseUrl', applicationBaseUrl);
 
   });
 
