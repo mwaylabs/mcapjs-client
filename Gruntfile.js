@@ -49,8 +49,20 @@ module.exports = function (grunt) {
         src: '<%= yeoman.app %>/mCap.angular.js',
         dest: '<%= yeoman.dist %>/mCap.angular.js'
       }
+    },
+    karma: {
+      travis: {
+        configFile: 'karma.conf.js',
+        singleRun: true,
+        browsers: ['PhantomJS'],
+        frameworks: ['jasmine']
+      }
     }
   });
+
+  grunt.loadNpmTasks('grunt-karma');
+
+  grunt.registerTask('test', ['karma:travis']);
 
   grunt.renameTask('regarde', 'watch');
 
