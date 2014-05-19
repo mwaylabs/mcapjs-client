@@ -2,7 +2,7 @@
   'use strict';
 
   var sync = Backbone.sync,
-    mCap = {};
+    mCAP = {};
 
   Backbone.$.ajaxSetup({
     // send cookies
@@ -22,7 +22,7 @@
   // @include ./selectable/selectable_model.js
   // @include ./selectable/selectable_factory.js
 
-  // INCLUDE mCap PUBLIC VARS HERE
+  // INCLUDE mCAP PUBLIC VARS HERE
   // @include ./model/model.js
   // @include ./collection/collection.js
   // @include ./filter/filter.js
@@ -30,6 +30,6 @@
   // @include ./security/authentication.js
   // @include ./security/user.js
 
-  root.mCap = mCap;
+  root.mCAP = mCAP;
 
 }(this, Backbone, $, _));

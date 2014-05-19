@@ -8,7 +8,7 @@ var Collection = Backbone.Collection.extend({
   filterableOptions: {},
   selectableOptions: {},
 
-  model: mCap.Model,
+  model: mCAP.Model,
 
   constructor: function () {
     if (this.selectable) {
@@ -27,7 +27,7 @@ var Collection = Backbone.Collection.extend({
   },
 
   setEndpoint: function (endpoint) {
-    this.url = mCap.application.get('baseUrl') + '/' + endpoint;
+    this.url = mCAP.application.get('baseUrl') + '/' + endpoint;
   },
 
   parse: function (response) {
@@ -48,5 +48,5 @@ var Collection = Backbone.Collection.extend({
 
 });
 
-mCap.Collection = Collection;
+mCAP.Collection = Collection;
 

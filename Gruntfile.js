@@ -14,7 +14,7 @@ module.exports = function (grunt) {
   grunt.initConfig({
     yeoman: yeomanConfig,
     watch: {
-      mCapClient: {
+      mCAPClient: {
         files: [
           '<%= yeoman.app %>/**/{,*/}*.js'
         ],
@@ -32,22 +32,22 @@ module.exports = function (grunt) {
     },
     preprocess : {
       js : {
-        src : '<%= yeoman.app %>/mCap.js',
-        dest : '<%= yeoman.dist %>/mCap.js'
+        src : '<%= yeoman.app %>/mcap.js',
+        dest : '<%= yeoman.dist %>/mcap.js'
       }
     },
     uglify: {
       js : {
         files: {
-          '<%= yeoman.dist %>/mCap.min.js': ['<%= yeoman.dist %>/mCap.js'],
-          '<%= yeoman.dist %>/mCap.angular.min.js': ['<%= yeoman.dist %>/mCap.angular.js']
+          '<%= yeoman.dist %>/mcap.min.js': ['<%= yeoman.dist %>/mcap.js'],
+          '<%= yeoman.dist %>/mcap.angular.min.js': ['<%= yeoman.dist %>/mcap.angular.js']
         }
       }
     },
     copy: {
-      mCapAngular: {
-        src: '<%= yeoman.app %>/mCap.angular.js',
-        dest: '<%= yeoman.dist %>/mCap.angular.js'
+      mCAPAngular: {
+        src: '<%= yeoman.app %>/mcap.angular.js',
+        dest: '<%= yeoman.dist %>/mcap.angular.js'
       }
     },
     karma: {
@@ -66,7 +66,7 @@ module.exports = function (grunt) {
 
   grunt.renameTask('regarde', 'watch');
 
-  grunt.registerTask('default', ['preprocess:js','copy:mCapAngular','watch']);
+  grunt.registerTask('default', ['preprocess:js','copy:mCAPAngular','watch']);
 
-  grunt.registerTask('build', ['jshint:all','preprocess:js','copy:mCapAngular','uglify:js']);
+  grunt.registerTask('build', ['jshint:all','preprocess:js','copy:mCAPAngular','uglify:js']);
 };

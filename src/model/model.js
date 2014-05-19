@@ -47,12 +47,12 @@ var Model = Backbone.Model.extend({
 
   setEndpoint: function (endpoint) {
     this.urlRoot = function () {
-      if (mCap.application.get('baseUrl').slice(-1) === '/' && endpoint[0] === '/') {
-        return mCap.application.get('baseUrl') + endpoint.substr(1);
-      } else if (mCap.application.get('baseUrl').slice(-1) !== '/' && endpoint[0] !== '/') {
-        return mCap.application.get('baseUrl') + '/' + endpoint;
+      if (mCAP.application.get('baseUrl').slice(-1) === '/' && endpoint[0] === '/') {
+        return mCAP.application.get('baseUrl') + endpoint.substr(1);
+      } else if (mCAP.application.get('baseUrl').slice(-1) !== '/' && endpoint[0] !== '/') {
+        return mCAP.application.get('baseUrl') + '/' + endpoint;
       }
-      return mCap.application.get('baseUrl') + endpoint;
+      return mCAP.application.get('baseUrl') + endpoint;
     };
   },
 
@@ -86,7 +86,7 @@ var Model = Backbone.Model.extend({
   /**
    * Reverts a model to the latest saved state
    * @example
-   * var model = new mCap.Model({
+   * var model = new mCAP.Model({
    *  name: 'Max'
    * });
    * model.set('name', 'Maximilian');
@@ -201,4 +201,4 @@ var Model = Backbone.Model.extend({
 
 });
 
-mCap.Model = Model;
+mCAP.Model = Model;

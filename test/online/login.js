@@ -1,98 +1,98 @@
-describe("mCap.authentication", function () {
+describe("mCAP.authentication", function () {
 
-  var mCapApplicationAttributes, mCapAuthenticationAttributes, server, callback, loginResponseDataSucc, serverSuccCallback;
+  var mCAPApplicationAttributes, mCAPAuthenticationAttributes, server, callback, loginResponseDataSucc, serverSuccCallback;
 
-  mCapApplicationAttributes = JSON.stringify(mCap.application.attributes);
-  mCapAuthenticationAttributes = JSON.stringify(mCap.authentication.attributes);
+  mCAPApplicationAttributes = JSON.stringify(mCAP.application.attributes);
+  mCAPAuthenticationAttributes = JSON.stringify(mCAP.authentication.attributes);
 
   beforeEach(function () {
-    mCap.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
+    mCAP.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
 
-    mCap.application.attributes = JSON.parse(mCapApplicationAttributes);
-    mCap.authentication.attributes = JSON.parse(mCapAuthenticationAttributes);
+    mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
+    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
 
   });
 
   afterEach(function () {
     // reset the baseurl
-    mCap.application.attributes = JSON.parse(mCapApplicationAttributes);
-    mCap.authentication.attributes = JSON.parse(mCapAuthenticationAttributes);
+    mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
+    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
   });
 
 
   it("Login config with set authentication successful", function (done) {
-    mCap.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
-    mCap.authentication.set('username', USERNAME);
-    mCap.authentication.set('organization', ORGANIZATION);
-    mCap.authentication.set('password', PASSWORD);
+    mCAP.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
+    mCAP.authentication.set('username', USERNAME);
+    mCAP.authentication.set('organization', ORGANIZATION);
+    mCAP.authentication.set('password', PASSWORD);
 
-    mCap.authentication.login().then(function () {
-      expect(mCap.authentication.get('username')).toBe(USERNAME);
-      expect(mCap.authentication.get('organization')).toBe(ORGANIZATION);
-      expect(mCap.authentication.get('password')).toBe(PASSWORD);
+    mCAP.authentication.login().then(function () {
+      expect(mCAP.authentication.get('username')).toBe(USERNAME);
+      expect(mCAP.authentication.get('organization')).toBe(ORGANIZATION);
+      expect(mCAP.authentication.get('password')).toBe(PASSWORD);
       done();
     });
 
   });
 
   it("Login fail", function (done) {
-    mCap.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
+    mCAP.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
 
-    mCap.authentication.login().fail(function () {
-      expect(mCap.authentication.get('username')).toBe('');
-      expect(mCap.authentication.get('organization')).toBe('');
-      expect(mCap.authentication.get('password')).toBe('');
+    mCAP.authentication.login().fail(function () {
+      expect(mCAP.authentication.get('username')).toBe('');
+      expect(mCAP.authentication.get('organization')).toBe('');
+      expect(mCAP.authentication.get('password')).toBe('');
       done();
     });
   });
 
   it("Login with string param", function (done) {
-    mCap.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
-    mCap.authentication.set('username', USERNAME);
-    mCap.authentication.set('organization', ORGANIZATION);
-    mCap.authentication.login(PASSWORD).then(function () {
-      expect(mCap.authentication.get('username')).toBe(USERNAME);
-      expect(mCap.authentication.get('organization')).toBe(ORGANIZATION);
-      expect(mCap.authentication.get('password')).toBe('');
+    mCAP.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
+    mCAP.authentication.set('username', USERNAME);
+    mCAP.authentication.set('organization', ORGANIZATION);
+    mCAP.authentication.login(PASSWORD).then(function () {
+      expect(mCAP.authentication.get('username')).toBe(USERNAME);
+      expect(mCAP.authentication.get('organization')).toBe(ORGANIZATION);
+      expect(mCAP.authentication.get('password')).toBe('');
       done();
     });
   });
 
   it("Login obj string param", function (done) {
-    mCap.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
-    mCap.authentication.set('username', '');
-    mCap.authentication.set('organization', '');
-    mCap.authentication.login({
+    mCAP.application.set('baseUrl', 'http://coredev4.mwaysolutions.com');
+    mCAP.authentication.set('username', '');
+    mCAP.authentication.set('organization', '');
+    mCAP.authentication.login({
       username: USERNAME,
       password: PASSWORD,
       organization: ORGANIZATION
     }).then(function () {
-      expect(mCap.authentication.get('username')).toBe(USERNAME);
-      expect(mCap.authentication.get('organization')).toBe(ORGANIZATION);
-      expect(mCap.authentication.get('password')).toBe(PASSWORD);
+      expect(mCAP.authentication.get('username')).toBe(USERNAME);
+      expect(mCAP.authentication.get('organization')).toBe(ORGANIZATION);
+      expect(mCAP.authentication.get('password')).toBe(PASSWORD);
       done();
     });
   });
 
   xit("Workflow: Login - Business - Logout", function (done) {
 
-    mCap.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
+    mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
 
-    mCap.authentication.set('username', USERNAME);
-    mCap.authentication.set('organization', ORGANIZATION);
-    mCap.authentication.set('password', PASSWORD);
+    mCAP.authentication.set('username', USERNAME);
+    mCAP.authentication.set('organization', ORGANIZATION);
+    mCAP.authentication.set('password', PASSWORD);
 
 
     var Assets = Backbone.Collection.extend({
       url: function(){
-        return mCap.application.get('baseUrl') + '/gofer/asset/rest/assets'
+        return mCAP.application.get('baseUrl') + '/gofer/asset/rest/assets'
       }
     });
     var assets = new Assets();
 
-    mCap.authentication.login().then(function(){
+    mCAP.authentication.login().then(function(){
       assets.fetch().then(function(){
-        mCap.authentication.logout().then(function(){
+        mCAP.authentication.logout().then(function(){
           done();
         });
       });
@@ -103,26 +103,26 @@ describe("mCap.authentication", function () {
 
   xit("Workflow: Login - Business - Logout - Login - Business - Logout", function (done) {
 
-    mCap.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
+    mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
 
-    mCap.authentication.set('username', USERNAME);
-    mCap.authentication.set('organization', ORGANIZATION);
-    mCap.authentication.set('password', PASSWORD);
+    mCAP.authentication.set('username', USERNAME);
+    mCAP.authentication.set('organization', ORGANIZATION);
+    mCAP.authentication.set('password', PASSWORD);
 
 
     var Assets = Backbone.Collection.extend({
       url: function(){
-        return mCap.application.get('baseUrl') + '/gofer/asset/rest/assets'
+        return mCAP.application.get('baseUrl') + '/gofer/asset/rest/assets'
       }
     });
     var assets = new Assets();
 
-    mCap.authentication.login().then(function(){
+    mCAP.authentication.login().then(function(){
       assets.fetch().then(function(){
-        mCap.authentication.logout().then(function(){
-          mCap.authentication.login().then(function(){
+        mCAP.authentication.logout().then(function(){
+          mCAP.authentication.login().then(function(){
             assets.fetch().then(function(){
-              mCap.authentication.logout().then(function(){
+              mCAP.authentication.logout().then(function(){
                 done();
               });
             });
@@ -136,28 +136,28 @@ describe("mCap.authentication", function () {
 
   it("Workflow: Login - Business - Logout - Login - Business - Logout with logout workaround", function (done) {
 
-    mCap.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
+    mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
 
-    mCap.authentication.set('username', USERNAME);
-    mCap.authentication.set('organization', ORGANIZATION);
-    mCap.authentication.set('password', PASSWORD);
+    mCAP.authentication.set('username', USERNAME);
+    mCAP.authentication.set('organization', ORGANIZATION);
+    mCAP.authentication.set('password', PASSWORD);
 
 
     var Assets = Backbone.Collection.extend({
       url: function(){
-        return mCap.application.get('baseUrl') + '/gofer/asset/rest/assets'
+        return mCAP.application.get('baseUrl') + '/gofer/asset/rest/assets'
       }
     });
     var assets = new Assets();
 
-    mCap.authentication.login().then(function(){
+    mCAP.authentication.login().then(function(){
       assets.fetch().then(function(){
         // logout returns not a valid json therefor use always
-        mCap.authentication.logout().always(function(){
-          mCap.authentication.login().then(function(){
+        mCAP.authentication.logout().always(function(){
+          mCAP.authentication.login().then(function(){
             assets.fetch().then(function(){
               // logout returns not a valid json therefor use always
-              mCap.authentication.logout().always(function(){
+              mCAP.authentication.logout().always(function(){
                 done();
               });
             });

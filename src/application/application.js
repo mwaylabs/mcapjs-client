@@ -1,4 +1,4 @@
-var Application = mCap.Model.extend({
+var Application = mCAP.Model.extend({
 
   defaults: {
     'baseUrl': ''
@@ -6,4 +6,4 @@ var Application = mCap.Model.extend({
 
 });
 
-mCap.application = new Application();
+mCAP.application = new Application();

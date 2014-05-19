@@ -1,4 +1,4 @@
-var User = mCap.Model.extend({
+var User = mCAP.Model.extend({
 
   defaults: {
     'uuid': '',
@@ -23,4 +23,4 @@ var User = mCap.Model.extend({
 
 });
 
-mCap.User = User;
+mCAP.User = User;

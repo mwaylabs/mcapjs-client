@@ -1,7 +1,7 @@
-describe("mCap.js", function () {
-  it("mCap root object", function () {
-    expect(mCap).toBeDefined();
-    expect(typeof mCap).toBe('object');
+describe("mCAP.js", function () {
+  it("mCAP root object", function () {
+    expect(mCAP).toBeDefined();
+    expect(typeof mCAP).toBe('object');
 
   });
 });

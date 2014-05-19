@@ -1,13 +1,13 @@
-describe("mCap Model", function () {
+describe("mCAP Model", function () {
 
   it("Object", function () {
 
 
-    expect(mCap.Model).toBeDefined();
-    expect(typeof mCap.Model).toBe('function');
+    expect(mCAP.Model).toBeDefined();
+    expect(typeof mCAP.Model).toBe('function');
 
-    expect(Backbone.Model.prototype.isPrototypeOf(mCap.Model.prototype)).toBeTruthy();
-    var testModel = new mCap.Model();
+    expect(Backbone.Model.prototype.isPrototypeOf(mCAP.Model.prototype)).toBeTruthy();
+    var testModel = new mCAP.Model();
     expect(Backbone.Model.prototype.isPrototypeOf(testModel)).toBeTruthy();
     testModel = null;
 
@@ -16,21 +16,21 @@ describe("mCap Model", function () {
 
   it("Properties ", function () {
 
-    expect(mCap.Model.prototype.hasOwnProperty('idAttribute')).toBeTruthy();
-    expect(mCap.Model.prototype.hasOwnProperty('selectable')).toBeTruthy();
-    expect(mCap.Model.prototype.hasOwnProperty('selectableOptions')).toBeTruthy();
-    expect(mCap.Model.prototype.hasOwnProperty('constructor')).toBeTruthy();
-    expect(mCap.Model.prototype.hasOwnProperty('setEndpoint')).toBeTruthy();
-    expect(mCap.Model.prototype.hasOwnProperty('parse')).toBeTruthy();
-    expect(mCap.Model.prototype.hasOwnProperty('revert')).toBeTruthy();
+    expect(mCAP.Model.prototype.hasOwnProperty('idAttribute')).toBeTruthy();
+    expect(mCAP.Model.prototype.hasOwnProperty('selectable')).toBeTruthy();
+    expect(mCAP.Model.prototype.hasOwnProperty('selectableOptions')).toBeTruthy();
+    expect(mCAP.Model.prototype.hasOwnProperty('constructor')).toBeTruthy();
+    expect(mCAP.Model.prototype.hasOwnProperty('setEndpoint')).toBeTruthy();
+    expect(mCAP.Model.prototype.hasOwnProperty('parse')).toBeTruthy();
+    expect(mCAP.Model.prototype.hasOwnProperty('revert')).toBeTruthy();
 
   });
 
 
   it("Instance ", function () {
 
-    var a = new mCap.Model({});
-    var b = new mCap.Model({});
+    var a = new mCAP.Model({});
+    var b = new mCAP.Model({});
     expect(a.hasOwnProperty('idAttribute')).toBeFalsy();
     expect(a.hasOwnProperty('selectable')).toBeTruthy();
     expect(a.hasOwnProperty('selectableOptions')).toBeFalsy();
@@ -52,11 +52,11 @@ describe("mCap Model", function () {
 
   it("Selectable ", function () {
 
-    var NotSelectable = mCap.Model.extend({
+    var NotSelectable = mCAP.Model.extend({
       selectable: false
     });
 
-    var NotSelectableString = mCap.Model.extend({
+    var NotSelectableString = mCAP.Model.extend({
       selectable: ""
     });
 
@@ -70,7 +70,7 @@ describe("mCap Model", function () {
     expect(ModelSelectable.prototype.isPrototypeOf(notSelectable.selectable)).toBeFalsy();
 
 
-    var Selectable = mCap.Model.extend({
+    var Selectable = mCAP.Model.extend({
     });
 
     var selectable = new Selectable();
@@ -82,13 +82,13 @@ describe("mCap Model", function () {
   it("Endpoint ", function () {
 
     // cache the baseUrl
-    var applicationBaseUrl = mCap.application.get('baseUrl');
+    var applicationBaseUrl = mCAP.application.get('baseUrl');
 
-    expect(mCap.Model.prototype.hasOwnProperty('endpoint')).toBeFalsy();
+    expect(mCAP.Model.prototype.hasOwnProperty('endpoint')).toBeFalsy();
 
     var enpointValue = '';
 
-    var Endpoint = mCap.Model.extend({
+    var Endpoint = mCAP.Model.extend({
       endpoint: enpointValue
     });
 
@@ -97,141 +97,141 @@ describe("mCap Model", function () {
     expect(endppoint.endpoint).toEqual(enpointValue);
     expect(endppoint.hasOwnProperty('urlRoot')).toBeTruthy();
     expect(typeof endppoint.urlRoot).toEqual('function');
-    expect(endppoint.urlRoot()).toEqual(mCap.application.get('baseUrl') + '/' + enpointValue);
+    expect(endppoint.urlRoot()).toEqual(mCAP.application.get('baseUrl') + '/' + enpointValue);
 
     // set the endpoint after model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: 'asset'
     });
     var asset = new Asset();
-    mCap.application.set('baseUrl', 'http://www.mcap1.de/');
+    mCAP.application.set('baseUrl', 'http://www.mcap1.de/');
     expect(asset.url()).toEqual('http://www.mcap1.de/asset');
 
     // set the endpoint before model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: 'asset'
     });
-    mCap.application.set('baseUrl', 'http://www.mcap2.de/');
+    mCAP.application.set('baseUrl', 'http://www.mcap2.de/');
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap2.de/asset');
 
     // set the endpoint before model extend
-    mCap.application.set('baseUrl', 'http://www.mcap3.de/');
-    var Asset = mCap.Model.extend({
+    mCAP.application.set('baseUrl', 'http://www.mcap3.de/');
+    var Asset = mCAP.Model.extend({
       endpoint: 'asset'
     });
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap3.de/asset');
 
     // refert the basUrl
-    mCap.application.set('baseUrl', applicationBaseUrl);
+    mCAP.application.set('baseUrl', applicationBaseUrl);
 
   });
 
   it("BaseUrl has slash", function () {
 
     // cache the baseUrl
-    var applicationBaseUrl = mCap.application.get('baseUrl');
+    var applicationBaseUrl = mCAP.application.get('baseUrl');
 
     // set the endpoint after model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: 'asset'
     });
     var asset = new Asset();
-    mCap.application.set('baseUrl', 'http://www.mcap1.de');
+    mCAP.application.set('baseUrl', 'http://www.mcap1.de');
     expect(asset.url()).toEqual('http://www.mcap1.de/asset');
 
     // set the endpoint before model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: 'asset'
     });
-    mCap.application.set('baseUrl', 'http://www.mcap2.de');
+    mCAP.application.set('baseUrl', 'http://www.mcap2.de');
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap2.de/asset');
 
     // set the endpoint before model extend
-    mCap.application.set('baseUrl', 'http://www.mcap3.de');
-    var Asset = mCap.Model.extend({
+    mCAP.application.set('baseUrl', 'http://www.mcap3.de');
+    var Asset = mCAP.Model.extend({
       endpoint: 'asset'
     });
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap3.de/asset');
 
     // refert the basUrl
-    mCap.application.set('baseUrl', applicationBaseUrl);
+    mCAP.application.set('baseUrl', applicationBaseUrl);
 
   });
 
   it("Endpoint has slash", function () {
 
     // cache the baseUrl
-    var applicationBaseUrl = mCap.application.get('baseUrl');
+    var applicationBaseUrl = mCAP.application.get('baseUrl');
 
     // set the endpoint after model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: '/asset'
     });
     var asset = new Asset();
-    mCap.application.set('baseUrl', 'http://www.mcap1.de');
+    mCAP.application.set('baseUrl', 'http://www.mcap1.de');
     expect(asset.url()).toEqual('http://www.mcap1.de/asset');
 
     // set the endpoint before model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: '/asset'
     });
-    mCap.application.set('baseUrl', 'http://www.mcap2.de');
+    mCAP.application.set('baseUrl', 'http://www.mcap2.de');
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap2.de/asset');
 
     // set the endpoint before model extend
-    mCap.application.set('baseUrl', 'http://www.mcap3.de');
-    var Asset = mCap.Model.extend({
+    mCAP.application.set('baseUrl', 'http://www.mcap3.de');
+    var Asset = mCAP.Model.extend({
       endpoint: '/asset'
     });
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap3.de/asset');
 
     // refert the basUrl
-    mCap.application.set('baseUrl', applicationBaseUrl);
+    mCAP.application.set('baseUrl', applicationBaseUrl);
 
   });
 
   it("Endpoint + BaseUrl has slash", function () {
 
     // cache the baseUrl
-    var applicationBaseUrl = mCap.application.get('baseUrl');
+    var applicationBaseUrl = mCAP.application.get('baseUrl');
 
     // set the endpoint after model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: '/asset'
     });
     var asset = new Asset();
-    mCap.application.set('baseUrl', 'http://www.mcap1.de/');
+    mCAP.application.set('baseUrl', 'http://www.mcap1.de/');
     expect(asset.url()).toEqual('http://www.mcap1.de/asset');
 
     // set the endpoint before model init
-    var Asset = mCap.Model.extend({
+    var Asset = mCAP.Model.extend({
       endpoint: '/asset'
     });
-    mCap.application.set('baseUrl', 'http://www.mcap2.de/');
+    mCAP.application.set('baseUrl', 'http://www.mcap2.de/');
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap2.de/asset');
 
     // set the endpoint before model extend
-    mCap.application.set('baseUrl', 'http://www.mcap3.de/');
-    var Asset = mCap.Model.extend({
+    mCAP.application.set('baseUrl', 'http://www.mcap3.de/');
+    var Asset = mCAP.Model.extend({
       endpoint: '/asset'
     });
     var asset = new Asset();
     expect(asset.url()).toEqual('http://www.mcap3.de/asset');
 
     // refert the basUrl
-    mCap.application.set('baseUrl', applicationBaseUrl);
+    mCAP.application.set('baseUrl', applicationBaseUrl);
 
   });
 
   it("parse", function () {
-    var model = new mCap.Model();
+    var model = new mCAP.Model();
 
     var parse1 = {};
     var parse2 = null;
@@ -324,7 +324,7 @@ describe("mCap Model", function () {
   });
 
   it('basic usage of revert', function(){
-    var model = new mCap.Model({
+    var model = new mCAP.Model({
       name: 'Max'
     });
     model.set('name', 'Maximilian');
@@ -335,13 +335,13 @@ describe("mCap Model", function () {
 
   it("revert implementation", function () {
 
-    var Revertable = mCap.Model.extend();
+    var Revertable = mCAP.Model.extend();
     var instance = new Revertable({
       foo: 'bar',
       hello: 'world'
     });
 
-    expect(typeof mCap.Model.prototype.revert).toBe('function');
+    expect(typeof mCAP.Model.prototype.revert).toBe('function');
     expect(typeof instance.revert).toBe('function');
 
     expect(instance.get('foo')).toBe('bar');
@@ -365,7 +365,7 @@ describe("mCap Model", function () {
   });
 
   it("revert with setters", function () {
-    var Revertable = mCap.Model.extend();
+    var Revertable = mCAP.Model.extend();
     var instance = new Revertable({
       foo: 'bar',
       hello: 'world'
@@ -402,7 +402,7 @@ describe("mCap Model", function () {
 
   it("revert with attributes", function () {
 
-    var Revertable = mCap.Model.extend();
+    var Revertable = mCAP.Model.extend();
     var instance = new Revertable({
       foo: 'bar',
       hello: 'world'
@@ -440,7 +440,7 @@ describe("mCap Model", function () {
 
   it("revert add attributes direct association", function () {
 
-    var Revertable = mCap.Model.extend();
+    var Revertable = mCAP.Model.extend();
     var instance = new Revertable({
       foo: 'bar'
     });
@@ -475,7 +475,7 @@ describe("mCap Model", function () {
 
   it("revert add attributes with set", function () {
 
-    var Revertable = mCap.Model.extend();
+    var Revertable = mCAP.Model.extend();
     var instance = new Revertable({
       foo: 'bar'
     });
@@ -510,7 +510,7 @@ describe("mCap Model", function () {
 
   it("revert remove attributes", function () {
 
-    var Revertable = mCap.Model.extend();
+    var Revertable = mCAP.Model.extend();
     var instance = new Revertable({
       foo: 'bar',
       hello: 'world'
@@ -548,7 +548,7 @@ describe("mCap Model", function () {
 
   it("markToRevert initialize local model", function () {
 
-    var Revertable = mCap.Model.extend({
+    var Revertable = mCAP.Model.extend({
       parse: function(data){
         var _data = {};
         _data.internal = data.external;
@@ -584,7 +584,7 @@ describe("mCap Model", function () {
 
   it("markToRevert model.fetch", function (done) {
 
-    mCap.application.set('baseUrl', 'http://www.mcap.com');
+    mCAP.application.set('baseUrl', 'http://www.mcap.com');
 
     var server = sinon.fakeServer.create();
 
@@ -596,7 +596,7 @@ describe("mCap Model", function () {
 
     var callback = sinon.spy();
 
-    var Revertable = mCap.Model.extend({
+    var Revertable = mCAP.Model.extend({
       url: '/reverteMe',
       parse: function(data){
         var _data = {};
