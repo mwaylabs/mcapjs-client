@@ -5,11 +5,12 @@ var Filterable = function (collectionInstance, options) {
 
   var _collection = collectionInstance,
     _limit = options.limit,
-    _offset = options.offset,
+    _offset = _limit?options.offset:false,
     _page = options.page || 1,
-    _perPage = options.perPage || 30,
+    _perPage = options.perPage || 3,
     _initialFilterValues = angular.copy(options.filterValues),
     _filterDefinition = options.filterDefinition,
+    _customUrlParams = options.customUrlParams,
     _sortOrder = null,
     _totalAmount;
 
@@ -26,7 +27,7 @@ var Filterable = function (collectionInstance, options) {
       }
 
       // Pagination functionality
-      if (_perPage && _page) {
+      if (_perPage && _page && _limit) {
         options.params.limit = _perPage;
 
         // Calculate offset
@@ -45,8 +46,8 @@ var Filterable = function (collectionInstance, options) {
       }
 
       // Custom URL parameters
-      if (this.customUrlParams) {
-        _.extend(options.params, this.customUrlParams);
+      if (_customUrlParams) {
+        _.extend(options.params, _customUrlParams);
       }
 
       return options;
