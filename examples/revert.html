@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <script src="../bower_components/jquery/dist/jquery.js"></script>
+  <script src="../bower_components/underscore/underscore.js"></script>
+  <script src="../bower_components/backbone/backbone.js"></script>
+  <script src="../dist/mCap.js"></script>
+
+  <script>
+      var model = new mCap.Model({
+        name: 'Max'
+      });
+      model.set('name', 'Maximilian');
+      console.log(model.get('name')); // 'Maximilian';
+      model.revert();
+      console.log(model.get('name')); // 'Max';
+  </script>
+</head>
+<body>
+
+</body>
+</html>
