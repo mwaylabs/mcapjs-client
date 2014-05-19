@@ -33,6 +33,11 @@ var Model = Backbone.Model.extend({
       this.setEndpoint(this.endpoint);
     }
 
+    // apply scope to _markToRevert
+    _.bindAll(this, '_markToRevert', 'revert');
+    // send the attributes or empty object
+    this._markToRevert(arguments[0] || {});
+
     return Backbone.Model.prototype.constructor.apply(this, arguments);
   },
 
@@ -62,8 +67,7 @@ var Model = Backbone.Model.extend({
    * @returns {*}
    */
   initialize: function () {
-    _.bindAll(this, '_markToRevert', 'revert');
-    this._markToRevert();
+    // DO NOT IMPLEMENT CODE HERE! THE USER SHOULDN'T CALL SUPER IN HIS OWN IMPL.
     return Backbone.Model.prototype.initialize.apply(this, arguments);
   },
 
@@ -87,8 +91,8 @@ var Model = Backbone.Model.extend({
   /**
    * Store attributes to enable a revert - useful for cancel for example
    */
-  _markToRevert: function () {
-    this._revertAttributes = JSON.parse(JSON.stringify(this.attributes));
+  _markToRevert: function (data) {
+    this._revertAttributes = JSON.parse(JSON.stringify(data || this.attributes));
   },
 
   /**
