@@ -26,7 +26,7 @@ module.exports = function(config) {
       'src/collection/**/*.js',
       'src/filter/filter.js',
       'src/application/**/*.js',
-      'src/authentication/**/*.js',
+      'src/security/**/*.js',
       'test/sinon-1.9.1.js',
       'test/**/*.js'
     ],
