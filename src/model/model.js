@@ -45,6 +45,83 @@ var Model = Backbone.Model.extend({
     } else {
       return response;
     }
+  },
+
+  initialize: function(){
+    _.bindAll(this, "_markToRevert", "revert");
+    this._markToRevert();
+  },
+
+  revert: function() {
+    if( this._revertAttributes ) {
+      this.set(this._revertAttributes, {
+        silent: true
+      });
+    }
+  },
+
+  /**
+   * Store attributes to enable a revert - useful for cancel for example
+   */
+  _markToRevert: function() {
+    this._revertAttributes = _.clone(this.parse(this.toJSON()));
+  },
+
+  /**
+   * Check if the model is still in sync with the last saved state.
+   * @returns {Boolean|boolean}
+   */
+  isInSync: function() {
+    return _.isEqual(this._revertAttributes, this.attributes);
+  },
+
+  /**
+   * Save the model to the server
+   * @param key
+   * @param val
+   * @param options
+   * @returns {*}
+   */
+  save: function( key, val, options ) {
+    var args = this._save(key, val, options);
+    return Backbone.Model.prototype.save.apply(this, args);
+  },
+
+  /**
+   * Handle stuff for a save
+   * @param key
+   * @param val
+   * @param options
+   * @returns {Array}
+   * @private
+   */
+  _save: function( key, val, options ) {
+    // prepare options
+    if( key == null || typeof key === 'object' ) {
+      options = val;
+    }
+    // make sure options are defined
+    options = _.extend({validate: true}, options);
+    // cache success
+    var success = options.success;
+    // cache model
+    var model = this;
+
+    // overwrite success
+    options.success = function( resp ) {
+      model._markToRevert();
+      // call cached success
+      if( success ) {
+        success(model, resp, options);
+      }
+    };
+
+    // make sure options are the correct paramater
+    if( key == null || typeof key === 'object' ) {
+      val = options;
+    }
+
+    return [key, val, options];
   }
 
 });
