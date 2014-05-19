@@ -14,7 +14,7 @@ describe("mCap Model", function () {
   });
 
 
-  xit("Properties ", function () {
+  it("Properties ", function () {
 
     expect(mCap.Model.prototype.hasOwnProperty('idAttribute')).toBeTruthy();
     expect(mCap.Model.prototype.hasOwnProperty('selectable')).toBeTruthy();
@@ -323,7 +323,7 @@ describe("mCap Model", function () {
 
   });
 
-  xit("revert implementation", function () {
+  it("revert implementation", function () {
 
     expect(typeof mCap.Model.prototype.revert).toBe('function');
     expect(typeof instance.revert).toBe('function');
@@ -357,7 +357,7 @@ describe("mCap Model", function () {
 
   });
 
-  xit("revert with setters", function () {
+  it("revert with setters", function () {
     var Revertable = mCap.Model.extend({
       foo: 'bar',
       hello: 'world'
@@ -393,7 +393,7 @@ describe("mCap Model", function () {
 
   });
 
-  xit("revert with attributes", function () {
+  it("revert with attributes", function () {
 
     var Revertable = mCap.Model.extend({
       foo: 'bar',
@@ -432,7 +432,7 @@ describe("mCap Model", function () {
 
   });
 
-  xit("markToRevert", function () {
+  it("markToRevert", function () {
 
     var parseCounter = 0;
     var toJSONCounter = 0;
