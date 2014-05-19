@@ -57,12 +57,27 @@ var Model = Backbone.Model.extend({
     }
   },
 
+  /**
+   * Initialize the Backbone extended object
+   * @returns {*}
+   */
   initialize: function () {
     _.bindAll(this, '_markToRevert', 'revert');
     this._markToRevert();
     return Backbone.Model.prototype.initialize.apply(this, arguments);
   },
 
+  /**
+   * Reverts a model to the latest saved state
+   * @example
+   * var model = new mCap.Model({
+   *  name: 'Max'
+   * });
+   * model.set('name', 'Maximilian');
+   * console.log(model.get('name')); // Maximilian
+   * model.revert();
+   * console.log(model.get('name')); // Max
+   */
   revert: function () {
     if (this._revertAttributes) {
       this.attributes = JSON.parse(JSON.stringify(this._revertAttributes));

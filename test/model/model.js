@@ -323,6 +323,16 @@ describe("mCap Model", function () {
 
   });
 
+  it('basic usage of revert', function(){
+    var model = new mCap.Model({
+      name: 'Max'
+    });
+    model.set('name', 'Maximilian');
+    expect(model.get('name')).toBe('Maximilian');
+    model.revert();
+    expect(model.get('name')).toBe('Max');
+  });
+
   it("revert implementation", function () {
 
     var Revertable = mCap.Model.extend();
