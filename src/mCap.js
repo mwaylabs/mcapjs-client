@@ -1,8 +1,13 @@
-(function(root, Backbone, $, _){
+(function (root, Backbone, $, _) {
   'use strict';
 
   var sync = Backbone.sync,
-      mCap = {};
+    mCap = {};
+
+  Backbone.$.ajaxSetup({
+    // send cookies
+    xhrFields: { withCredentials: true }
+  });
 
   Backbone.sync = function (method, model, options) {
     if (_.isUndefined(options.wait)) {

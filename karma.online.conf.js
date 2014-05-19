@@ -4,14 +4,6 @@
 module.exports = function(config) {
   config.set({
 
-    plugins : [
-      'karma-junit-reporter',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-phantomjs-launcher',
-      'karma-jasmine'
-    ],
-
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
@@ -23,6 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'online.conf.js',
       'bower_components/jquery/dist/*.js',
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
@@ -42,7 +35,6 @@ module.exports = function(config) {
     // list of files to exclude
     exclude: [
       'src/mCap.angular.js',
-      '**/online/**/*.*',
       'karma.conf.js'
     ],
 
