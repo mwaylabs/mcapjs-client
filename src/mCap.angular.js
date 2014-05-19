@@ -4,13 +4,14 @@
 
   angular.module('mCap', [])
 
-    .run(function ($http, $q) {
+    .run(function ($http, $q, $rootScope, $timeout) {
 
       if (!window.mCap) {
         throw new Error('Please include Mcap libary');
       }
 
-      var sync = Backbone.sync;
+      var _sync = Backbone.sync,
+          _set = Backbone.Model.prototype.set;
 
       Backbone.ajax = function (options) {
         // Set HTTP Verb as 'method'
@@ -30,12 +31,20 @@
 
       Backbone.sync = function (method, model, options) {
         var dfd = $q.defer();
-        sync.apply(Backbone, [method, model, options]).then(function () {
+        _sync.apply(Backbone, [method, model, options]).then(function () {
           dfd.resolve(model);
         },function(resp){
           dfd.reject(resp);
         });
         return dfd.promise;
+      };
+
+      Backbone.Model.prototype.set = function(){
+        //trigger digest cycle for the angular two way binding
+        $timeout(function(){
+          _set.apply(this, arguments);
+        });
+        return _set.apply(this, arguments);
       };
     })
 
@@ -62,17 +71,8 @@
       return mCap.Collection;
     })
 
-    .service('mCapModel', function ($rootScope, mCap) {
-      return mCap.Model.extend({
-        set: function () {
-          // Trigger digest cycle to make calls to set recognizable by angular
-          if (!$rootScope.$$phase) {
-            $rootScope.$apply();
-          }
-
-          return Backbone.Model.prototype.set.apply(this, arguments);
-        }
-      });
+    .service('mCapModel', function (mCap) {
+      return mCap.Model;
     });
 
 })(window, angular, Backbone);
