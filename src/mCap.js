@@ -27,8 +27,8 @@
   // @include ./collection/collection.js
   // @include ./filter/filter.js
   // @include ./application/application.js
-  // @include ./authentication/authentication.js
-  // @include ./authentication/user.js
+  // @include ./security/authentication.js
+  // @include ./security/user.js
 
   root.mCap = mCap;
 
