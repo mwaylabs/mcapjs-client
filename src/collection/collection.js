@@ -12,11 +12,11 @@ var Collection = Backbone.Collection.extend({
 
   constructor: function () {
     if (this.selectable) {
-      this.selectable = new SelectableFactory(this, this.selectableOptions);
+      this.selectable = new SelectableFactory(this,  _.result(this,'selectableOptions'));
     }
 
     if (this.filterable) {
-      this.filterable = new Filterable(this, this.filterableOptions);
+      this.filterable = new Filterable(this, _.result(this,'filterableOptions'));
     }
 
     if (this.endpoint) {
@@ -27,7 +27,9 @@ var Collection = Backbone.Collection.extend({
   },
 
   setEndpoint: function (endpoint) {
-    this.url = mCAP.application.get('baseUrl') + '/' + endpoint;
+    this.url = function(){
+      return mCAP.application.get('baseUrl') + '/' + endpoint;
+    };
   },
 
   parse: function (response) {

@@ -29,6 +29,7 @@
   // @include ./application/application.js
   // @include ./security/authentication.js
   // @include ./security/user.js
+  // @include ./security/users.js
 
   root.mCAP = mCAP;
 
