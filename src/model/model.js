@@ -16,8 +16,7 @@ var Model = Backbone.Model.extend({
     }, this);
 
     if (this.selectable) {
-      var options = this.selectableOptions || {};
-      this.selectable = new SelectableFactory(this, options);
+      this.selectable = new SelectableFactory(this,  _.result(this,'selectableOptions'));
     }
 
     if (typeof this.endpoint === 'string') {

@@ -63,6 +63,14 @@
       };
     })
 
+    .service('mCAPUsers', function(){
+      return window.mCAP.Users;
+    })
+
+    .service('mCAPUser', function(){
+      return window.mCAP.User;
+    })
+
     .service('mCAP', function () {
       return window.mCAP;
     })
