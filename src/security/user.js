@@ -1,5 +1,7 @@
 var User = mCAP.Model.extend({
 
+  endpoint: 'gofer/security/rest/users',
+
   defaults: {
     'uuid': '',
     'name': '',
@@ -19,6 +21,10 @@ var User = mCAP.Model.extend({
     'preferences': {},
     'groups': [],
     'roles': []
+  },
+
+  parse: function(resp){
+    return resp.data || resp;
   }
 
 });
