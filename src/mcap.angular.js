@@ -63,23 +63,23 @@
       };
     })
 
-    .service('mCAPUsers', function(){
+    .service('MCAPUsers', function(){
       return window.mCAP.Users;
     })
 
-    .service('mCAPUser', function(){
+    .service('MCAPUser', function(){
       return window.mCAP.User;
     })
 
-    .service('mCAP', function () {
+    .service('MCAP', function () {
       return window.mCAP;
     })
 
-    .service('mCAPCollection', function (mCAP) {
+    .service('MCAPCollection', function (mCAP) {
       return mCAP.Collection;
     })
 
-    .service('mCAPModel', function (mCAP) {
+    .service('MCAPModel', function (mCAP) {
       return mCAP.Model;
     });
 
