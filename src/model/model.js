@@ -5,7 +5,7 @@ var Model = Backbone.Model.extend({
   idAttribute: 'uuid',
   // default the model is selectable - set to false to turn selectable off
   selectable: true,
-  selectableOptions: null,
+  selectableOptions: {},
   queryParameter: null,
   constructor: function () {
     // When a model gets removed, make sure to decrement the total count on the collection
