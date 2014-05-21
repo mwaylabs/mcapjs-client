@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Authentication Example</title>
+  <script src="../../bower_components/jquery/dist/jquery.js"></script>
+  <script src="../../bower_components/underscore/underscore.js"></script>
+  <script src="../../bower_components/backbone/backbone.js"></script>
+  <script src="../../src/mcap.js"></script>
+  <script src="../../src/filter/filterable.js"></script>
+  <script src="../../src/filter/filter.js"></script>
+  <script src="../../src/selectable/selectable_collection.js"></script>
+  <script src="../../src/selectable/selectable_model.js"></script>
+  <script src="../../src/selectable/selectable_factory.js"></script>
+  <script src="../../src/model/model.js"></script>
+  <script src="../../src/collection/collection.js"></script>
+  <script src="../../src/application/application.js"></script>
+  <script src="../../src/security/user.js"></script>
+  <script src="../../src/security/authentication.js"></script>
+
+  <script src="password.js"></script>
+
+  <script>
+
+    mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
+
+    mCAP.authentication.set('username', 'mhano');
+    mCAP.authentication.set('organization', 'mway');
+// set in password.js
+//    mCAP.authentication.set('password', 'secure');
+
+
+    var Assets = Backbone.Collection.extend({
+      url: function(){
+        return 'https://coredev4.mwaysolutions.com:/gofer/asset/rest/assets'
+      }
+    });
+    var assets = new Assets();
+
+    var businessLogic = function(){
+      assets.fetch().then(function(){
+        mCAP.authentication.logout().always(function(){
+          mCAP.authentication.login().then(function(){
+            businessLogic();
+          });
+
+        })
+      });
+    };
+
+    mCAP.authentication.login().then(function(){
+      console.log('Login succ!');
+      assets.fetch().always(function(){
+        mCAP.authentication.logout().always(function(){
+          console.log('Logout!');
+          mCAP.authentication.login().then(function(){
+            console.log('Login succ!');
+            assets.fetch().always(function(){
+              console.log('assets');
+            });
+          });
+        });
+      });
+    }).fail(function(){
+      console.log('Login fail!');
+    }).always(function(){
+      console.log('always');
+    });
+
+  </script>
+
+
+</head>
+<body>
+
+
+
+
+</body>
+</html>
