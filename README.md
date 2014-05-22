@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/mwaylabs/mcapjs-client.svg)](https://travis-ci.org/mwaylabs/mcapjs-client)
 
 # mCAP JavaScript Client Library
-A JavaScript library to develop applications for mCAP
+A JavaScript library to develop applications for mCAP. You will find more informations about mCAP [here](http://mobility-platform.com).
 
 ## Setup for development
 - Install NodeJS
