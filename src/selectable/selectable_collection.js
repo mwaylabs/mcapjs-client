@@ -1,8 +1,10 @@
 /*jshint unused:false */
 
-var CollectionSelectable = function (collectionInstance) {
+var CollectionSelectable = function (collectionInstance, options) {
 
-  var _collection = collectionInstance;
+
+  var _collection = collectionInstance,
+      _radio = options.radio === true;
 
   this.getSelectedModels = function () {
     var selected = [];
@@ -14,7 +16,7 @@ var CollectionSelectable = function (collectionInstance) {
     return selected;
   };
 
-  this.getDisabledModels = function(){
+  this.getDisabledModels = function () {
     var disabled = [];
     _collection.models.forEach(function (model) {
       if (model.selectable && model.selectable.isDisabled()) {
@@ -63,7 +65,11 @@ var CollectionSelectable = function (collectionInstance) {
     });
   };
 
-  (function _main() {
+  this.isRadio = function () {
+    return _radio;
+  };
+
+  (function _main () {
     if (!_collection instanceof Backbone.Collection) {
       throw new Error('First parameter has to be the instance of a collection');
     }
