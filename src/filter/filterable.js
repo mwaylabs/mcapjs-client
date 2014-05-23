@@ -4,17 +4,17 @@ var Filterable = function (collectionInstance, options) {
   options = options || {};
 
   var _collection = collectionInstance,
-    _limit = options.limit,
-    _offset = _limit?options.offset:false,
-    _page = options.page || 1,
-    _perPage = options.perPage || 30,
-    _initialFilterValues = angular.copy(options.filterValues),
-    _filterDefinition = options.filterDefinition,
-    _customUrlParams = options.customUrlParams,
-    _sortOrder = options.sortOrder,
-    _totalAmount;
+      _limit = options.limit,
+      _offset = _limit ? options.offset : false,
+      _page = options.page || 1,
+      _perPage = options.perPage || 30,
+      _initialFilterValues = angular.copy(options.filterValues),
+      _filterDefinition = options.filterDefinition,
+      _sortOrder = options.sortOrder,
+      _totalAmount;
 
   this.filterValues = options.filterValues;
+  this.customUrlParams = options.customUrlParams;
 
   this.getRequestParams = function (method, model, options) {
     options.params = options.params || {};
@@ -46,8 +46,8 @@ var Filterable = function (collectionInstance, options) {
       }
 
       // Custom URL parameters
-      if (_customUrlParams) {
-        _.extend(options.params, _customUrlParams);
+      if (this.customUrlParams) {
+        _.extend(options.params, this.customUrlParams);
       }
 
       return options;

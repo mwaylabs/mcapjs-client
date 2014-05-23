@@ -71,6 +71,14 @@
       return window.mCAP.User;
     })
 
+    .service('MCAPGroups', function(){
+      return window.mCAP.Groups;
+    })
+
+    .service('MCAPGroup', function(){
+      return window.mCAP.Group;
+    })
+
     .service('MCAP', function () {
       return window.mCAP;
     })

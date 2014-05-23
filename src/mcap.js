@@ -30,6 +30,8 @@
   // @include ./security/authentication.js
   // @include ./security/user.js
   // @include ./security/users.js
+  // @include ./security/group.js
+  // @include ./security/groups.js
 
   root.mCAP = mCAP;
 
