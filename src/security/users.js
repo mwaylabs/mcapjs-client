@@ -8,6 +8,8 @@ var Users = mCAP.Collection.extend({
     return resp.data.items;
   },
 
+
+
   filterableOptions: function(){
     return {
       sortOrder:'+name',
