@@ -4,7 +4,8 @@ var CollectionSelectable = function (collectionInstance, options) {
 
 
   var _collection = collectionInstance,
-      _radio = options.radio === true;
+    _selected = options.selected || [],
+    _radio = options.radio === true;
 
   this.getSelectedModels = function () {
     var selected = [];
@@ -57,6 +58,21 @@ var CollectionSelectable = function (collectionInstance, options) {
     });
   };
 
+  this.selectModels = function (models) {
+    models.forEach(function (model) {
+      var modelToSelect = _collection.findWhere({uuid: model.id});
+      if (modelToSelect && modelToSelect.selectable) {
+        modelToSelect.selectable.select();
+      }
+
+    });
+  };
+
+  this.reset = function () {
+    this.unSelectAllModels();
+    this.selectModels(_selected);
+  };
+
   this.unSelectAllModels = function () {
     this.getSelectedModels().forEach(function (model) {
       if (model.selectable) {
@@ -69,10 +85,13 @@ var CollectionSelectable = function (collectionInstance, options) {
     return _radio;
   };
 
-  (function _main () {
+  (function _main(self) {
+    collectionInstance.on('add', function () {
+      self.selectModels(_selected);
+    });
     if (!_collection instanceof Backbone.Collection) {
       throw new Error('First parameter has to be the instance of a collection');
     }
-  }());
+  }(this));
 
 };
