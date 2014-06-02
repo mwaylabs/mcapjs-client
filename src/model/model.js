@@ -121,9 +121,20 @@ var Model = Backbone.Model.extend({
    * @param options
    * @returns {*}
    */
+
+  beforeSave: function(attributes){
+    return attributes;
+  },
+
   save: function (key, val, options) {
     var args = this._save(key, val, options);
-    return Backbone.Model.prototype.save.apply(this, args);
+    var orgAttributes = this.attributes;
+    this.attributes = this.beforeSave(_.clone(orgAttributes));
+    var save = Backbone.Model.prototype.save.apply(this, args).then(function(model){
+      model.attributes = orgAttributes;
+      return model;
+    });
+    return save;
   },
 
   /**
