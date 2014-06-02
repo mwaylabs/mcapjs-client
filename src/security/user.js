@@ -16,15 +16,37 @@ var User = mCAP.Model.extend({
     'passwordExpires': null,
     'locked': false,
     'activated': true,
-    'version': null,
+    'version': 0,
     'aclEntries': [],
     'preferences': {},
-    'groups': [],
+    'groups': null,
     'roles': []
   },
 
-  parse: function(resp){
+  parse: function (resp) {
+    var data = resp.data || resp;
+    if(this.attributes && !this.attributes.groups){
+      data.groups = new mCAP.UserGroups({userId: this.id});
+      //data.groups.setEndpoint(this.endpoint + '/' + this.id + '/groups');
+    }
     return resp.data || resp;
+  },
+
+  validate: function(){
+    this.attributes.version++;
+  },
+
+  beforeSave: function(attributes){
+    delete attributes.groups;
+    delete attributes.roles;
+    if(attributes.password==='' || attributes.password===null){
+      delete attributes.password;
+    }
+    return attributes;
+  },
+
+  save: function(){
+    return mCAP.Model.prototype.save.apply(this,arguments);
   }
 
 });
