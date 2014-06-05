@@ -30,6 +30,10 @@
   // @include ./security/authentication.js
   // @include ./security/user.js
   // @include ./security/users.js
+  // @include ./security/role.js
+  // @include ./security/roles.js
+  // @include ./security/member.js
+  // @include ./security/members.js
   // @include ./security/group.js
   // @include ./security/groups.js
 
