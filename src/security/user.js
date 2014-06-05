@@ -3,7 +3,7 @@ var User = mCAP.Model.extend({
   endpoint: 'gofer/security/rest/users',
 
   defaults: {
-    'uuid': '',
+    'uuid': null,
     'name': '',
     'salutation': null,
     'givenName': '',
@@ -27,7 +27,6 @@ var User = mCAP.Model.extend({
     var data = resp.data || resp;
     if(this.attributes && !this.attributes.groups){
       data.groups = new mCAP.UserGroups({userId: this.id});
-      //data.groups.setEndpoint(this.endpoint + '/' + this.id + '/groups');
     }
     return resp.data || resp;
   },
