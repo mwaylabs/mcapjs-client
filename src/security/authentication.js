@@ -16,7 +16,7 @@ var Authentication = mCAP.Model.extend({
       this.set(options);
     }
 
-    return this.sync('create', this, {
+    return this.save(null, {
       url: this.url() + 'login'
     }).always(function () {
       if (typeof options === 'string') {
@@ -26,7 +26,7 @@ var Authentication = mCAP.Model.extend({
   },
 
   logout: function () {
-    return this.sync('create', this, {
+    return this.save(null, {
       url: this.url() + 'logout'
     }).always(function () {
 
