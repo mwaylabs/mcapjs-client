@@ -1,6 +1,6 @@
 {
   "name": "mcapjs-client",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "homepage": "https://github.com/mwaylabs/mcapjs-client",
   "authors": [
     "mwaylabs"
@@ -15,7 +15,6 @@
     "MEAP"
   ],
   "license": "",
-  "private": true,
   "ignore": [
     "**/.*",
     "node_modules",
