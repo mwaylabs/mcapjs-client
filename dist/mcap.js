@@ -27,7 +27,7 @@
         _offset = _limit ? options.offset : false,
         _page = options.page || 1,
         _perPage = options.perPage || 30,
-        _initialFilterValues = angular.copy(options.filterValues),
+        _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
         _filterDefinition = options.filterDefinition,
         _sortOrder = options.sortOrder,
         _totalAmount;
@@ -135,7 +135,7 @@
     };
   
     this.resetFilters = function () {
-      this.filterValues = angular.copy(_initialFilterValues);
+      this.filterValues = _initialFilterValues ? JSON.parse(JSON.stringify(_initialFilterValues)) : _initialFilterValues;
     };
   
     (function _main() {
@@ -644,9 +644,12 @@
   var Authentication = mCAP.Model.extend({
   
     defaults: {
-      'username': '',
-      'organization': '',
-      'password': ''
+      'userName': '',
+      'orgaName': '',
+      'password': '',
+      'email': '',
+      'organization': null,
+      'user': null
     },
   
     endpoint: 'gofer/security/rest/auth/',
@@ -681,6 +684,9 @@
       if (data) {
         if (data.user) {
           attributes.user = new mCAP.User(data.user);
+        }
+        if (data.organization) {
+          attributes.organization = new mCAP.Organization(data.organization);
         }
       }
       return attributes;
@@ -774,7 +780,42 @@
   });
   
   mCAP.Users = Users;
+  var Organization = mCAP.Model.extend({
   
+    endpoint: 'gofer/security/rest/organizations',
+  
+    defaults: {
+      'uuid': null,
+      'aclEntries': null,
+      'name': null,
+      'uniqueName': null,
+      'address': null,
+      'billingSettings': null,
+      'technicalPerson': null,
+      'assetPath': null,
+      'reportLocaleString': null,
+      'defaultRoles': null,
+      'version': null,
+      'effectivePermissions': null
+    }
+  
+  });
+  
+  mCAP.Organization = Organization;
+  
+  var Organizations = mCAP.Collection.extend({
+  
+    endpoint: 'gofer/security/rest/organizations',
+  
+    model: mCAP.Organization,
+  
+    parse: function (resp) {
+      return resp.data.items;
+    }
+  
+  });
+  
+  mCAP.Organizations = Organizations;
   var Role = mCAP.Model.extend({
   
     endpoint: 'gofer/form/rest/enumerables/paginatedPairs/roles',

@@ -30,6 +30,8 @@
   // @include ./security/authentication.js
   // @include ./security/user.js
   // @include ./security/users.js
+  // @include ./security/organization.js
+  // @include ./security/organizations.js
   // @include ./security/role.js
   // @include ./security/roles.js
   // @include ./security/member.js

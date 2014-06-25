@@ -1,9 +1,12 @@
 var Authentication = mCAP.Model.extend({
 
   defaults: {
-    'username': '',
-    'organization': '',
-    'password': ''
+    'userName': '',
+    'orgaName': '',
+    'password': '',
+    'email': '',
+    'organization': null,
+    'user': null
   },
 
   endpoint: 'gofer/security/rest/auth/',
@@ -38,6 +41,9 @@ var Authentication = mCAP.Model.extend({
     if (data) {
       if (data.user) {
         attributes.user = new mCAP.User(data.user);
+      }
+      if (data.organization) {
+        attributes.organization = new mCAP.Organization(data.organization);
       }
     }
     return attributes;
