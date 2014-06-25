@@ -8,7 +8,7 @@ var Filterable = function (collectionInstance, options) {
       _offset = _limit ? options.offset : false,
       _page = options.page || 1,
       _perPage = options.perPage || 30,
-      _initialFilterValues = angular.copy(options.filterValues),
+      _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
       _filterDefinition = options.filterDefinition,
       _sortOrder = options.sortOrder,
       _totalAmount;
@@ -116,7 +116,7 @@ var Filterable = function (collectionInstance, options) {
   };
 
   this.resetFilters = function () {
-    this.filterValues = angular.copy(_initialFilterValues);
+    this.filterValues = _initialFilterValues ? JSON.parse(JSON.stringify(_initialFilterValues)) : _initialFilterValues;
   };
 
   (function _main() {
