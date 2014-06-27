@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4 - 2014-06-27
+- add mCAP.authentication.isAuthenticated
+- add mCAP.Utils Object
+
 ## 0.0.3 - 2014-06-25
 - update login api
 - implement organization model

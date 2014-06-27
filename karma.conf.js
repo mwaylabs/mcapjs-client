@@ -27,6 +27,8 @@ module.exports = function(config) {
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
       'src/mcap.js',
+      'src/utils/utils.js',
+      'src/utils/**/*.js',
       'src/filter/filterable.js',
       'src/selectable/**/*.js',
       'src/model/**/*.js',

@@ -47,6 +47,43 @@ var Authentication = mCAP.Model.extend({
       }
     }
     return attributes;
+  },
+
+  /**
+   * Check if the current user is authenticated or not. Resolves if it is the case otherwise its rejected.
+   * @returns {promise}
+   * @example
+   * mCAP.authentication.isAuthenticated().then(function(){
+            console.log('is authenticated');
+        }).fail(function(){
+            console.log('is not authenticated');
+        });
+   */
+  isAuthenticated: function () {
+    var dfd = $.Deferred();
+    var uuid = null;
+    // check if there was a login before
+    if(mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')){
+      uuid = mCAP.authentication.get('user').get('uuid')
+    } else {
+      dfd.reject('no user set');
+      return dfd.promise();
+    }
+
+    mCAP.Utils.request({
+      url: mCAP.application.get('baseUrl') + 'gofer/system/security/currentAuthorization'
+    }).then(function (data) {
+      // resolve only if the current user is authenticated
+      if (data.user && data.user.uuid && data.user.uuid === uuid) {
+        dfd.resolve(data);
+      }
+      // otherwise reject
+      dfd.reject('not authenticated', data);
+      return;
+    }).fail(function (err) {
+      dfd.reject(err);
+    });
+    return dfd.promise();
   }
 
 });

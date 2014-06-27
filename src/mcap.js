@@ -16,6 +16,10 @@
     return sync.apply(Backbone, [method, model, options]);
   };
 
+  //INCLUDE GLOBAL SETTINGS HERE
+  // @include ./utils/util.js
+  // @include ./utils/request.js
+
   // INCLUDE PRIVATE VARS HERE
   // @include ./filter/filterable.js
   // @include ./selectable/selectable_collection.js
