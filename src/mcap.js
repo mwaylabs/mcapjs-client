@@ -17,7 +17,7 @@
   };
 
   //INCLUDE GLOBAL SETTINGS HERE
-  // @include ./utils/util.js
+  // @include ./utils/utils.js
   // @include ./utils/request.js
 
   // INCLUDE PRIVATE VARS HERE
