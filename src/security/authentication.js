@@ -21,14 +21,18 @@ var Authentication = mCAP.Model.extend({
    * @returns promise
    * @example
    *
+   * // login with password
    * mCAP.authentication.login('pass').then(function(){};
+   * // login with credentials
    * mCAP.authentication.login({
       userName: 'm.mustermann',
       orgaName: 'org',
       password: 'pass'
     });
-   *
-   * mCAP.authentication.on('login', function(obj, err, errMsg){})
+   * // event when auth was successful
+   * mCAP.authentication.on('login', function(){})
+   * // event when auth was not successful
+   * mCAP.authentication.on('authenticationerror', function(obj, err, errMsg){})
    */
   login: function (options) {
     var that = this;
@@ -39,16 +43,19 @@ var Authentication = mCAP.Model.extend({
     }
     return this.save(null, {
       url: this.url() + 'login'
+    }).then(function(){
+      // trigger login on successful login
+      that._triggerEvent('login', arguments);
+      return arguments[0];
+    }).fail(function(){
+      // trigger loginerror on authentication error
+      that._triggerEvent('authenticationerror', arguments);
+      return arguments;
     }).always(function () {
       if (typeof options === 'string') {
         that.set('password', '');
       }
-      // cast arguments to array
-      var args = Array.prototype.slice.call(arguments, 0);
-      // add the event name
-      args.unshift('login');
-      // trigger the event
-      that.trigger.apply(that, args);
+      return arguments;
     });
   },
 
@@ -65,12 +72,7 @@ var Authentication = mCAP.Model.extend({
     return this.save(null, {
       url: this.url() + 'logout'
     }).always(function () {
-      // cast arguments to array
-      var args = Array.prototype.slice.call(arguments, 0);
-      // add the event name
-      args.unshift('logout');
-      // trigger the event
-      that.trigger.apply(that, args);
+      that._triggerEvent('logout', arguments);
     });
   },
 

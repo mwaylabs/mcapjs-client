@@ -207,6 +207,15 @@ var Model = Backbone.Model.extend({
       }
     };
     return [options];
+  },
+
+  _triggerEvent: function(eventName, args){
+    // cast arguments to array
+    var _args = Array.prototype.slice.call(args, 0);
+    // add the event name
+    _args.unshift(eventName);
+    // trigger the event
+    this.trigger.apply(this, _args);
   }
 
 });

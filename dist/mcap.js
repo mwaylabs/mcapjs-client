@@ -553,6 +553,15 @@
         }
       };
       return [options];
+    },
+  
+    _triggerEvent: function(eventName, args){
+      // cast arguments to array
+      var _args = Array.prototype.slice.call(args, 0);
+      // add the event name
+      _args.unshift(eventName);
+      // trigger the event
+      this.trigger.apply(this, _args);
     }
   
   });
@@ -681,6 +690,9 @@
   });
   
   mCAP.application = new Application();
+  /**
+   * mCAP Authentication
+   */
   var Authentication = mCAP.Model.extend({
   
     defaults: {
@@ -694,6 +706,26 @@
   
     endpoint: 'gofer/security/rest/auth/',
   
+    /**
+     * Perform a login request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
+     * Fires a login event everytime a login is performed. Even if the login was not successful.
+     * @param options - Can either be a string for the password or an object with credentials.
+     * @returns promise
+     * @example
+     *
+     * // login with password
+     * mCAP.authentication.login('pass').then(function(){};
+     * // login with credentials
+     * mCAP.authentication.login({
+        userName: 'm.mustermann',
+        orgaName: 'org',
+        password: 'pass'
+      });
+     * // event when auth was successful
+     * mCAP.authentication.on('login', function(){})
+     * // event when auth was not successful
+     * mCAP.authentication.on('authenticationerror', function(obj, err, errMsg){})
+     */
     login: function (options) {
       var that = this;
       if (typeof options === 'string') {
@@ -703,34 +735,54 @@
       }
       return this.save(null, {
         url: this.url() + 'login'
+      }).then(function(){
+        // trigger login on successful login
+        that._triggerEvent('login', arguments);
+        return arguments[0];
+      }).fail(function(){
+        // trigger loginerror on authentication error
+        that._triggerEvent('authenticationerror', arguments);
+        return arguments;
       }).always(function () {
         if (typeof options === 'string') {
           that.set('password', '');
         }
-        var args = Array.prototype.slice.call(arguments, 0);
-        args.unshift('login');
-        that.trigger.apply(that, args);
+        return arguments;
       });
     },
   
+    /**
+     * Perform a logout request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
+     * Fires a logout event everytime a login is performed.
+     * @returns promise
+     * @example
+     * mCAP.authentication.logout().always(function(){});
+     * mCAP.authentication.on('logout', function(obj){});
+     */
     logout: function () {
       var that = this;
       return this.save(null, {
         url: this.url() + 'logout'
       }).always(function () {
-        var args = Array.prototype.slice.call(arguments, 0);
-        args.unshift('logout');
-        that.trigger.apply(that, args);
+        that._triggerEvent('logout', arguments);
       });
     },
   
+    /**
+     * Takes the arguments from the server and builds objects needed on the client side
+     * @private
+     * @param data
+     * @returns {{}}
+     */
     parse: function (data) {
       var attributes = {};
       if (data) {
         if (data.user) {
+          // build a user
           attributes.user = new mCAP.User(data.user);
         }
         if (data.organization) {
+          // build a organization
           attributes.organization = new mCAP.Organization(data.organization);
         }
       }
@@ -776,8 +828,8 @@
   
   });
   
+  // API
   mCAP.authentication = new Authentication();
-  
   var User = mCAP.Model.extend({
   
     endpoint: 'gofer/security/rest/users',

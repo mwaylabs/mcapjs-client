@@ -194,7 +194,7 @@ describe("mCAP.authentication", function () {
     server.respondWith(serverSuccCallback);
 
     mCAP.authentication.login('');
-    mCAP.authentication.on('login', function(obj, err, errMsg){
+    mCAP.authentication.on('authenticationerror', function(obj, err, errMsg){
       expect(err).toBe('error');
       expect(errMsg).toBe('Unauthorized');
       mCAP.authentication.off('login');
