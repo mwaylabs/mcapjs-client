@@ -7,17 +7,7 @@
   <script src="../../bower_components/underscore/underscore.js"></script>
   <script src="../../bower_components/backbone/backbone.js"></script>
   <script src="../utils.js"></script>
-  <script src="../../src/mcap.js"></script>
-  <script src="../../src/filter/filterable.js"></script>
-  <script src="../../src/filter/filter.js"></script>
-  <script src="../../src/selectable/selectable_collection.js"></script>
-  <script src="../../src/selectable/selectable_model.js"></script>
-  <script src="../../src/selectable/selectable_factory.js"></script>
-  <script src="../../src/model/model.js"></script>
-  <script src="../../src/collection/collection.js"></script>
-  <script src="../../src/application/application.js"></script>
-  <script src="../../src/security/user.js"></script>
-  <script src="../../src/security/authentication.js"></script>
+  <script src="../../dist/mcap.js"></script>
 
   <script src="password.js"></script>
 
@@ -25,8 +15,8 @@
 
     mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
 
-    mCAP.authentication.set('username', 'mhano');
-    mCAP.authentication.set('organization', 'mway');
+    mCAP.authentication.set('userName', 'mhano');
+    mCAP.authentication.set('orgaName', 'mway');
 // set in password.js
 //    mCAP.authentication.set('password', 'secure');
 
@@ -41,6 +31,7 @@
     var businessLogic = function(){
       assets.fetch().then(function(){
         mCAP.authentication.logout().always(function(){
+          log('businessLogic should fail');
           businessLogic();
         })
       });

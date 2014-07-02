@@ -7,61 +7,58 @@
   <script src="../../bower_components/underscore/underscore.js"></script>
   <script src="../../bower_components/backbone/backbone.js"></script>
   <script src="../utils.js"></script>
-  <script src="../../src/mcap.js"></script>
-  <script src="../../src/filter/filterable.js"></script>
-  <script src="../../src/filter/filter.js"></script>
-  <script src="../../src/selectable/selectable_collection.js"></script>
-  <script src="../../src/selectable/selectable_model.js"></script>
-  <script src="../../src/selectable/selectable_factory.js"></script>
-  <script src="../../src/model/model.js"></script>
-  <script src="../../src/collection/collection.js"></script>
-  <script src="../../src/application/application.js"></script>
-  <script src="../../src/security/organizations.js"></script>
-  <script src="../../src/security/organization.js"></script>
-  <script src="../../src/security/user.js"></script>
-  <script src="../../src/security/authentication.js"></script>
+  <script src="../../dist/mcap.js"></script>
 
   <script src="password.js"></script>
-
-  <script>
-
-    mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
-
-    mCAP.authentication.set('userName', 'mhano');
-    mCAP.authentication.set('orgaName', 'mway');
-// set in password.js
-//  mCAP.authentication.set('password', 'pass');
-
-
-    mCAP.authentication.login().then(function(){
-      log('Login succ!');
-        mCAP.authentication.logout().always(function(){
-          log('Logout!');
-          mCAP.authentication.login().then(function(){
-            log('Login succ!');
-          });
-        });
-    })
-
-    mCAP.authentication.on('login', function(){
-      log('login event callback');
-    });
-
-    mCAP.authentication.on('logout', function(){
-      log('logout event callback');
-    });
-
-  </script>
-
 
 </head>
 <body>
 
-<p>Please open the Developer Tools to see further details.</p>
+<p>Please open the Developer Tools to see further details. Or have a look at the JavaScript annotated source.</p>
 <ul id="log">
 
 </ul>
 
+<script>
+
+  // set the baseurl
+  mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
+  // config the auth
+  mCAP.authentication.set('userName', 'mhano');
+  mCAP.authentication.set('orgaName', 'mway');
+  // set in password.js
+  //  mCAP.authentication.set('password', 'pass');
+
+
+  // login - to test the 'login' event
+  mCAP.authentication.login().then(function () {
+    log('Login succ!');
+    // logout - // login - to test the 'logout' event
+    mCAP.authentication.logout().always(function () {
+      log('Logout!');
+      // then login again with wrong credentials - to test the 'authenticationerror' event
+      mCAP.authentication.login('wrong pass').fail(function () {
+        log('Login succ!');
+      });
+    });
+  });
+
+  // listen to login events
+  mCAP.authentication.on('login', function () {
+    log('login event callback');
+  });
+
+  // listen to login error events
+  mCAP.authentication.on('authenticationerror', function () {
+    log('error callback on authenticationerror event');
+  });
+
+  // listen to logout events
+  mCAP.authentication.on('logout', function () {
+    log('logout event callback');
+  });
+
+</script>
 
 </body>
 </html>
