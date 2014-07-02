@@ -18,15 +18,15 @@ mCAP.Utils.request = function (settings) {
   };
 
   if (settings.method) {
-    ajaxOptions['method'] = settings.method;
+    ajaxOptions.method = settings.method;
   }
 
   if (settings.contentType) {
-    ajaxOptions['contentType'] = settings.contentType;
+    ajaxOptions.contentType = settings.contentType;
   }
 
   if (settings.timeout) {
-    ajaxOptions['timeout'] = settings.timeout;
+    ajaxOptions.timeout = settings.timeout;
   }
 
   return $.ajax(ajaxOptions);

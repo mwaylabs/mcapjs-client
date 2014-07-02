@@ -69,7 +69,7 @@ var Authentication = mCAP.Model.extend({
     var uuid = null;
     // check if there was a login before
     if(mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')){
-      uuid = mCAP.authentication.get('user').get('uuid')
+      uuid = mCAP.authentication.get('user').get('uuid');
     } else {
       dfd.reject('no user set');
       return dfd.promise();
