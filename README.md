@@ -70,3 +70,9 @@ window.PASSWORD = window.PASSWORD || 'password';
 ```
 karma start karma.online.conf.js
 ```
+
+## Documentation
+[Documentation](https://wiki.mwaysolutions.com/confluence/display/mCAP/Getting+Started+with+mCAPjs-client)
+
+## Changelog
+[Changelog](https://github.com/mwaylabs/mcapjs-client/blob/master/changelog.md)
