@@ -1,3 +1,6 @@
+/**
+ * mCAP Authentication
+ */
 var Authentication = mCAP.Model.extend({
 
   defaults: {
@@ -11,6 +14,22 @@ var Authentication = mCAP.Model.extend({
 
   endpoint: 'gofer/security/rest/auth/',
 
+  /**
+   * Perform a login request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
+   * Fires a login event everytime a login is performed. Even if the login was not successful.
+   * @param options - Can either be a string for the password or an object with credentials.
+   * @returns promise
+   * @example
+   *
+   * mCAP.authentication.login('pass').then(function(){};
+   * mCAP.authentication.login({
+      userName: 'm.mustermann',
+      orgaName: 'org',
+      password: 'pass'
+    });
+   *
+   * mCAP.authentication.on('login', function(obj, err, errMsg){})
+   */
   login: function (options) {
     var that = this;
     if (typeof options === 'string') {
@@ -24,30 +43,52 @@ var Authentication = mCAP.Model.extend({
       if (typeof options === 'string') {
         that.set('password', '');
       }
+      // cast arguments to array
       var args = Array.prototype.slice.call(arguments, 0);
+      // add the event name
       args.unshift('login');
+      // trigger the event
       that.trigger.apply(that, args);
     });
   },
 
+  /**
+   * Perform a logout request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
+   * Fires a logout event everytime a login is performed.
+   * @returns promise
+   * @example
+   * mCAP.authentication.logout().always(function(){});
+   * mCAP.authentication.on('logout', function(obj){});
+   */
   logout: function () {
     var that = this;
     return this.save(null, {
       url: this.url() + 'logout'
     }).always(function () {
+      // cast arguments to array
       var args = Array.prototype.slice.call(arguments, 0);
+      // add the event name
       args.unshift('logout');
+      // trigger the event
       that.trigger.apply(that, args);
     });
   },
 
+  /**
+   * Takes the arguments from the server and builds objects needed on the client side
+   * @private
+   * @param data
+   * @returns {{}}
+   */
   parse: function (data) {
     var attributes = {};
     if (data) {
       if (data.user) {
+        // build a user
         attributes.user = new mCAP.User(data.user);
       }
       if (data.organization) {
+        // build a organization
         attributes.organization = new mCAP.Organization(data.organization);
       }
     }
@@ -93,4 +134,5 @@ var Authentication = mCAP.Model.extend({
 
 });
 
+// API
 mCAP.authentication = new Authentication();
