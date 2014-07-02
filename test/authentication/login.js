@@ -27,10 +27,12 @@ describe("mCAP.authentication", function () {
 
       expect(postData.userName).toBe('m.mustermann');
       expect(postData.orgaName).toBe('org');
-      expect(postData.password).toBe('pass');
 
-      if (xhr.method == "POST" && xhr.url === mCAP.authentication.url() + 'login') {
+      if (xhr.method == "POST" && xhr.url === mCAP.authentication.url() + 'login' && postData.password) {
+        expect(postData.password).toBe('pass');
         xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(loginResponseDataSucc));
+      } else {
+        xhr.respond(401, { "Content-Type": "application/json" } );
       }
     }
   });
@@ -162,6 +164,49 @@ describe("mCAP.authentication", function () {
 
   });
 
+  it("Login event succ", function () {
+
+    mCAP.authentication.set('userName', 'm.mustermann');
+    mCAP.authentication.set('orgaName', 'org');
+
+    server.respondWith(serverSuccCallback);
+
+    mCAP.authentication.login('pass');
+    mCAP.authentication.on('login', function(obj, err, errMsg){
+      expect(err).toBeUndefined();
+      expect(errMsg).toBeUndefined();
+      mCAP.authentication.off('login');
+      callback(!obj.status);
+    });
+
+    server.respond();
+
+    sinon.assert.calledWith(callback, true);
+    sinon.assert.calledOnce(callback);
+
+  });
+
+  it("Login event err", function () {
+
+    mCAP.authentication.set('userName', 'm.mustermann');
+    mCAP.authentication.set('orgaName', 'org');
+
+    server.respondWith(serverSuccCallback);
+
+    mCAP.authentication.login('');
+    mCAP.authentication.on('login', function(obj, err, errMsg){
+      expect(err).toBe('error');
+      expect(errMsg).toBe('Unauthorized');
+      mCAP.authentication.off('login');
+      callback(!obj.status);
+    });
+
+    server.respond();
+
+    sinon.assert.calledWith(callback, false);
+    sinon.assert.calledOnce(callback);
+
+  });
 });
 
 

@@ -14,7 +14,7 @@ describe("mCAP.authentication", function () {
     server = sinon.fakeServer.create();
     callback = sinon.spy();
 
-    responseDataSucc = 'Successfully logged out.';
+    responseDataSucc = {"message":"Successfully logged out"};
 
     serverSuccCallback = function (xhr) {
 //      console.log(JSON.stringify(xhr, null, 10));
@@ -38,6 +38,7 @@ describe("mCAP.authentication", function () {
     server.respondWith(serverSuccCallback);
 
     mCAP.authentication.logout().then(function (data) {
+      delete data.attributes;
       callback(data);
     }).always(function(data){
       //console.log(data);
@@ -46,6 +47,27 @@ describe("mCAP.authentication", function () {
     server.respond();
 
     sinon.assert.calledWith(callback, responseDataSucc);
+    sinon.assert.calledOnce(callback);
+
+  });
+
+  it("Logout event", function () {
+
+    server.respondWith(serverSuccCallback);
+
+    mCAP.authentication.logout();
+
+    mCAP.authentication.on('logout', function(obj){
+      expect(obj).toBeDefined();
+      expect(obj.attributes).toBeDefined();
+      expect(obj.message).toBeDefined();
+      mCAP.authentication.off('logout');
+      callback(true);
+    });
+
+    server.respond();
+
+    sinon.assert.calledWith(callback, true);
     sinon.assert.calledOnce(callback);
 
   });

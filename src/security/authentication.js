@@ -18,21 +18,26 @@ var Authentication = mCAP.Model.extend({
     } else if (typeof options === 'object') {
       this.set(options);
     }
-
     return this.save(null, {
       url: this.url() + 'login'
     }).always(function () {
       if (typeof options === 'string') {
         that.set('password', '');
       }
+      var args = Array.prototype.slice.call(arguments, 0);
+      args.unshift('login');
+      that.trigger.apply(that, args);
     });
   },
 
   logout: function () {
+    var that = this;
     return this.save(null, {
       url: this.url() + 'logout'
     }).always(function () {
-
+      var args = Array.prototype.slice.call(arguments, 0);
+      args.unshift('logout');
+      that.trigger.apply(that, args);
     });
   },
 

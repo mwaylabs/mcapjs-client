@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.5 - 2014-07-02
+- add login and logout events
+
 ## 0.0.4 - 2014-06-27
 - add mCAP.authentication.isAuthenticated
 - add mCAP.Utils Object

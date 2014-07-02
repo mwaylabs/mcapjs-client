@@ -16,6 +16,8 @@
   <script src="../../src/model/model.js"></script>
   <script src="../../src/collection/collection.js"></script>
   <script src="../../src/application/application.js"></script>
+  <script src="../../src/security/organizations.js"></script>
+  <script src="../../src/security/organization.js"></script>
   <script src="../../src/security/user.js"></script>
   <script src="../../src/security/authentication.js"></script>
 
@@ -25,34 +27,28 @@
 
     mCAP.application.set('baseUrl', 'https://coredev4.mwaysolutions.com');
 
-    mCAP.authentication.set('username', 'mhano');
-    mCAP.authentication.set('organization', 'mway');
+    mCAP.authentication.set('userName', 'mhano');
+    mCAP.authentication.set('orgaName', 'mway');
 // set in password.js
-//    mCAP.authentication.set('password', 'secure');
+//  mCAP.authentication.set('password', 'pass');
 
-
-    var Assets = Backbone.Collection.extend({
-      url: function(){
-        return 'https://coredev4.mwaysolutions.com:/gofer/asset/rest/assets'
-      }
-    });
-    var assets = new Assets();
-
-    var businessLogic = function(){
-      assets.fetch().then(function(){
-        mCAP.authentication.logout().always(function(){
-          businessLogic();
-        })
-      });
-    };
 
     mCAP.authentication.login().then(function(){
       log('Login succ!');
-      businessLogic();
-    }).fail(function(){
-      log('Login fail!');
-    }).always(function(){
-      log('always');
+        mCAP.authentication.logout().always(function(){
+          log('Logout!');
+          mCAP.authentication.login().then(function(){
+            log('Login succ!');
+          });
+        });
+    })
+
+    mCAP.authentication.on('login', function(){
+      log('login event callback');
+    });
+
+    mCAP.authentication.on('logout', function(){
+      log('logout event callback');
     });
 
   </script>
