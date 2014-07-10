@@ -4,8 +4,9 @@ describe("mCAP.push", function () {
     server,
     callback,
     baseUrl,
+    postDataSucc,
     pushId,
-    responseDataSucc,
+    getDataSucc,
     serverSuccCallback;
 
   mCAPApplicationAttributes = JSON.stringify(mCAP.application.attributes);
@@ -22,7 +23,7 @@ describe("mCAP.push", function () {
     server = sinon.fakeServer.create();
     callback = sinon.spy();
 
-    responseDataSucc = {
+    getDataSucc = {
       "items": [
         {
           "uuid": "E9A2A4BD-B23A-4E87-A399-A9DA1E925BF4",
@@ -63,6 +64,12 @@ describe("mCAP.push", function () {
       ]
     };
 
+    postDataSucc = {
+      "uuid": "3039B0A9-A034-4A21-A5EF-997F64503529",
+      "createdAt": 1404995392000,
+      "modifiedAt": 1404995392000
+    };
+
     serverSuccCallback = function (xhr) {
 //      console.log(JSON.stringify(xhr, null, 10));
 
@@ -70,7 +77,24 @@ describe("mCAP.push", function () {
       expect(xhr.url).toBe(baseUrl + '/push/api/v1/apps/' + pushId + '/devices');
 
       if (xhr.method == "GET") {
-        xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(responseDataSucc));
+        xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(getDataSucc));
+      } else if (xhr.method === 'POST') {
+        var postData = JSON.parse(xhr.requestBody);
+        postDataSucc = {
+          "uuid": "3039B0A9-A034-4A21-A5EF-997F64503529",
+          "providerType": postData.providerType,
+          "user": postData.user,
+          "vendor": postData.vendor,
+          "name": postData.name,
+          "osVersion": postData.osVersion,
+          "language": postData.language,
+          "country": postData.country,
+          "tags": postData.tags,
+          "badge": postData.badge,
+          "createdAt": 1404995392000,
+          "modifiedAt": 1404995392000
+        };
+        xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(postDataSucc));
       } else {
         xhr.respond(500, { "Content-Type": "application/json" });
       }
@@ -98,7 +122,53 @@ describe("mCAP.push", function () {
 
     server.respond();
 
-    sinon.assert.calledWith(callback, responseDataSucc);
+    sinon.assert.calledWith(callback, getDataSucc);
+    sinon.assert.calledOnce(callback);
+
+  });
+
+  it("post devices", function () {
+
+    server.respondWith(serverSuccCallback);
+
+    var model = mCAP.push.devices.add({
+      // should be default: "providerType" : "MCAP",
+      "user": "m.mustermann",
+      "vendor": "Samsung",
+      "name": "S3",
+      "osVersion": "4.0.2",
+      // should be default: "language" : "de",
+      // should be default:  "country" : "DE",
+      "tags": [
+        "myTag",
+        "myTag2"
+      ],
+      "badge": 0
+    });
+
+    model.save().then(function (data) {
+      expect(mCAP.push.devices.models.length).toBe(3);
+      expect(model).toBeDefined();
+      expect(model.get('uuid')).toEqual('3039B0A9-A034-4A21-A5EF-997F64503529');
+      expect(model.get('providerType')).toEqual('MCAP');
+      expect(model.get('user')).toEqual('m.mustermann');
+      expect(model.get('vendor')).toEqual('Samsung');
+      expect(model.get('osVersion')).toEqual('4.0.2');
+      expect(model.get('language')).toEqual('de');
+      expect(model.get('country')).toEqual('DE');
+      expect(model.get('tags')).toEqual([
+        "myTag",
+        "myTag2"
+      ]);
+      expect(model.get('badge')).toEqual(0);
+      expect(model.get('createdAt')).toEqual(1404995392000);
+      expect(model.get('modifiedAt')).toEqual(1404995392000);
+
+      callback();
+    });
+
+    server.respond();
+
     sinon.assert.calledOnce(callback);
 
   });
