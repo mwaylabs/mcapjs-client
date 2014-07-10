@@ -1,9 +1,9 @@
 // the server url
-var BASE_URL  = 'https://coredev4.mwaysolutions.com:443/';
+var BASE_URL  = '<host>';
 // the username
-var USER = 'mhano';
+var USER = '<user>';
 // the password
-var PASSWORD = 'mhano1';
+var PASSWORD = '<pass>';
 // first configure the base URL
 mCAP.application.set('baseUrl', BASE_URL);
 // then configure the authentication
