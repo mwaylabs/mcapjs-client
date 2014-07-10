@@ -18,7 +18,7 @@ describe("mCAP.push", function () {
 
     mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
     mCAP.application.set('baseUrl', baseUrl);
-    mCAP.application.set('pushService', pushId);
+    mCAP.push.set('uuid', pushId);
 
     server = sinon.fakeServer.create();
     callback = sinon.spy();

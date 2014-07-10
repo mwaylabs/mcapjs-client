@@ -1,16 +1,10 @@
-var Devices = mCAP.Collection.extend({
+var Devices = mCAP.PushAppAttributeCollection.extend({
 
   endpoint: '/devices',
 
   model: mCAP.Device,
 
-  setEndpoint: function (endpoint) {
-    this.url = function () {
-      return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
-    };
-  },
-
-  parse: function( data ){
+  parse: function (data) {
     if (data && data.items) {
       return data.items;
     }

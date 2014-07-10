@@ -17,12 +17,19 @@ describe("mCAP.push.jobs", function () {
     expect(Job.prototype.defaults.deviceFilter).toBeDefined();
     expect(Job.prototype.defaults.sound).toBeDefined();
     expect(Job.prototype.defaults.message).toBeDefined();
+    expect(Job.prototype.defaults.extras).toBeDefined();
+    expect(Job.prototype.defaults.badge).toBeDefined();
+    expect(typeof Job.prototype.sendPush).toEqual('function');
 
     var job = mCAP.push.jobs.add({});
 
     expect(job.get('deviceFilter')).toEqual(null);
     expect(job.get('sound')).toEqual('');
     expect(job.get('message')).toEqual('');
+
+    expect(job.sendPush().then).toBeDefined();
+    expect(job.sendPush().fail).toBeDefined();
+    expect(job.sendPush().always).toBeDefined();
 
   });
 
@@ -33,11 +40,11 @@ describe("mCAP.push.jobs", function () {
     mCAP.application.set('baseUrl', baseUrl);
 
     expect(mCAP.push.jobs.url()).toEqual(baseUrl + '/push/api/v1/apps/jobs');
-    mCAP.application.set('pushService', '5854AE59-8642-4B05-BC71-72B76B4E81E8');
+    mCAP.push.set('uuid', '5854AE59-8642-4B05-BC71-72B76B4E81E8');
     expect(mCAP.push.jobs.url()).toEqual(baseUrl + '/push/api/v1/apps/5854AE59-8642-4B05-BC71-72B76B4E81E8/jobs');
     mCAP.application.set('pushServiceApiVersion', 'v2');
     expect(mCAP.push.jobs.url()).toEqual(baseUrl + '/push/api/v1/apps/5854AE59-8642-4B05-BC71-72B76B4E81E8/jobs');
-    mCAP.application.set('pushService', '');
+    mCAP.push.set('uuid', '');
     mCAP.application.set('pushServiceApiVersion', '');
     expect(mCAP.push.jobs.url()).toEqual(baseUrl + '/push/api/v1/apps/jobs');
 

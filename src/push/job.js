@@ -5,7 +5,13 @@ var Job = mCAP.Model.extend({
   defaults: {
     'message': '',
     'sound': '',
-    'deviceFilter': null
+    'deviceFilter': null,
+    'badge': 0,
+    'extras': null
+  },
+
+  sendPush: function(){
+    return this.save.apply(this, arguments);
   }
 
 });

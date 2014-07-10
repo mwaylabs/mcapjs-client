@@ -42,12 +42,16 @@
   // @include ./security/members.js
   // @include ./security/group.js
   // @include ./security/groups.js
+
+  // @include ./push/push_attribute_collection.js
   // @include ./push/device.js
   // @include ./push/devices.js
   // @include ./push/job.js
   // @include ./push/jobs.js
   // @include ./push/tags.js
-  // @include ./push/push.js
+  // @include ./push/push_app.js
+  // @include ./push/push_apps.js
+  // @include ./push/mcap_push.js
 
   root.mCAP = mCAP;
 

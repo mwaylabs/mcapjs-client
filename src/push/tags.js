@@ -1,15 +1,10 @@
-var Tags = mCAP.Collection.extend({
+var Tags = mCAP.PushAppAttributeCollection.extend({
 
   tags: null,
+
   endpoint: '/tags',
 
-  setEndpoint: function (endpoint) {
-    this.url = function () {
-      return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
-    };
-  },
-
-  parse: function(data){
+  parse: function (data) {
     this.tags = data;
   }
 

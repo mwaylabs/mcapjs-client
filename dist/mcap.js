@@ -688,7 +688,6 @@
   
     defaults: {
       'baseUrl': '',
-      'pushService': '',
       'pushServiceApiVersion': 'v1'
     }
   
@@ -1165,6 +1164,27 @@
   mCAP.Groups = Groups;
   mCAP.UserGroups = UserGroups;
   
+
+  var PushAppAttributeCollection = mCAP.Collection.extend({
+  
+    endpoint: '',
+  
+    push: null,
+  
+    setEndpoint: function (endpoint) {
+      this.url = function () {
+        return URI(this.push.url() + endpoint).normalize().toString();
+      };
+    },
+  
+    initialize: function (push) {
+      this.push = push;
+      return mCAP.Collection.prototype.initialize.apply(this, arguments);
+    }
+  
+  });
+  
+  mCAP.PushAppAttributeCollection = PushAppAttributeCollection;
   var Device = mCAP.Model.extend({
   
     idAttribute: 'uuid',
@@ -1185,19 +1205,13 @@
   
   mCAP.Device = Device;
   
-  var Devices = mCAP.Collection.extend({
+  var Devices = mCAP.PushAppAttributeCollection.extend({
   
     endpoint: '/devices',
   
     model: mCAP.Device,
   
-    setEndpoint: function (endpoint) {
-      this.url = function () {
-        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
-      };
-    },
-  
-    parse: function( data ){
+    parse: function (data) {
       if (data && data.items) {
         return data.items;
       }
@@ -1213,24 +1227,24 @@
     defaults: {
       'message': '',
       'sound': '',
-      'deviceFilter': null
+      'deviceFilter': null,
+      'badge': 0,
+      'extras': null
+    },
+  
+    sendPush: function(){
+      return this.save.apply(this, arguments);
     }
   
   });
   
   mCAP.Job = Job;
   
-  var Jobs = mCAP.Collection.extend({
+  var Jobs = mCAP.PushAppAttributeCollection.extend({
   
     endpoint: '/jobs',
   
     model: mCAP.Job,
-  
-    setEndpoint: function (endpoint) {
-      this.url = function () {
-        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
-      };
-    },
   
     parse: function( data ){
       if (data && data.items) {
@@ -1241,39 +1255,70 @@
   });
   
   mCAP.Jobs = Jobs;
-  var Tags = mCAP.Collection.extend({
+  var Tags = mCAP.PushAppAttributeCollection.extend({
   
     tags: null,
+  
     endpoint: '/tags',
   
-    setEndpoint: function (endpoint) {
-      this.url = function () {
-        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
-      };
-    },
-  
-    parse: function(data){
+    parse: function (data) {
       this.tags = data;
     }
   
   });
   
   mCAP.Tags = Tags;
-  var Push = mCAP.Model.extend({
+  var PushApp = mCAP.Model.extend({
   
     endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
   
-    defaults: {
+    idAttribute: 'uuid',
   
+    defaults: {
+      uuid: '',
+      name: '',
+      apnsProvider: null,
+      gcmProvider: null,
+      version: 0,
+      effectivePermissions: '*'
     },
-    tags : new mCAP.Tags(),
-    jobs : new mCAP.Jobs(),
-    devices: new mCAP.Devices(),
-    MCAP: 'MCAP'
+  
+    tags: null,
+    jobs: null,
+    devices: null,
+  
+    initialize: function () {
+      var that = this;
+      var _url = function(){
+        return that.url();
+      };
+      this.tags = new mCAP.Tags({
+        url: _url
+      });
+      this.jobs = new mCAP.Jobs({
+        url: _url
+      });
+  
+      this.devices = new mCAP.Devices({
+        url: _url
+      });
+  
+      return mCAP.Model.prototype.initialize.apply(this, arguments);
+    }
   
   });
   
-  mCAP.push = new Push();
+  mCAP.PushApp = PushApp;
+  var PushApps = mCAP.Collection.extend({
+  
+    endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
+  
+    model: mCAP.PushApp
+  
+  });
+  
+  mCAP.PushApps = PushApps;
+  mCAP.push = new mCAP.PushApp({});
 
   root.mCAP = mCAP;
 

@@ -1,0 +1,1 @@
+mCAP.push = new mCAP.PushApp({});

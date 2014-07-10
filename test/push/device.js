@@ -43,11 +43,11 @@ describe("mCAP.push.device", function () {
     mCAP.application.set('baseUrl', baseUrl);
 
     expect(mCAP.push.devices.url()).toEqual(baseUrl + '/push/api/v1/apps/devices');
-    mCAP.application.set('pushService', '5854AE59-8642-4B05-BC71-72B76B4E81E8');
+    mCAP.push.set('uuid', '5854AE59-8642-4B05-BC71-72B76B4E81E8');
     expect(mCAP.push.devices.url()).toEqual(baseUrl + '/push/api/v1/apps/5854AE59-8642-4B05-BC71-72B76B4E81E8/devices');
     mCAP.application.set('pushServiceApiVersion', 'v2');
     expect(mCAP.push.devices.url()).toEqual(baseUrl + '/push/api/v1/apps/5854AE59-8642-4B05-BC71-72B76B4E81E8/devices');
-    mCAP.application.set('pushService', '');
+    mCAP.push.set('uuid', '');
     mCAP.application.set('pushServiceApiVersion', '');
     expect(mCAP.push.devices.url()).toEqual(baseUrl + '/push/api/v1/apps/devices');
 
