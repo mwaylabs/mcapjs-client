@@ -119,7 +119,7 @@ var Authentication = mCAP.Model.extend({
     }
 
     mCAP.Utils.request({
-      url: mCAP.application.get('baseUrl') + 'gofer/system/security/currentAuthorization'
+      url: URI(mCAP.application.get('baseUrl') + 'gofer/system/security/currentAuthorization').normalize().toString()
     }).then(function (data) {
       // resolve only if the current user is authenticated
       if (data.user && data.user.uuid && data.user.uuid === uuid) {
