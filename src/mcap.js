@@ -44,6 +44,8 @@
   // @include ./security/groups.js
   // @include ./push/device.js
   // @include ./push/devices.js
+  // @include ./push/job.js
+  // @include ./push/jobs.js
   // @include ./push/push.js
 
   root.mCAP = mCAP;
