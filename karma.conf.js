@@ -37,7 +37,12 @@ module.exports = function(config) {
       'src/filter/filter.js',
       'src/application/**/*.js',
       'src/security/**/*.js',
-      'src/push/**/*.js',
+      'src/push/**/device.js',
+      'src/push/**/devices.js',
+      'src/push/**/job.js',
+      'src/push/**/jobs.js',
+      'src/push/**/tags.js',
+      'src/push/**/push.js',
       'test/sinon-1.9.1.js',
       'test/**/*.js'
     ],

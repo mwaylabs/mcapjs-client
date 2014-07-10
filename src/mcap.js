@@ -46,6 +46,7 @@
   // @include ./push/devices.js
   // @include ./push/job.js
   // @include ./push/jobs.js
+  // @include ./push/tags.js
   // @include ./push/push.js
 
   root.mCAP = mCAP;

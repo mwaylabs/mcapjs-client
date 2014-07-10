@@ -816,7 +816,7 @@
       }
   
       mCAP.Utils.request({
-        url: mCAP.application.get('baseUrl') + 'gofer/system/security/currentAuthorization'
+        url: URI(mCAP.application.get('baseUrl') + 'gofer/system/security/currentAuthorization').normalize().toString()
       }).then(function (data) {
         // resolve only if the current user is authenticated
         if (data.user && data.user.uuid && data.user.uuid === uuid) {
@@ -1206,6 +1206,59 @@
   });
   
   mCAP.Devices = Devices;
+  var Job = mCAP.Model.extend({
+  
+    idAttribute: 'uuid',
+  
+    defaults: {
+      'message': '',
+      'sound': '',
+      'deviceFilter': null
+    }
+  
+  });
+  
+  mCAP.Job = Job;
+  
+  var Jobs = mCAP.Collection.extend({
+  
+    endpoint: '/jobs',
+  
+    model: mCAP.Job,
+  
+    setEndpoint: function (endpoint) {
+      this.url = function () {
+        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
+      };
+    },
+  
+    parse: function( data ){
+      if (data && data.items) {
+        return data.items;
+      }
+      return data;
+    }
+  });
+  
+  mCAP.Jobs = Jobs;
+  var Tags = mCAP.Collection.extend({
+  
+    tags: null,
+    endpoint: '/tags',
+  
+    setEndpoint: function (endpoint) {
+      this.url = function () {
+        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
+      };
+    },
+  
+    parse: function(data){
+      this.tags = data;
+    }
+  
+  });
+  
+  mCAP.Tags = Tags;
   var Push = mCAP.Model.extend({
   
     endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
@@ -1213,8 +1266,8 @@
     defaults: {
   
     },
-    tags : null,
-    jobs : null,
+    tags : new mCAP.Tags(),
+    jobs : new mCAP.Jobs(),
     devices: new mCAP.Devices(),
     MCAP: 'MCAP'
   

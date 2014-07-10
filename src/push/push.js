@@ -5,7 +5,7 @@ var Push = mCAP.Model.extend({
   defaults: {
 
   },
-  tags : null,
+  tags : new mCAP.Tags(),
   jobs : new mCAP.Jobs(),
   devices: new mCAP.Devices(),
   MCAP: 'MCAP'
