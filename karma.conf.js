@@ -26,6 +26,7 @@ module.exports = function(config) {
       'bower_components/jquery/dist/*.js',
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
+      'bower_components/uri.js/src/URI.js',
       'src/mcap.js',
       'src/utils/utils.js',
       'src/utils/**/*.js',
@@ -36,6 +37,7 @@ module.exports = function(config) {
       'src/filter/filter.js',
       'src/application/**/*.js',
       'src/security/**/*.js',
+      'src/push/**/*.js',
       'test/sinon-1.9.1.js',
       'test/**/*.js'
     ],

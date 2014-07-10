@@ -26,6 +26,12 @@ describe("mCAP.Utils", function () {
 
   });
 
+  it("mCAP constants", function () {
+
+    expect(mCAP.MCAP).toEqual('MCAP');
+
+  });
+
 });
 
 

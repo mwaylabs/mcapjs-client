@@ -22,6 +22,9 @@
    * @type {Object}
    */
   mCAP.Utils = {};
+  
+  // global mcap constants
+  mCAP.MCAP = 'MCAP';
   /**
    * Send a request to with the given settings
    * @param settings
@@ -684,7 +687,9 @@
   var Application = mCAP.Model.extend({
   
     defaults: {
-      'baseUrl': ''
+      'baseUrl': '',
+      'pushService': '',
+      'pushServiceApiVersion': 'v1'
     }
   
   });
@@ -1160,6 +1165,53 @@
   mCAP.Groups = Groups;
   mCAP.UserGroups = UserGroups;
   
+  var Device = mCAP.Model.extend({
+  
+    defaults: {
+      'providerType': mCAP.MCAP,
+      'user': '',
+      'vendor': '',
+      'name': '',
+      'osVersion': '',
+      'language': 'de',
+      'country': 'DE',
+      'tags': null,
+      'badge': 0
+    }
+  
+  });
+  
+  mCAP.Device = Device;
+  
+  var Devices = mCAP.Collection.extend({
+  
+    endpoint: '/devices',
+  
+    model: mCAP.Device,
+  
+    setEndpoint: function (endpoint) {
+      this.url = function () {
+        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize();
+      };
+    }
+  });
+  
+  mCAP.Devices = Devices;
+  var Push = mCAP.Model.extend({
+  
+    endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/',
+  
+    defaults: {
+  
+    },
+    tags : null,
+    jobs : null,
+    devices: new mCAP.Devices(),
+    MCAP: 'MCAP'
+  
+  });
+  
+  mCAP.push = new Push();
 
   root.mCAP = mCAP;
 
