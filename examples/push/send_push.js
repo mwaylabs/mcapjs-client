@@ -27,6 +27,8 @@ var job = mCAP.push.jobs.add({
 });
 log('job created:', JSON.stringify(job, null, 3));
 
-job.sendPush().then(function(){
-  log('push send');
+mCAP.authentication.login().then(function(){
+  return job.sendPush().then(function(){
+    log('push send');
+  });
 });
