@@ -1,5 +1,7 @@
 var Device = mCAP.Model.extend({
 
+  idAttribute: 'uuid',
+
   defaults: {
     'providerType': mCAP.MCAP,
     'user': '',

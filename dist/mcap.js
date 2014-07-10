@@ -1167,6 +1167,8 @@
   
   var Device = mCAP.Model.extend({
   
+    idAttribute: 'uuid',
+  
     defaults: {
       'providerType': mCAP.MCAP,
       'user': '',
@@ -1191,15 +1193,22 @@
   
     setEndpoint: function (endpoint) {
       this.url = function () {
-        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize();
+        return URI(mCAP.push.url() + mCAP.application.get('pushService') + endpoint).normalize().toString();
       };
+    },
+  
+    parse: function( data ){
+      if (data && data.items) {
+        return data.items;
+      }
+      return data;
     }
   });
   
   mCAP.Devices = Devices;
   var Push = mCAP.Model.extend({
   
-    endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/',
+    endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
   
     defaults: {
   
