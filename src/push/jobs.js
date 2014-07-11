@@ -1,3 +1,6 @@
+/**
+ * Push Job Collection
+ */
 var Jobs = mCAP.PushAppAttributeCollection.extend({
 
   endpoint: '/jobs',

@@ -1,3 +1,6 @@
+/**
+ * Device Collection
+ */
 var Devices = mCAP.PushAppAttributeCollection.extend({
 
   endpoint: '/devices',

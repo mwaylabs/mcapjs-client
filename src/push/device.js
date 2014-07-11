@@ -1,3 +1,6 @@
+/**
+ * Device Model
+ */
 var Device = mCAP.Model.extend({
 
   idAttribute: 'uuid',

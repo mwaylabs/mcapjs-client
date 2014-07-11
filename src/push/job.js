@@ -1,3 +1,6 @@
+/**
+ * Push Job Model
+ */
 var Job = mCAP.Model.extend({
 
   idAttribute: 'uuid',
