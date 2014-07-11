@@ -1,6 +1,6 @@
 {
-  "name": "relution-portal-admin",
-  "version": "0.0.5",
+  "name": "mcapjs-client",
+  "version": "0.0.6",
   "devDependencies": {
     "grunt": "~0.4.1",
     "matchdep": "~0.1.1",

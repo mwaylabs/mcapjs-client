@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.6 - 2014-07-02
+- add push module
+
 ## 0.0.5 - 2014-07-02
 - add login and logout events
 
