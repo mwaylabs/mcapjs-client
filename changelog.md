@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.0.6 - 2014-07-02
+## 0.0.7 - 2014-07-11
+- is authenticated bugfix
+
+## 0.0.6 - 2014-07-11
 - add push module
 
 ## 0.0.5 - 2014-07-02
