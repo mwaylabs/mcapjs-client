@@ -8,6 +8,11 @@ describe("mCAP.push.tags", function () {
     expect(mCAP.Collection.prototype.isPrototypeOf(mCAP.push.tags)).toBeTruthy();
     expect(Backbone.Collection.prototype.isPrototypeOf(mCAP.push.tags)).toBeTruthy();
 
+    var tags = ['a', 'b', 'c'];
+    mCAP.push.tags.set('tags', tags);
+    expect(mCAP.push.tags.tags).toEqual(tags);
+    expect(mCAP.push.tags.get('tags')).toEqual(tags);
+
   });
 
 
@@ -25,6 +30,7 @@ describe("mCAP.push.tags", function () {
     mCAP.push.set('uuid', '');
     mCAP.application.set('pushServiceApiVersion', '');
     expect(mCAP.push.tags.url()).toEqual(baseUrl + '/push/api/v1/apps/tags');
+
 
   });
 
