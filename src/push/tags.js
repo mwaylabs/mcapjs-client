@@ -42,7 +42,8 @@ var Tags = mCAP.PushAppAttributeCollection.extend({
    */
   set: function(key, val){
     if(key === 'tag' || key === 'tags'){
-      return this.tags = val;
+      this.tags = val;
+      return this;
     } else {
       return mCAP.PushAppAttributeCollection.prototype.set.apply(this, arguments);
     }

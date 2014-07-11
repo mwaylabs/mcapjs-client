@@ -14,7 +14,8 @@ var Device = mCAP.Model.extend({
     'language': 'de',
     'country': 'DE',
     'tags': null,
-    'badge': 0
+    'badge': 0,
+    'token': ''
   }
 
 });

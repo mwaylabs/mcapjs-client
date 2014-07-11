@@ -22,6 +22,7 @@ describe("mCAP.push.device", function () {
     expect(Device.prototype.defaults.country).toBeDefined();
     expect(Device.prototype.defaults.tags).toBeDefined();
     expect(Device.prototype.defaults.badge).toBeDefined();
+    expect(Device.prototype.defaults.token).toBeDefined();
 
     var device = mCAP.push.devices.add({});
 
@@ -33,6 +34,7 @@ describe("mCAP.push.device", function () {
     expect(device.get('vendor')).toEqual('');
     expect(device.get('tags')).toEqual(null);
     expect(device.get('badge')).toEqual(0);
+    expect(device.get('token')).toEqual('');
 
   });
 

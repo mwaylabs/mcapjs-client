@@ -815,7 +815,7 @@
       }
   
       mCAP.Utils.request({
-        url: URI(mCAP.application.get('baseUrl') + 'gofer/system/security/currentAuthorization').normalize().toString()
+        url: URI(mCAP.application.get('baseUrl') + '/gofer/system/security/currentAuthorization').normalize().toString()
       }).then(function (data) {
         // resolve only if the current user is authenticated
         if (data.user && data.user.uuid && data.user.uuid === uuid) {
@@ -1165,18 +1165,31 @@
   mCAP.UserGroups = UserGroups;
   
 
+  /**
+   * Base object collection for all push collections
+   */
   var PushAppAttributeCollection = mCAP.Collection.extend({
   
     endpoint: '',
   
+    /**
+     * The push app API
+     * @type {Object}
+     */
     push: null,
   
     setEndpoint: function (endpoint) {
       this.url = function () {
+        // take the 'parent' url and append the own endpoint
         return URI(this.push.url() + endpoint).normalize().toString();
       };
     },
   
+    /**
+     * The push param needs to implement an url function. This is needed to build the own URL of the Collection.
+     * @param push
+     * @returns {*}
+     */
     initialize: function (push) {
       this.push = push;
       return mCAP.Collection.prototype.initialize.apply(this, arguments);
@@ -1185,6 +1198,9 @@
   });
   
   mCAP.PushAppAttributeCollection = PushAppAttributeCollection;
+  /**
+   * Device Model
+   */
   var Device = mCAP.Model.extend({
   
     idAttribute: 'uuid',
@@ -1198,13 +1214,17 @@
       'language': 'de',
       'country': 'DE',
       'tags': null,
-      'badge': 0
+      'badge': 0,
+      'token': ''
     }
   
   });
   
   mCAP.Device = Device;
   
+  /**
+   * Device Collection
+   */
   var Devices = mCAP.PushAppAttributeCollection.extend({
   
     endpoint: '/devices',
@@ -1220,6 +1240,9 @@
   });
   
   mCAP.Devices = Devices;
+  /**
+   * Push Job Model
+   */
   var Job = mCAP.Model.extend({
   
     idAttribute: 'uuid',
@@ -1240,6 +1263,9 @@
   
   mCAP.Job = Job;
   
+  /**
+   * Push Job Collection
+   */
   var Jobs = mCAP.PushAppAttributeCollection.extend({
   
     endpoint: '/jobs',
@@ -1255,21 +1281,69 @@
   });
   
   mCAP.Jobs = Jobs;
+  /**
+   * Tags collection
+   * @example
+   * mCAP.push.tags.tags
+   */
   var Tags = mCAP.PushAppAttributeCollection.extend({
   
+    /**
+     * There is no model caused by the server response. The server just returns an string array with all tags.
+     * @type {Array}
+     */
     tags: null,
   
     endpoint: '/tags',
   
+    /**
+     * Tags are a simple string array - so there is no model
+     * @param data
+     */
     parse: function (data) {
+      // set the tags
       this.tags = data;
+    },
+  
+    /**
+     * Caused by no model the get is overwritten to be API compliant.
+     * @param key
+     * @returns {*}
+     */
+    get: function(key){
+      if(key === 'tag' || key === 'tags'){
+        return this.tags;
+      } else {
+        return mCAP.PushAppAttributeCollection.prototype.get.apply(this, arguments);
+      }
+    },
+  
+    /**
+     * Caused by no model the get is overwritten to be API compliant.
+     * @param key
+     * @returns {*}
+     */
+    set: function(key, val){
+      if(key === 'tag' || key === 'tags'){
+        this.tags = val;
+        return this;
+      } else {
+        return mCAP.PushAppAttributeCollection.prototype.set.apply(this, arguments);
+      }
     }
   
   });
   
   mCAP.Tags = Tags;
+  /**
+   * The push app Model
+   */
   var PushApp = mCAP.Model.extend({
   
+    /**
+     * The endpoint of the API
+     * @type {String}
+     */
     endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
   
     idAttribute: 'uuid',
@@ -1283,38 +1357,69 @@
       effectivePermissions: '*'
     },
   
+    /**
+     * Tags collection
+     */
     tags: null,
+  
+    /**
+     * Jobs collection
+     */
     jobs: null,
+  
+    /**
+     * Device collection
+     */
     devices: null,
   
     initialize: function () {
+      // cache
       var that = this;
+      // API to the collections to get the url they are based on
       var _url = function(){
         return that.url();
       };
+  
+      // give a url function to the constructor of the collections. The 'children' need the url to build their own one based on its 'parent'
       this.tags = new mCAP.Tags({
         url: _url
       });
       this.jobs = new mCAP.Jobs({
         url: _url
       });
-  
       this.devices = new mCAP.Devices({
         url: _url
       });
   
+      // call super
       return mCAP.Model.prototype.initialize.apply(this, arguments);
     }
   
   });
   
   mCAP.PushApp = PushApp;
+  /**
+   * The push app collection
+   */
   var PushApps = mCAP.Collection.extend({
   
+    /**
+     * The endpoint of the API
+     * @type {String}
+     */
     endpoint: 'push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
   
+    /**
+     * The model
+     * @type {mCAP.PushApp}
+     */
     model: mCAP.PushApp,
   
+    /**
+     * Returns the data from the server
+     * @param data
+     * @returns {*}
+     */
     parse: function(data){
       if(data && data.items){
         return data.items;
@@ -1325,6 +1430,10 @@
   });
   
   mCAP.PushApps = PushApps;
+  /**
+   * Push namespace
+   * @type {mCAP.PushApp}
+   */
   mCAP.push = new mCAP.PushApp({});
 
   root.mCAP = mCAP;
