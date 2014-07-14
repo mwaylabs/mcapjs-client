@@ -12,7 +12,7 @@ var PushApp = mCAP.Model.extend({
   idAttribute: 'uuid',
 
   defaults: {
-    uuid: '',
+    uuid: null,
     name: '',
     apnsProvider: null,
     gcmProvider: null,
@@ -53,9 +53,19 @@ var PushApp = mCAP.Model.extend({
     this.devices = new mCAP.Devices({
       url: _url
     });
+    this.apnsProvider = new mCAP.ApnsProvider({
+      url: _url
+    });
 
     // call super
     return mCAP.Model.prototype.initialize.apply(this, arguments);
+  },
+
+  fetch: function(){
+    this.devices.fetch();
+    this.tags.fetch();
+    this.jobs.fetch();
+    return mCAP.Model.prototype.fetch.apply(this, arguments);
   }
 
 });
