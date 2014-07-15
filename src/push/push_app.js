@@ -1,7 +1,7 @@
 /**
  * The push app Model
  */
-var PushApp = mCAP.Model.extend({
+var PushApp = mCAP.Component.extend({
 
   /**
    * The endpoint of the API
