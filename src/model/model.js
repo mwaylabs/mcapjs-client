@@ -147,7 +147,8 @@ var Model = Backbone.Model.extend({
    */
   _save: function (key, val, options) {
     // prepare options
-    if (key === null || typeof key === 'object') {
+    // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+    if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
       options = val;
     }
     // make sure options are defined
@@ -167,7 +168,8 @@ var Model = Backbone.Model.extend({
     };
 
     // make sure options are the correct paramater
-    if (key === null || typeof key === 'object') {
+    // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+    if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
       val = options;
     }
 
