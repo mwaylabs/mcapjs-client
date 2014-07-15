@@ -16,7 +16,7 @@ var ApnsProvider = mCAP.Model.extend({
   },
 
   upload: function () {
-    this.sync();
+    return this.sync();
   },
 
   setEndpoint: function (endpoint) {

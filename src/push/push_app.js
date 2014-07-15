@@ -15,6 +15,7 @@ var PushApp = mCAP.Component.extend({
     uuid: null,
     name: '',
     apnsProvider: null,
+    // example this.set('gcmProvider', {apiKey: ''});
     gcmProvider: null,
     version: -1,
     effectivePermissions: '*'
