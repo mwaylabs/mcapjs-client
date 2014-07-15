@@ -28,6 +28,7 @@
 
   // INCLUDE mCAP PUBLIC VARS HERE
   // @include ./model/model.js
+  // @include ./model/component.js
   // @include ./collection/collection.js
   // @include ./filter/filter.js
   // @include ./application/application.js
@@ -49,6 +50,7 @@
   // @include ./push/job.js
   // @include ./push/jobs.js
   // @include ./push/tags.js
+  // @include ./push/apns_provider.js
   // @include ./push/push_app.js
   // @include ./push/push_apps.js
   // @include ./push/mcap_push.js

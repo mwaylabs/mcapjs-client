@@ -574,6 +574,68 @@
   });
   
   mCAP.Model = Model;
+  /**
+   * The Component Model - extends the mCAP.Model with a version number
+   */
+  var Component = mCAP.Model.extend({
+  
+    endpoint: '/',
+  
+    defaults: {
+      uuid: null,
+      version: 0
+    },
+  
+    increaseVersionNumber: function () {
+      this.attributes.version += 1;
+    },
+  
+    decreaseVersionNumber: function () {
+      this.attributes.version -= 1;
+    },
+  
+    /**
+     * Update version number on save
+     * @param key
+     * @param val
+     * @param options
+     * @returns {Array}
+     * @private
+     */
+    _save: function (key, val, options) {
+      // prepare options
+      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
+        options = val;
+      }
+      // make sure options are defined
+      options = _.extend({validate: true}, options);
+      // cache success
+      var error = options.error;
+      // cache model
+      var model = this;
+  
+      model.increaseVersionNumber();
+      // overwrite error
+      options.error = function (resp) {
+        model.decreaseVersionNumber();
+        // call cached success
+        if (error) {
+          error(model, resp, options);
+        }
+      };
+  
+      // make sure options are the correct paramater
+      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
+        val = options;
+      }
+      return mCAP.Model.prototype._save.call(this, key, val, options);
+    }
+  
+  });
+  
+  mCAP.Component = Component;
   var Filterable = Filterable || {},
     SelectableFactory = SelectableFactory || {};
   
@@ -1344,9 +1406,96 @@
   
   mCAP.Tags = Tags;
   /**
+   * ApnsProvider
+   */
+  var ApnsProvider = mCAP.Model.extend({
+  
+    endpoint: '/apnsProvider',
+  
+    defaults: {
+      'certificate': null,
+      'passphrase': null
+    },
+  
+    initialize: function (push) {
+      this.push = push;
+      return mCAP.Model.prototype.initialize.apply(this, arguments);
+    },
+  
+    upload: function () {
+      this.sync();
+    },
+  
+    setEndpoint: function (endpoint) {
+      this.url = function () {
+        // take the 'parent' url and append the own endpoint
+        return URI(this.push.url() + endpoint).normalize().toString();
+      };
+    },
+  
+    sync: function (method, model, options) {
+  
+      model = model || this;
+      // Post data as FormData object on create to allow file upload
+  
+      var formData = new FormData();
+  
+      formData.append('passphrase', this.get('passphrase'));
+      formData.append('certificate', this.get('certificate'));
+  
+      // Set processData and contentType to false so data is sent as FormData
+      _.defaults(options || (options = {}), {
+        url: this.url(),
+        data: formData,
+        type: 'PUT',
+        processData: false,
+        contentType: false,
+        xhr: function(){
+          // get the native XmlHttpRequest object
+          var xhr = $.ajaxSettings.xhr();
+          // set the onprogress event handler
+          xhr.upload.onprogress = function(event) {
+            // console.log('%d%', (event.loaded / event.total) * 100);
+            // Trigger progress event on model for view updates
+            model.trigger('progress', (event.loaded / event.total) * 100);
+          };
+          // set the onload event handler
+          xhr.upload.onload = function(){
+            model.trigger('progress', 100);
+          };
+          // return the customized object
+          return xhr;
+        }
+      });
+      return Backbone.sync.call(this, method, model, options);
+    }
+  
+  });
+  
+  mCAP.ApnsProvider = ApnsProvider;
+  
+  /*
+  Usage
+  var apnsProvider = new ApnsProvider({
+    url: function () {
+      return push.url()
+    }
+  });
+  
+  // <input id="file" type="file">
+  // <input id="password" type="password">
+  var apnsProviderFile = $('#file')[0].files[0];
+  var apnsProviderPassword = this.$el.find('#password').val();
+  
+  apnsProvider.set('certificate', apnsProviderFile);
+  apnsProvider.set('passphrase', apnsProviderPassword);
+  
+  apnsProvider.upload();
+    */
+  /**
    * The push app Model
    */
-  var PushApp = mCAP.Model.extend({
+  var PushApp = mCAP.Component.extend({
   
     /**
      * The endpoint of the API
