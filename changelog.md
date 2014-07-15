@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.9 - 2014-07-15
+- add ApnsProvider object - used by mCAP.push
+
 ## 0.0.8 - 2014-07-11
 - add token to push device
 
