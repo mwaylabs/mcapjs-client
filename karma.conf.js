@@ -32,6 +32,8 @@ module.exports = function(config) {
       'src/utils/**/*.js',
       'src/filter/filterable.js',
       'src/selectable/**/*.js',
+      'src/model/model.js',
+      'src/model/component.js',
       'src/model/**/*.js',
       'src/collection/**/*.js',
       'src/filter/filter.js',

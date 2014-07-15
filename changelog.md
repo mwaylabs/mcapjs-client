@@ -1,7 +1,9 @@
 # Changelog
 
 ## 0.0.9 - 2014-07-15
-- add ApnsProvider object - used by mCAP.push
+- Add ApnsProvider object - used by mCAP.push
+- Add mCAP.Component - implements a version number that gets increased on every save.
+- Bugfix mCAP.model success callback wasn't called
 
 ## 0.0.8 - 2014-07-11
 - add token to push device

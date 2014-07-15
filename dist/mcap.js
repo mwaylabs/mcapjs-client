@@ -25,6 +25,8 @@
   
   // global mcap constants
   mCAP.MCAP = 'MCAP';
+  mCAP.APNS = 'APNS';
+  mCAP.GCM = 'GCM';
   /**
    * Send a request to with the given settings
    * @param settings
@@ -496,7 +498,8 @@
      */
     _save: function (key, val, options) {
       // prepare options
-      if (key === null || typeof key === 'object') {
+      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
         options = val;
       }
       // make sure options are defined
@@ -516,7 +519,8 @@
       };
   
       // make sure options are the correct paramater
-      if (key === null || typeof key === 'object') {
+      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
         val = options;
       }
   
@@ -1206,7 +1210,7 @@
     idAttribute: 'uuid',
   
     defaults: {
-      'providerType': mCAP.MCAP,
+      'providerType': mCAP.MCAP, // mCAP.GCM, mCAP.APNS
       'user': '',
       'vendor': '',
       'name': '',
@@ -1215,13 +1219,17 @@
       'country': 'DE',
       'tags': null,
       'badge': 0,
+      'appPackageName': null, // bundleIdentifier
+      'type': null, // smartphone or tablet
+      'appVersion': null,
+      'model': null,
+      'attributes': null, // string to string hashmap {"key": "value"}
       'token': ''
     }
   
   });
   
   mCAP.Device = Device;
-  
   /**
    * Device Collection
    */
@@ -1349,7 +1357,7 @@
     idAttribute: 'uuid',
   
     defaults: {
-      uuid: '',
+      uuid: null,
       name: '',
       apnsProvider: null,
       gcmProvider: null,
@@ -1390,9 +1398,19 @@
       this.devices = new mCAP.Devices({
         url: _url
       });
+      this.apnsProvider = new mCAP.ApnsProvider({
+        url: _url
+      });
   
       // call super
       return mCAP.Model.prototype.initialize.apply(this, arguments);
+    },
+  
+    fetch: function(){
+      this.devices.fetch();
+      this.tags.fetch();
+      this.jobs.fetch();
+      return mCAP.Model.prototype.fetch.apply(this, arguments);
     }
   
   });
