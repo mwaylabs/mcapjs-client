@@ -55,6 +55,8 @@ export PHANTOMJS_BIN=$(which phantomjs)
 To start a test use:
 ```
 karma start karma.conf.js
+// or
+grunt test
 ```
 
 It is also possible to test against a running server:
