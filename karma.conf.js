@@ -39,6 +39,7 @@ module.exports = function(config) {
       'src/security/**/*.js',
 
       'src/push/**/push_attribute_collection.js',
+      'src/push/**/apns_provider.js',
       'src/push/**/device.js',
       'src/push/**/devices.js',
       'src/push/**/job.js',
