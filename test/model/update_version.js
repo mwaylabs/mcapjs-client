@@ -50,7 +50,7 @@ describe("mCAP.push", function () {
     var model = new mCAP.Component({});
 
     model.save().then(function () {
-      expect(model.get('version')).toBe(1);
+      expect(model.get('version')).toBe(0);
       callback();
     });
 
@@ -68,7 +68,7 @@ describe("mCAP.push", function () {
     });
 
     model.save().fail(function () {
-      expect(model.get('version')).toBe(0);
+      expect(model.get('version')).toBe(-1);
       callback();
     });
 

@@ -583,7 +583,7 @@
   
     defaults: {
       uuid: null,
-      version: 0
+      version: -1
     },
   
     increaseVersionNumber: function () {
@@ -1510,7 +1510,7 @@
       name: '',
       apnsProvider: null,
       gcmProvider: null,
-      version: 0,
+      version: -1,
       effectivePermissions: '*'
     },
   

@@ -7,7 +7,7 @@ var Component = mCAP.Model.extend({
 
   defaults: {
     uuid: null,
-    version: 0
+    version: -1
   },
 
   increaseVersionNumber: function () {

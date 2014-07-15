@@ -16,7 +16,7 @@ var PushApp = mCAP.Component.extend({
     name: '',
     apnsProvider: null,
     gcmProvider: null,
-    version: 0,
+    version: -1,
     effectivePermissions: '*'
   },
 
