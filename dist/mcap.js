@@ -666,7 +666,7 @@
   
     setEndpoint: function (endpoint) {
       this.url = function(){
-        return mCAP.application.get('baseUrl') + '/' + endpoint;
+        return URI(mCAP.application.get('baseUrl') + '/' + endpoint).normalize().toString();
       };
     },
   
@@ -1423,7 +1423,7 @@
     },
   
     upload: function () {
-      this.sync();
+      return this.sync();
     },
   
     setEndpoint: function (endpoint) {
@@ -1501,7 +1501,7 @@
      * The endpoint of the API
      * @type {String}
      */
-    endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
+    endpoint: 'push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
   
     idAttribute: 'uuid',
   
@@ -1509,6 +1509,7 @@
       uuid: null,
       name: '',
       apnsProvider: null,
+      // example this.set('gcmProvider', {apiKey: ''});
       gcmProvider: null,
       version: -1,
       effectivePermissions: '*'
