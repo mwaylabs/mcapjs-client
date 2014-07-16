@@ -17,16 +17,36 @@
   };
 
   //INCLUDE GLOBAL SETTINGS HERE
+  // global mcap constants
+  mCAP.MCAP = 'MCAP';
+  mCAP.APNS = 'APNS';
+  mCAP.GCM = 'GCM';
+  
+  // component types
+  mCAP.ASSET = 'ASSET';
+  mCAP.CHANNEL = 'CHANNEL';
+  mCAP.PIPELINE = 'PIPELINE';
+  mCAP.SERVICE_CONNECTION = 'SERVICE_CONNECTION';
+  mCAP.META_MODEL = 'META_MODEL';
+  mCAP.SCHEDULER_TASK = 'SCHEDULER_TASK';
+  mCAP.PUSH_SERVICE = 'PUSH_SERVICE';
   /**
    * Utils namespace
    * @type {Object}
    */
   mCAP.Utils = {};
   
-  // global mcap constants
-  mCAP.MCAP = 'MCAP';
-  mCAP.APNS = 'APNS';
-  mCAP.GCM = 'GCM';
+  /**
+   * Returns the component type enum of the given model
+   * Compare the return value with an mCAP constant/global
+   * @param model
+   * @returns {string}
+   */
+  mCAP.Utils.getComponentType = function (model) {
+    if(mCAP.PushApp.prototype.isPrototypeOf(model)){
+      return mCAP.PUSH_SERVICE;
+    }
+  };
   /**
    * Send a request to with the given settings
    * @param settings

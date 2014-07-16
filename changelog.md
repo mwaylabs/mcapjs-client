@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.11 - 2014-07-16
+- Add component type
+- get the component type with the Utils API: mCAP.Utils.getComponentType
+
 ## 0.0.10 - 2014-07-16
 - URL Bugfix for collections
 

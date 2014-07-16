@@ -28,6 +28,7 @@ module.exports = function(config) {
       'bower_components/backbone/backbone.js',
       'bower_components/uri.js/src/URI.js',
       'src/mcap.js',
+      'src/utils/globals.js',
       'src/utils/utils.js',
       'src/utils/**/*.js',
       'src/filter/filterable.js',
