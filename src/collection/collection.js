@@ -28,7 +28,7 @@ var Collection = Backbone.Collection.extend({
 
   setEndpoint: function (endpoint) {
     this.url = function(){
-      return mCAP.application.get('baseUrl') + '/' + endpoint;
+      return URI(mCAP.application.get('baseUrl') + '/' + endpoint).normalize().toString();
     };
   },
 

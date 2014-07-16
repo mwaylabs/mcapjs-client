@@ -21,7 +21,7 @@ describe("mCAP.push", function () {
 
     expect(push.endpoint).toBeDefined();
     expect(mCAP.push.endpoint).toBeDefined();
-    expect(push.endpoint).toEqual('/push/api/v1/apps/');
+    expect(push.endpoint).toEqual('push/api/v1/apps/');
 
   });
 

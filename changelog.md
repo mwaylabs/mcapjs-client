@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.10 - 2014-07-16
+- URL Bugfix for collections
+
 ## 0.0.9 - 2014-07-15
 - Add ApnsProvider object - used by mCAP.push
 - Add mCAP.Component - implements a version number that gets increased on every save.

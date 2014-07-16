@@ -7,7 +7,7 @@ var PushApp = mCAP.Component.extend({
    * The endpoint of the API
    * @type {String}
    */
-  endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
+  endpoint: 'push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
 
   idAttribute: 'uuid',
 
