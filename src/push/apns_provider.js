@@ -60,7 +60,11 @@ var ApnsProvider = mCAP.Model.extend({
         return xhr;
       }
     });
-    return Backbone.sync.call(this, method, model, options);
+    return Backbone.sync.call(this, method, model, options).then(function(attributes){
+      // update the apns provider details after saving
+      model.push.update(attributes);
+      return arguments;
+    });
   }
 
 });

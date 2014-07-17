@@ -44,6 +44,16 @@ var PushApp = mCAP.Component.extend({
       return that.url();
     };
 
+    /**
+     * Interface to update the apnsProvider data after uploading a file
+     * @param data
+     * @returns {*}
+     * @private
+     */
+    var _updateApnsProvider = function(data){
+      return that.set('apnsProvider', data);
+    };
+
     // give a url function to the constructor of the collections. The 'children' need the url to build their own one based on its 'parent'
     this.tags = new mCAP.Tags({
       url: _url
@@ -55,7 +65,8 @@ var PushApp = mCAP.Component.extend({
       url: _url
     });
     this.apnsProvider = new mCAP.ApnsProvider({
-      url: _url
+      url: _url,
+      update: _updateApnsProvider
     });
 
     // call super

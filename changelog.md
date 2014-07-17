@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.12 - 2014-07-17
+- Update the push app model after uploading the apns provider certificate
+
 ## 0.0.11 - 2014-07-16
 - Add component type
 - get the component type with the Utils API: mCAP.Utils.getComponentType

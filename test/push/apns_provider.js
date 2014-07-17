@@ -41,4 +41,21 @@ describe("mCAP.ApnsProvider", function () {
 
   });
 
+  xit("ApnsProvider formdata upload test", function () {
+
+    // TODO
+
+  });
+
+  xit("ApnsProvider formdata upload and update the push apnsProvider attributes", function () {
+
+    // TODO see:
+    // return Backbone.sync.call(this, method, model, options).then(function(attributes){
+    // update the apns provider details after saving
+    //model.push.update(attributes);
+    //return arguments;
+    //});
+
+  });
+
 });
