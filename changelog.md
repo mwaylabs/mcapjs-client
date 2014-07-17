@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.13 - 2014-07-17
+- Add constants for studion, file and folder
+
 ## 0.0.12 - 2014-07-17
 - Update the push app model after uploading the apns provider certificate
 

@@ -20,6 +20,9 @@ describe("mCAP.Utils component type", function () {
     expect(mCAP.META_MODEL).toEqual('META_MODEL');
     expect(mCAP.SCHEDULER_TASK).toEqual('SCHEDULER_TASK');
     expect(mCAP.PUSH_SERVICE).toEqual('PUSH_SERVICE');
+    expect(mCAP.FILE).toEqual('d5b8e89f-b912-4c93-a419-866445dd3df3');
+    expect(mCAP.FOLDER).toEqual('73a7cf45-10b1-4636-84c0-22b5a99692e1');
+    expect(mCAP.STUDIO).toEqual('F4C7059E-B62B-4600-A7BC-B0CC43E75465');
 
   });
 
