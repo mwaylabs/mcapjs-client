@@ -666,7 +666,7 @@
   
     setEndpoint: function (endpoint) {
       this.url = function(){
-        return mCAP.application.get('baseUrl') + '/' + endpoint;
+        return URI(mCAP.application.get('baseUrl') + '/' + endpoint).normalize().toString();
       };
     },
   
@@ -1423,7 +1423,7 @@
     },
   
     upload: function () {
-      this.sync();
+      return this.sync();
     },
   
     setEndpoint: function (endpoint) {
@@ -1501,7 +1501,7 @@
      * The endpoint of the API
      * @type {String}
      */
-    endpoint: '/push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
+    endpoint: 'push/api/' + mCAP.application.get('pushServiceApiVersion') + '/apps/',
   
     idAttribute: 'uuid',
   
@@ -1509,6 +1509,7 @@
       uuid: null,
       name: '',
       apnsProvider: null,
+      // example this.set('gcmProvider', {apiKey: ''});
       gcmProvider: null,
       version: -1,
       effectivePermissions: '*'
@@ -1533,7 +1534,7 @@
       // cache
       var that = this;
       // API to the collections to get the url they are based on
-      var _url = function(){
+      var _url = function () {
         return that.url();
       };
   
@@ -1555,11 +1556,8 @@
       return mCAP.Model.prototype.initialize.apply(this, arguments);
     },
   
-    fetch: function(){
-      this.devices.fetch();
-      this.tags.fetch();
-      this.jobs.fetch();
-      return mCAP.Model.prototype.fetch.apply(this, arguments);
+    fetch: function () {
+      return $.when(this.devices.fetch(), this.tags.fetch(), this.jobs.fetch(), mCAP.Model.prototype.fetch.apply(this, arguments));
     }
   
   });
