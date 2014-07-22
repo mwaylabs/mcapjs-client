@@ -4,6 +4,8 @@
   var sync = Backbone.sync,
     mCAP = {};
 
+  Backbone.$ = Backbone.$ || $;
+
   Backbone.$.ajaxSetup({
     // send cookies
     xhrFields: { withCredentials: true }
