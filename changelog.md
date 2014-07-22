@@ -1,7 +1,11 @@
 # Changelog
 
+## 0.0.14 - 2014-07-22
+- make sure backbone has jquery
+- resolve the fetch of a push app when devices, tags, jobs and own fetch are resolved
+
 ## 0.0.13 - 2014-07-17
-- Add constants for studion, file and folder
+- Add constants for studio, file and folder
 
 ## 0.0.12 - 2014-07-17
 - Update the push app model after uploading the apns provider certificate
