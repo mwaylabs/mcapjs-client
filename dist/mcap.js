@@ -1562,7 +1562,7 @@
       // cache
       var that = this;
       // API to the collections to get the url they are based on
-      var _url = function(){
+      var _url = function () {
         return that.url();
       };
   
@@ -1595,11 +1595,8 @@
       return mCAP.Model.prototype.initialize.apply(this, arguments);
     },
   
-    fetch: function(){
-      this.devices.fetch();
-      this.tags.fetch();
-      this.jobs.fetch();
-      return mCAP.Model.prototype.fetch.apply(this, arguments);
+    fetch: function () {
+      return $.when(this.devices.fetch(), this.tags.fetch(), this.jobs.fetch(), mCAP.Model.prototype.fetch.apply(this, arguments));
     }
   
   });
