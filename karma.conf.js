@@ -51,6 +51,7 @@ module.exports = function(config) {
       'src/push/**/push_app.js',
       'src/push/**/push_apps.js',
       'src/push/**/mcap_push.js',
+      'src/push/**/push_notification.js',
       'test/sinon-1.9.1.js',
       'test/**/*.js'
     ],

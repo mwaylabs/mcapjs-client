@@ -57,6 +57,7 @@
   // @include ./push/push_app.js
   // @include ./push/push_apps.js
   // @include ./push/mcap_push.js
+  // @include ./push/push_notification.js
 
   root.mCAP = mCAP;
 
