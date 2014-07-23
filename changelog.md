@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.15 - 2014-07-23
+-
+
 ## 0.0.14 - 2014-07-22
 - make sure backbone has jquery
 - resolve the fetch of a push app when devices, tags, jobs and own fetch are resolved
