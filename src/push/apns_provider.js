@@ -10,7 +10,7 @@ var ApnsProvider = mCAP.Model.extend({
     'passphrase': null
   },
 
-  initialize: function (push) {
+  initialize: function (child, push) {
     this.push = push;
     return mCAP.Model.prototype.initialize.apply(this, arguments);
   },

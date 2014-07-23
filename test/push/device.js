@@ -24,8 +24,9 @@ describe("mCAP.push.device", function () {
     expect(Device.prototype.defaults.badge).toBeDefined();
     expect(Device.prototype.defaults.token).toBeDefined();
 
+    expect(mCAP.push.devices.length).toEqual(0);
     var device = mCAP.push.devices.add({});
-
+    expect(mCAP.push.devices.length).toEqual(1);
     expect(device.get('providerType')).toEqual(mCAP.MCAP);
     expect(device.get('user')).toEqual('');
     expect(device.get('osVersion')).toEqual('');
@@ -35,9 +36,30 @@ describe("mCAP.push.device", function () {
     expect(device.get('tags')).toEqual(null);
     expect(device.get('badge')).toEqual(0);
     expect(device.get('token')).toEqual('');
+    mCAP.push.devices.remove(device);
+    expect(mCAP.push.devices.length).toEqual(0);
 
   });
 
+
+  it("Devices implementation", function () {
+
+    var devices = new mCAP.Devices();
+    var device = devices.add({});
+    expect(devices.length).toEqual(1);
+    expect(device.get('providerType')).toEqual(mCAP.MCAP);
+    expect(device.get('user')).toEqual('');
+    expect(device.get('osVersion')).toEqual('');
+    expect(device.get('language')).toEqual('de');
+    expect(device.get('country')).toEqual('DE');
+    expect(device.get('vendor')).toEqual('');
+    expect(device.get('tags')).toEqual(null);
+    expect(device.get('badge')).toEqual(0);
+    expect(device.get('token')).toEqual('');
+    devices.remove(device);
+    expect(devices.length).toEqual(0);
+
+  });
 
   it("Devices endpoint", function () {
 

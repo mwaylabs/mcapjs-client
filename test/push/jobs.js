@@ -22,6 +22,29 @@ describe("mCAP.push.jobs", function () {
     expect(typeof Job.prototype.sendPush).toEqual('function');
 
     var job = mCAP.push.jobs.add({});
+    expect(mCAP.push.jobs.length).toEqual(1);
+    expect(job.get('deviceFilter')).toEqual(null);
+    expect(job.get('sound')).toEqual('');
+    expect(job.get('message')).toEqual('');
+
+    expect(job.sendPush().then).toBeDefined();
+    expect(job.sendPush().fail).toBeDefined();
+    expect(job.sendPush().always).toBeDefined();
+
+    mCAP.push.jobs.remove(job);
+    expect(mCAP.push.jobs.length).toEqual(0);
+  });
+
+  it("Jobs implementation", function(){
+
+    var jobs = new mCAP.Jobs(null, {
+      url: function(){
+        return 'http://test.com';
+      }
+    });
+    expect(jobs.length).toEqual(0);
+    job = jobs.add({});
+    expect(jobs.length).toEqual(1);
 
     expect(job.get('deviceFilter')).toEqual(null);
     expect(job.get('sound')).toEqual('');
@@ -30,6 +53,9 @@ describe("mCAP.push.jobs", function () {
     expect(job.sendPush().then).toBeDefined();
     expect(job.sendPush().fail).toBeDefined();
     expect(job.sendPush().always).toBeDefined();
+
+    jobs.remove(job);
+    expect(jobs.length).toEqual(0);
 
   });
 
@@ -47,7 +73,6 @@ describe("mCAP.push.jobs", function () {
     mCAP.push.set('uuid', '');
     mCAP.application.set('pushServiceApiVersion', '');
     expect(mCAP.push.jobs.url()).toEqual(baseUrl + '/push/api/v1/apps/jobs');
-
   });
 
 });

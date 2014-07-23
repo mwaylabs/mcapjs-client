@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.0.15 - 2014-07-23
--
+- changed mCAP.push collection API
 
 ## 0.0.14 - 2014-07-22
 - make sure backbone has jquery

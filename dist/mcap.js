@@ -1282,7 +1282,7 @@
      * @param push
      * @returns {*}
      */
-    initialize: function (push) {
+    initialize: function (child, push) {
       this.push = push;
       return mCAP.Collection.prototype.initialize.apply(this, arguments);
     }
@@ -1443,7 +1443,7 @@
       'passphrase': null
     },
   
-    initialize: function (push) {
+    initialize: function (child, push) {
       this.push = push;
       return mCAP.Model.prototype.initialize.apply(this, arguments);
     },
@@ -1579,16 +1579,16 @@
       };
   
       // give a url function to the constructor of the collections. The 'children' need the url to build their own one based on its 'parent'
-      this.tags = new mCAP.Tags({
+      this.tags = new mCAP.Tags(null, {
         url: _url
       });
-      this.jobs = new mCAP.Jobs({
+      this.jobs = new mCAP.Jobs(null, {
         url: _url
       });
-      this.devices = new mCAP.Devices({
+      this.devices = new mCAP.Devices(null, {
         url: _url
       });
-      this.apnsProvider = new mCAP.ApnsProvider({
+      this.apnsProvider = new mCAP.ApnsProvider(null, {
         url: _url,
         update: _updateApnsProvider
       });

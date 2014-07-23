@@ -1,7 +1,6 @@
 describe("mCAP.ApnsProvider", function () {
 
   it("Object definition: ApnsProvider", function () {
-
     expect(ApnsProvider).toBeDefined();
     expect(mCAP.ApnsProvider).toBeDefined();
     expect(mCAP.Model.prototype.isPrototypeOf(mCAP.push.apnsProvider)).toBeTruthy();

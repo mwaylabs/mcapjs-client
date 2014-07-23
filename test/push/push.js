@@ -12,12 +12,25 @@ describe("mCAP.push", function () {
     expect(PushApp.prototype.hasOwnProperty('tags')).toBeTruthy();
 
     expect(mCAP.push).toBeDefined();
+    expect(mCAP.push.tags.length).toEqual(0);
+    expect(mCAP.push.jobs.length).toEqual(0);
+    expect(mCAP.push.devices.length).toEqual(0);
+
     expect(mCAP.Model.prototype.isPrototypeOf(mCAP.push)).toBeTruthy();
     expect(Backbone.Model.prototype.isPrototypeOf(mCAP.push)).toBeTruthy();
 
     var push = new mCAP.PushApp();
     var push1 = new mCAP.PushApp();
     expect(push.tags === push.tag).toBeFalsy();
+    expect(push.tags === push1.tags).toBeFalsy();
+
+    expect(push.tags.length).toEqual(0);
+    expect(push.jobs.length).toEqual(0);
+    expect(push.devices.length).toEqual(0);
+
+    expect(push1.tags.length).toEqual(0);
+    expect(push1.jobs.length).toEqual(0);
+    expect(push1.devices.length).toEqual(0);
 
     expect(push.endpoint).toBeDefined();
     expect(mCAP.push.endpoint).toBeDefined();
@@ -38,9 +51,18 @@ describe("mCAP.push", function () {
     var uuid = '1234-5678-9009';
     mCAP.push.set('uuid', uuid);
     expect(mCAP.push.url()).toEqual(baseUrl + '/push/api/v1/apps/' + uuid);
+
     expect(mCAP.push.tags.url()).toEqual(baseUrl + '/push/api/v1/apps/' +  uuid +'/tags');
     expect(mCAP.push.jobs.url()).toEqual(baseUrl + '/push/api/v1/apps/' +  uuid +'/jobs');
     expect(mCAP.push.devices.url()).toEqual(baseUrl + '/push/api/v1/apps/' +  uuid +'/devices');
+
+  });
+
+
+  it("Push Implementation", function () {
+
+
+
 
   });
 

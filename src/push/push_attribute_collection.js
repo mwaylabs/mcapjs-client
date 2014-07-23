@@ -23,7 +23,7 @@ var PushAppAttributeCollection = mCAP.Collection.extend({
    * @param push
    * @returns {*}
    */
-  initialize: function (push) {
+  initialize: function (child, push) {
     this.push = push;
     return mCAP.Collection.prototype.initialize.apply(this, arguments);
   }
