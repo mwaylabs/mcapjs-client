@@ -21,6 +21,12 @@ var Device = mCAP.Model.extend({
     'model': null,
     'attributes': null, // string to string hashmap {"key": "value"}
     'token': ''
+  },
+
+  initialize: function (options) {
+    this.attributes.tags = options.tags || [];
+    this.attributes.attributes = options.attributes || {};
+    return mCAP.Model.prototype.initialize.apply(this, arguments);
   }
 
 });

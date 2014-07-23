@@ -33,7 +33,8 @@ describe("mCAP.push.device", function () {
     expect(device.get('language')).toEqual('de');
     expect(device.get('country')).toEqual('DE');
     expect(device.get('vendor')).toEqual('');
-    expect(device.get('tags')).toEqual(null);
+    expect(device.get('tags')).toEqual([]);
+    expect(device.get('attributes')).toEqual({});
     expect(device.get('badge')).toEqual(0);
     expect(device.get('token')).toEqual('');
     mCAP.push.devices.remove(device);
@@ -53,7 +54,8 @@ describe("mCAP.push.device", function () {
     expect(device.get('language')).toEqual('de');
     expect(device.get('country')).toEqual('DE');
     expect(device.get('vendor')).toEqual('');
-    expect(device.get('tags')).toEqual(null);
+    expect(device.get('tags')).toEqual([]);
+    expect(device.get('attributes')).toEqual({});
     expect(device.get('badge')).toEqual(0);
     expect(device.get('token')).toEqual('');
     devices.remove(device);
