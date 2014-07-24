@@ -36,6 +36,11 @@ describe("mCAP.PushNotification", function () {
     expect(mCAP.PushNotification.prototype.setUser).toBeDefined();
     expect(mCAP.PushNotification.prototype.unsubscribeTag).toBeDefined();
     expect(mCAP.PushNotification.prototype.unregister).toBeDefined();
+    expect(mCAP.PushNotification.prototype.register).toBeDefined();
+
+    expect(mCAP.PushNotification.prototype.updateDeviceBadge).toBeDefined();
+    expect(mCAP.PushNotification.prototype.sendStatusBarNotification).toBeDefined();
+    expect(mCAP.PushNotification.prototype.showToastNotification).toBeDefined();
 
     expect(mCAP.PushNotification.prototype.set).toBeDefined();
     expect(mCAP.PushNotification.prototype.get).toBeDefined();
@@ -215,7 +220,82 @@ describe("mCAP.PushNotification", function () {
     pushNotification.removeTags(['a','b','c','d','e']);
     expect(pushNotification.get('tags').length).toEqual(0);
 
+  });
 
+  it("add mulitple attributes", function () {
+
+    var pushNotification = new mCAP.PushNotification();
+    pushNotification.addAttributes({
+      'title1': 'title1',
+      'title2': 'title2',
+      'title3': 'title3'
+    });
+
+    expect(pushNotification.get('attributes')).toEqual({
+      'title1': 'title1',
+      'title2': 'title2',
+      'title3': 'title3'
+    });
+
+  });
+
+  it("remove mulitple attributes", function () {
+
+    var pushNotification = new mCAP.PushNotification();
+    pushNotification.addAttributes({
+      'title1': 'title1',
+      'title2': 'title2',
+      'title3': 'title3',
+      'title4': 'title4'
+    });
+
+    pushNotification.removeAttributes(['title1', 'title2']);
+
+    expect(pushNotification.get('attributes')).toEqual({
+      'title3': 'title3',
+      'title4': 'title4'
+    });
+
+    pushNotification.removeAttributes(['title3', 'title4']);
+
+    expect(pushNotification.get('attributes')).toEqual({});
+
+  });
+
+  it("return values", function () {
+
+    var pushNotification = new mCAP.PushNotification({
+      pushServiceId: '121651481851'
+    });
+
+    expect(pushNotification.sendStatusBarNotification()).toEqual(pushNotification);
+    expect(pushNotification.showToastNotification()).toEqual(pushNotification);
+    expect(pushNotification.subscribeTag()).toEqual(pushNotification);
+    expect(pushNotification.subscribeTags()).toEqual(pushNotification);
+    expect(pushNotification.putAttributeValue()).toEqual(pushNotification);
+    expect(pushNotification.removeAttribute()).toEqual(pushNotification);
+    expect(pushNotification.setAttributes()).toEqual(pushNotification);
+    expect(pushNotification.setCountry()).toEqual(pushNotification);
+    expect(pushNotification.setCurrentBadge()).toEqual(pushNotification);
+    expect(pushNotification.setToken()).toEqual(pushNotification);
+    expect(pushNotification.setLanguage()).toEqual(pushNotification);
+    expect(pushNotification.setModel()).toEqual(pushNotification);
+    expect(pushNotification.setUser()).toEqual(pushNotification);
+    expect(pushNotification.unsubscribeTag()).toEqual(pushNotification);
+    expect(pushNotification.updateDeviceBadge()).toEqual(pushNotification);
+    expect(pushNotification.sendStatusBarNotification()).toEqual(pushNotification);
+    expect(pushNotification.showToastNotification()).toEqual(pushNotification);
+    expect(pushNotification.set()).toEqual(pushNotification);
+
+    var promise = pushNotification.register();
+    expect(promise.then).toBeDefined();
+    expect(promise.always).toBeDefined();
+    expect(promise.fail).toBeDefined();
+
+    var promise = pushNotification.unregister();
+    expect(promise.then).toBeDefined();
+    expect(promise.always).toBeDefined();
+    expect(promise.fail).toBeDefined();
   });
 
 });

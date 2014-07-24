@@ -1747,14 +1747,35 @@
    */
   mCAP.PushNotification.prototype.removeAttribute = function (key) {
     delete this.device.attributes.attributes[key];
+    return this;
   };
   
   /**
-   * Remove an extra attribute
-   * @param key
+   * Add extra attributes
+   * @param object
    */
-  mCAP.PushNotification.prototype.removeAttribute = function (key) {
-    delete this.device.attributes.attributes[key];
+  mCAP.PushNotification.prototype.addAttributes = function (object) {
+    this.device.attributes.attributes = _.extend(this.device.attributes.attributes, object);
+    return this;
+  };
+  
+  /**
+   * Remove extra attributes
+   * @param attributes
+   */
+  mCAP.PushNotification.prototype.removeAttributes = function (attributes) {
+    attributes.unshift(this.device.attributes.attributes);
+    this.device.attributes.attributes = _.omit.apply(_, attributes);
+    return this;
+  };
+  
+  /**
+   * add an extra attribute
+   * @param key
+   * @param val
+   */
+  mCAP.PushNotification.prototype.putAttributeValue = function (key, val) {
+    this.addAttribute(key, val);
     return this;
   };
   
@@ -1801,6 +1822,7 @@
    */
   mCAP.PushNotification.prototype.subscribeTag = function (tag) {
     this.addTag(tag);
+    return this;
   };
   
   /**
@@ -1809,15 +1831,7 @@
    */
   mCAP.PushNotification.prototype.subscribeTags = function (tags) {
     this.addTags(tags);
-  };
-  
-  /**
-   * add an extra attribute
-   * @param key
-   * @param val
-   */
-  mCAP.PushNotification.prototype.putAttributeValue = function (key, val) {
-    this.addAttribute(key, val);
+    return this;
   };
   
   /**
@@ -1826,6 +1840,7 @@
   mCAP.PushNotification.prototype.setAttributes = function (key, val) {
     // TODO
     this.addAttribute(key, val);
+    return this;
   };
   
   /**
@@ -1834,6 +1849,7 @@
    */
   mCAP.PushNotification.prototype.setCountry = function (country) {
     this.set('country', country);
+    return this;
   };
   
   /**
@@ -1842,6 +1858,7 @@
    */
   mCAP.PushNotification.prototype.setCurrentBadge = function (badge) {
     this.set('badge', badge);
+    return this;
   };
   
   /**
@@ -1850,6 +1867,7 @@
    */
   mCAP.PushNotification.prototype.setToken = function (token) {
     this.set('token', token);
+    return this;
   };
   
   /**
@@ -1858,6 +1876,7 @@
    */
   mCAP.PushNotification.prototype.setLanguage = function (language) {
     this.set('language', language);
+    return this;
   };
   
   /**
@@ -1866,6 +1885,7 @@
    */
   mCAP.PushNotification.prototype.setModel = function (model) {
     this.set('model', model);
+    return this;
   };
   
   /**
@@ -1874,6 +1894,7 @@
    */
   mCAP.PushNotification.prototype.setUser = function (user) {
     this.set('name', user);
+    return this;
   };
   
   /**
@@ -1882,21 +1903,34 @@
    */
   mCAP.PushNotification.prototype.unsubscribeTag = function (tag) {
     this.removeTag(tag);
+    return this;
   };
   
   /**
-   *
+   * Remove the device from the mcap push list
    */
   mCAP.PushNotification.prototype.unregister = function () {
-    return this.device.remove();
+    if(this.device.isNew()){
+      var dfd = new $.Deferred();
+      dfd.reject('device was not saved before');
+      return dfd.promise();
+    }
+    return this.device.destroy();
   };
   
+  /**
+   * Add the device to the mcap push list
+   */
+  mCAP.PushNotification.prototype.register = function () {
+    return this.device.save();
+  };
   
   /**
    * Interface
    */
   mCAP.PushNotification.prototype.sendStatusBarNotification = function () {
     console.info('needs to be implemented by the specific implementation');
+    return this;
   };
   
   /**
@@ -1904,6 +1938,7 @@
    */
   mCAP.PushNotification.prototype.showToastNotification = function () {
     console.info('needs to be implemented by the specific implementation');
+    return this;
   };
   
   /**
@@ -1911,6 +1946,7 @@
    */
   mCAP.PushNotification.prototype.updateDeviceBadge = function () {
     console.info('needs to be implemented by the specific implementation');
+    return this;
   };
 
   root.mCAP = mCAP;
