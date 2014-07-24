@@ -30,18 +30,9 @@
   // set in password.js
   //  mCAP.authentication.set('password', 'pass');
 
-
-  // login - to test the 'login' event
-  mCAP.authentication.login().then(function () {
-    log('Login succ!');
-    // logout - // login - to test the 'logout' event
-    mCAP.authentication.logout().always(function () {
-      log('Logout!');
-      // then login again with wrong credentials - to test the 'authenticationerror' event
-      mCAP.authentication.login('wrong pass').fail(function () {
-        log('Login succ!');
-      });
-    });
+  // listen to unauthorized event
+  mCAP.authentication.on('unauthorized', function(){
+    log('You are unauthorized!');
   });
 
   // listen to login events
@@ -57,6 +48,19 @@
   // listen to logout events
   mCAP.authentication.on('logout', function () {
     log('logout event callback');
+  });
+
+  // login - to test the 'login' event
+  mCAP.authentication.login().then(function () {
+    log('Login succ!');
+    // logout - // login - to test the 'logout' event
+    mCAP.authentication.logout().always(function () {
+      log('Logout!');
+      // then login again with wrong credentials - to test the 'authenticationerror' event
+      mCAP.authentication.login('wrong pass').fail(function () {
+        log('Login error!');
+      });
+    });
   });
 
 </script>
