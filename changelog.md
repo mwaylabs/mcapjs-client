@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.16 - 2014-07-24
+- update mCAP.PushNotification API
+
 ## 0.0.15 - 2014-07-24
 - add unauthorized event if any response raises an 401 error
 - add mCAP.PushNotification

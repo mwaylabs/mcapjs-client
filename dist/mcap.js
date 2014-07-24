@@ -1692,6 +1692,9 @@
     // the pushServiceId is only needed for the pushApp
     delete options.pushServiceId;
   
+    this.senderId = typeof options.senderId !== 'undefined' ? options.senderId : this.senderId;
+    delete options.senderId;
+  
     // create the device based on the options
     this.device = this.pushApp.devices.add(options, {
       url: function () {
@@ -1700,6 +1703,16 @@
     });
   
   };
+  
+  mCAP.PushNotification.prototype.trigger = Backbone.Model.prototype.trigger;
+  mCAP.PushNotification.prototype.on = Backbone.Model.prototype.on;
+  mCAP.PushNotification.prototype.off = Backbone.Model.prototype.off;
+  
+  /**
+   * The senderid of the google server
+   * @type {null}
+   */
+  mCAP.PushNotification.prototype.senderId = null;
   
   /**
    * The pushApp instance
@@ -1723,6 +1736,8 @@
   
     if (key === 'pushServiceId') {
       this.pushApp.set('uuid', value);
+    } else if (key === 'senderId') {
+      this.senderId = value;
     } else {
       this.device.set(key, value);
     }
@@ -1741,6 +1756,8 @@
       return this.pushApp.get(key);
     } else if (key === 'pushServiceId') {
       return this.pushApp.get('uuid');
+    } else if (key === 'senderId') {
+      return this.senderId;
     }
     return null;
   };
@@ -1936,7 +1953,7 @@
   /**
    * Remove the device from the mcap push list
    */
-  mCAP.PushNotification.prototype.unregister = function () {
+  mCAP.PushNotification.prototype.unregisterDevice = function () {
     if(this.device.isNew()){
       var dfd = new $.Deferred();
       dfd.reject('device was not saved before');
@@ -1948,7 +1965,14 @@
   /**
    * Add the device to the mcap push list
    */
-  mCAP.PushNotification.prototype.register = function () {
+  mCAP.PushNotification.prototype.registerDevice = function () {
+    return this.device.save();
+  };
+  
+  /**
+   * Change settings to the device
+   */
+  mCAP.PushNotification.prototype.save = function () {
     return this.device.save();
   };
   
@@ -1975,6 +1999,23 @@
     console.info('needs to be implemented by the specific implementation');
     return this;
   };
+  
+  /**
+   * Interface
+   */
+  mCAP.PushNotification.prototype.register = function () {
+    console.info('needs to be implemented by the specific implementation');
+    return this;
+  };
+  
+  /**
+   * Interface
+   */
+  mCAP.PushNotification.prototype.unregister = function () {
+    console.info('needs to be implemented by the specific implementation');
+    return this;
+  };
+  
 
   root.mCAP = mCAP;
 

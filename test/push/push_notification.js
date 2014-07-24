@@ -7,6 +7,9 @@ describe("mCAP.PushNotification", function () {
     expect(typeof mCAP.PushNotification).toEqual('function');
 
     expect(mCAP.PushNotification.prototype.pushApp).toBeDefined();
+    expect(mCAP.PushNotification.prototype.on).toBeDefined();
+    expect(mCAP.PushNotification.prototype.off).toBeDefined();
+    expect(mCAP.PushNotification.prototype.trigger).toBeDefined();
 
   });
 
@@ -17,6 +20,19 @@ describe("mCAP.PushNotification", function () {
     expect(pushNotification.pushApp).toBeDefined();
     expect(mCAP.PushApp.prototype.isPrototypeOf(pushNotification.pushApp)).toBeTruthy();
 
+  });
+
+  it("Events", function () {
+    var callback = sinon.spy();
+    var pushNotification = new mCAP.PushNotification();
+    pushNotification.on('lala', function () {
+      callback(true);
+    });
+    pushNotification.trigger('lala');
+    pushNotification.off('lala');
+    pushNotification.trigger('lala');
+    sinon.assert.calledWith(callback, true);
+    sinon.assert.calledOnce(callback);
   });
 
   it("function overview", function () {
@@ -35,9 +51,11 @@ describe("mCAP.PushNotification", function () {
     expect(mCAP.PushNotification.prototype.setModel).toBeDefined();
     expect(mCAP.PushNotification.prototype.setUser).toBeDefined();
     expect(mCAP.PushNotification.prototype.unsubscribeTag).toBeDefined();
+    expect(mCAP.PushNotification.prototype.unregisterDevice).toBeDefined();
+    expect(mCAP.PushNotification.prototype.registerDevice).toBeDefined();
+
     expect(mCAP.PushNotification.prototype.unregister).toBeDefined();
     expect(mCAP.PushNotification.prototype.register).toBeDefined();
-
     expect(mCAP.PushNotification.prototype.updateDeviceBadge).toBeDefined();
     expect(mCAP.PushNotification.prototype.sendStatusBarNotification).toBeDefined();
     expect(mCAP.PushNotification.prototype.showToastNotification).toBeDefined();
@@ -55,6 +73,8 @@ describe("mCAP.PushNotification", function () {
     var pushNotification = new mCAP.PushNotification();
 
     expect(pushNotification.set('pushServiceId', 'pushServiceId').get('pushServiceId')).toEqual('pushServiceId');
+    expect(pushNotification.senderId).toBeDefined();
+    expect(pushNotification.set('senderId', 'senderId').get('senderId')).toEqual('senderId');
     expect(pushNotification.getConfiguration()).toBeDefined();
     expect(pushNotification.getConfiguration().uuid).toBeDefined();
     expect(pushNotification.getConfiguration().name).toBeDefined();
@@ -68,6 +88,7 @@ describe("mCAP.PushNotification", function () {
   it("constructor", function () {
 
     var pushNotification = new mCAP.PushNotification({
+      senderId: '',
       pushServiceId: '123456',
       providerType: '',
       user: '',
@@ -85,6 +106,7 @@ describe("mCAP.PushNotification", function () {
     });
 
     expect(pushNotification.get('pushServiceId')).toEqual('123456');
+    expect(pushNotification.get('senderId')).toEqual('');
     expect(pushNotification.get('providerType')).toEqual('');
     expect(pushNotification.get('user')).toEqual('');
     expect(pushNotification.get('vendor')).toEqual('');
@@ -303,12 +325,12 @@ describe("mCAP.PushNotification", function () {
     expect(pushNotification.showToastNotification()).toEqual(pushNotification);
     expect(pushNotification.set()).toEqual(pushNotification);
 
-    var promise = pushNotification.register();
+    var promise = pushNotification.registerDevice();
     expect(promise.then).toBeDefined();
     expect(promise.always).toBeDefined();
     expect(promise.fail).toBeDefined();
 
-    var promise = pushNotification.unregister();
+    var promise = pushNotification.unregisterDevice();
     expect(promise.then).toBeDefined();
     expect(promise.always).toBeDefined();
     expect(promise.fail).toBeDefined();
