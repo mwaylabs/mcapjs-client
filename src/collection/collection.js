@@ -45,6 +45,7 @@ var Collection = Backbone.Collection.extend({
       var params = this.filterable.getRequestParams.apply(this.filterable, arguments);
       options = params;
     }
+    options = mCAP.Utils.setAuthenticationEvent(options);
     return Backbone.Collection.prototype.sync.apply(this, [method, model, options]);
   }
 

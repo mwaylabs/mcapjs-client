@@ -15,3 +15,17 @@ mCAP.Utils.getComponentType = function (model) {
     return mCAP.PUSH_SERVICE;
   }
 };
+
+
+mCAP.Utils.setAuthenticationEvent = function(options){
+  var error = options.error;
+  options.error = function(xhr, state, resp){
+    if(xhr.status === 401){
+      mCAP.authentication._triggerEvent('unauthorized', arguments);
+    }
+    if(typeof error === 'function'){
+      error(xhr, state, resp);
+    }
+  };
+  return options;
+};

@@ -53,6 +53,20 @@
       return mCAP.PUSH_SERVICE;
     }
   };
+  
+  
+  mCAP.Utils.setAuthenticationEvent = function(options){
+    var error = options.error;
+    options.error = function(xhr, state, resp){
+      if(xhr.status === 401){
+        mCAP.authentication._triggerEvent('unauthorized', arguments);
+      }
+      if(typeof error === 'function'){
+        error(xhr, state, resp);
+      }
+    };
+    return options;
+  };
   /**
    * Send a request to with the given settings
    * @param settings
@@ -393,7 +407,7 @@
       }, this);
   
       if (this.selectable) {
-        this.selectable = new SelectableFactory(this,  _.result(this,'selectableOptions'));
+        this.selectable = new SelectableFactory(this, _.result(this, 'selectableOptions'));
       }
   
       if (typeof this.endpoint === 'string') {
@@ -408,15 +422,15 @@
       return Backbone.Model.prototype.constructor.apply(this, arguments);
     },
   
-    setQueryParameter: function(attr,value){
+    setQueryParameter: function (attr, value) {
       this.queryParameter = this.queryParameter || {};
-      if(typeof attr === 'string'){
-        this.queryParameter[attr]=value;
+      if (typeof attr === 'string') {
+        this.queryParameter[attr] = value;
       }
     },
   
-    removeQueryParameter: function(attr){
-      if(this.queryParameter && attr && this.queryParameter[attr]){
+    removeQueryParameter: function (attr) {
+      if (this.queryParameter && attr && this.queryParameter[attr]) {
         delete this.queryParameter[attr];
       }
     },
@@ -442,10 +456,10 @@
       }
     },
   
-    url: function(){
-      var url = Backbone.Model.prototype.url.apply(this,arguments);
-      if(this.queryParameter){
-        url+='?'+Backbone.$.param(this.queryParameter);
+    url: function () {
+      var url = Backbone.Model.prototype.url.apply(this, arguments);
+      if (this.queryParameter) {
+        url += '?' + Backbone.$.param(this.queryParameter);
       }
       return url;
     },
@@ -499,7 +513,7 @@
      * @returns {*}
      */
   
-    beforeSave: function(attributes){
+    beforeSave: function (attributes) {
       return attributes;
     },
   
@@ -507,7 +521,7 @@
       var args = this._save(key, val, options);
       var orgAttributes = this.attributes;
       this.attributes = this.beforeSave(_.clone(orgAttributes));
-      var save = Backbone.Model.prototype.save.apply(this, args).then(function(model){
+      var save = Backbone.Model.prototype.save.apply(this, args).then(function (model) {
         model.attributes = orgAttributes;
         return model;
       });
@@ -588,13 +602,20 @@
       return [options];
     },
   
-    _triggerEvent: function(eventName, args){
+    _triggerEvent: function (eventName, args) {
       // cast arguments to array
       var _args = Array.prototype.slice.call(args, 0);
       // add the event name
       _args.unshift(eventName);
       // trigger the event
       this.trigger.apply(this, _args);
+    },
+  
+    sync: function () {
+      if(arguments[2]){
+        mCAP.Utils.setAuthenticationEvent(arguments[2]);
+      }
+      return Backbone.Model.prototype.sync.apply(this, arguments);
     }
   
   });
@@ -709,6 +730,7 @@
         var params = this.filterable.getRequestParams.apply(this.filterable, arguments);
         options = params;
       }
+      options = mCAP.Utils.setAuthenticationEvent(options);
       return Backbone.Collection.prototype.sync.apply(this, [method, model, options]);
     }
   
