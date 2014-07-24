@@ -1764,6 +1764,11 @@
    * @param attributes
    */
   mCAP.PushNotification.prototype.removeAttributes = function (attributes) {
+    if(typeof attributes === 'string'){
+      // Converting the “arguments” object to an array
+      attributes = Array.prototype.slice.call(arguments, 0);
+    }
+    // add the attributes.attributes in front of the array to be the first argument in _.omit
     attributes.unshift(this.device.attributes.attributes);
     this.device.attributes.attributes = _.omit.apply(_, attributes);
     return this;

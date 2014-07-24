@@ -196,7 +196,7 @@ describe("mCAP.PushNotification", function () {
     pushNotification.addTag('a');
     expect(pushNotification.get('tags').length).toEqual(1);
 
-    pushNotification.addTags(['a','a','a','a','a']);
+    pushNotification.addTags(['a', 'a', 'a', 'a', 'a']);
     expect(pushNotification.get('tags').length).toEqual(1);
 
   });
@@ -215,9 +215,9 @@ describe("mCAP.PushNotification", function () {
     pushNotification.removeTag('c');
     expect(pushNotification.get('tags').length).toEqual(0);
 
-    pushNotification.addTags(['a','b','c','d','e']);
+    pushNotification.addTags(['a', 'b', 'c', 'd', 'e']);
     expect(pushNotification.get('tags').length).toEqual(5);
-    pushNotification.removeTags(['a','b','c','d','e']);
+    pushNotification.removeTags(['a', 'b', 'c', 'd', 'e']);
     expect(pushNotification.get('tags').length).toEqual(0);
 
   });
@@ -257,6 +257,22 @@ describe("mCAP.PushNotification", function () {
     });
 
     pushNotification.removeAttributes(['title3', 'title4']);
+
+    expect(pushNotification.get('attributes')).toEqual({});
+
+  });
+
+  it("remove mulitple attributes with mulitple parameters", function () {
+
+    var pushNotification = new mCAP.PushNotification();
+    pushNotification.addAttributes({
+      'title1': 'title1',
+      'title2': 'title2',
+      'title3': 'title3',
+      'title4': 'title4'
+    });
+
+    pushNotification.removeAttributes('title1', 'title2', 'title3', 'title4');
 
     expect(pushNotification.get('attributes')).toEqual({});
 
