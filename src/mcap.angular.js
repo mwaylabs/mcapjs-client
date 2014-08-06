@@ -91,12 +91,12 @@
       return window.mCAP;
     })
 
-    .service('MCAPCollection', function (mCAP) {
-      return mCAP.Collection;
+    .service('MCAPCollection', function () {
+      return window.mCAP.Collection;
     })
 
-    .service('MCAPModel', function (mCAP) {
-      return mCAP.Model;
+    .service('MCAPModel', function () {
+      return window.mCAP.Model;
     });
 
 })(window, angular, Backbone);
