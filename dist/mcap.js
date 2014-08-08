@@ -243,20 +243,20 @@
       _radio = options.radio === true;
   
     this.getSelectedModels = function () {
-      var selected = [];
+      var selected = new Backbone.Collection();
       _collection.models.forEach(function (model) {
         if (model.selectable && model.selectable.isSelected()) {
-          selected.push(model);
+          selected.add(model);
         }
       });
       return selected;
     };
   
     this.getDisabledModels = function () {
-      var disabled = [];
+      var disabled = new Backbone.Collection();
       _collection.models.forEach(function (model) {
         if (model.selectable && model.selectable.isDisabled()) {
-          disabled.push(model);
+          disabled.add(model);
         }
       });
       return disabled;
