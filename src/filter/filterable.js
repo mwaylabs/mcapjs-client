@@ -13,7 +13,7 @@ var Filterable = function (collectionInstance, options) {
       _sortOrder = options.sortOrder,
       _totalAmount;
 
-  this.filterValues = options.filterValues;
+  this.filterValues = options.filterValues || [];
   this.customUrlParams = options.customUrlParams;
 
   this.getRequestParams = function (method, model, options) {
