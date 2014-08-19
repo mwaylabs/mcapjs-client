@@ -20,11 +20,15 @@
         var dfd = $q.defer();
         // Use angulars $http implementation for requests
         $http.apply(angular, [options]).then(function(resp){
-          options.success(resp);
+          if(options.success && typeof options.success === 'function'){
+            options.success(resp);
+          }
           dfd.resolve(resp);
         },function(resp){
+          if(options.error && typeof options.error === 'function'){
+            options.error(resp);
+          }
           dfd.reject(resp);
-          options.error(resp);
         });
         return dfd.promise;
       };
@@ -61,6 +65,26 @@
           return window.mCAP.application;
         }
       };
+    })
+
+    .service('MCAPAuthentication', function(){
+      return window.mCAP.Authentication;
+    })
+
+    .service('MCAPauthentication', function(){
+      return window.mCAP.authentication;
+    })
+
+    .service('MCAPauthenticatedUser', function(){
+      return window.mCAP.authenticatedUser;
+    })
+
+    .service('MCAPCountries', function(){
+      return window.mCAP.Countries;
+    })
+
+    .service('MCAPOrganization', function(){
+      return window.mCAP.Organization;
     })
 
     .service('MCAPUsers', function(){
