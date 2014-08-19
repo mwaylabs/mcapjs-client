@@ -127,13 +127,17 @@ var Model = Backbone.Model.extend({
   },
 
   save: function (key, val, options) {
-    var args = this._save(key, val, options);
-    var orgAttributes = this.attributes;
+    var args = this._save(key, val, options),
+        orgAttributes = this.attributes,
+        orgParse = this.parse;
+    this.parse = function(){
+      this.attributes = orgAttributes;
+      this.parse = orgParse;
+      return this.parse.apply(this,arguments);
+    };
     this.attributes = this.beforeSave(_.clone(orgAttributes));
-    var save = Backbone.Model.prototype.save.apply(this, args).then(function (model) {
-      model.attributes = orgAttributes;
-      return model;
-    });
+    var save = Backbone.Model.prototype.save.apply(this, args);
+    this.attributes = orgAttributes;
     return save;
   },
 
