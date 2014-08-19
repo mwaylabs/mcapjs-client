@@ -1,6 +1,3 @@
-/**
- * mCAP Authentication
- */
 var Authentication = mCAP.Model.extend({
 
   defaults: {
@@ -43,11 +40,11 @@ var Authentication = mCAP.Model.extend({
     }
     return this.save(null, {
       url: this.url() + 'login'
-    }).then(function(){
+    }).then(function () {
       // trigger login on successful login
       that._triggerEvent('login', arguments);
       return arguments[0];
-    }).fail(function(){
+    }).fail(function () {
       // trigger loginerror on authentication error
       that._triggerEvent('authenticationerror', arguments);
       return arguments;
@@ -87,7 +84,7 @@ var Authentication = mCAP.Model.extend({
     if (data) {
       if (data.user) {
         // build a user
-        attributes.user = new mCAP.User(data.user);
+        attributes.user = new mCAP.private.AuthenticatedUser(data.user);
       }
       if (data.organization) {
         // build a organization
@@ -95,6 +92,15 @@ var Authentication = mCAP.Model.extend({
       }
     }
     return attributes;
+  },
+
+  set: function (obj) {
+    if (obj.user) {
+      obj.user = obj.user.toJSON ? obj.user.toJSON() : obj.user;
+      this.get('user').set(obj.user);
+      delete obj.user;
+    }
+    mCAP.Model.prototype.set.apply(this, arguments);
   },
 
   /**
@@ -110,8 +116,9 @@ var Authentication = mCAP.Model.extend({
   isAuthenticated: function () {
     var dfd = $.Deferred();
     var uuid = null;
+
     // check if there was a login before
-    if(mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')){
+    if (mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')) {
       uuid = mCAP.authentication.get('user').get('uuid');
     } else {
       dfd.reject('no user set');
@@ -132,9 +139,46 @@ var Authentication = mCAP.Model.extend({
       dfd.reject(err);
     });
     return dfd.promise();
+  },
+
+  initialize: function () {
+    this.set('user', new mCAP.private.AuthenticatedUser());
+    this.set('organization', new mCAP.Organization());
+    this.once('change:user', function (authentication, user) {
+      this.get('user').set(user.toJSON());
+    });
   }
 
+},{
+  requestNewPassword: function(userName,organizationName){
+    return Backbone.ajax({
+      url: '/gofer/security/rest/users/createPasswordResetRequest',
+      params: {
+        userIdentifier: userName,
+        organizationName: organizationName
+      },
+      type: 'PUT'
+    });
+  },
+  resetPassword: function(userIdentifier,organizationName,newPassword,requestUuid){
+    return Backbone.ajax({
+      url: '/gofer/security/rest/users/resetPassword',
+      params: {
+        newPassword:newPassword,
+        organizationName:organizationName,
+        requestUuid:requestUuid,
+        userIdentifier:userIdentifier
+      },
+      type: 'PUT'
+    });
+  }
 });
 
 // API
 mCAP.authentication = new Authentication();
+mCAP.Authentication = Authentication;
+mCAP.authenticatedUser = mCAP.authentication.get('user');
+
+Authentication.prototype.initialize = function(){
+  throw new Error('You can not instantiate a second Authentication object please use the mCAP.authentication instance');
+};
