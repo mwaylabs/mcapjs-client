@@ -15,8 +15,8 @@ var ModelSelectable = function (modelInstance, options) {
     return _selected;
   };
 
-  this.select = function () {
-    if (!this.isDisabled()) {
+  this.select = function (force ) {
+    if (!this.isDisabled() || force) {
       if (_model.collection && _model.collection.selectable.isRadio()) {
         _model.collection.selectable.unSelectAllModels();
       }
