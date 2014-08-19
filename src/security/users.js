@@ -19,7 +19,10 @@ var Users = mCAP.Collection.extend({
       filterDefinition: function () {
         var filter = new mCAP.Filter();
         return filter.and([
-          filter.containsString('name', this.filterValues.name)
+          filter.containsString('name', this.filterValues.name),
+          filter.containsString('givenName', this.filterValues.name),
+          filter.containsString('surname', this.filterValues.name),
+          filter.containsString('email', this.filterValues.name)
         ]);
       }
     };
