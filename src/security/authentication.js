@@ -41,20 +41,22 @@ var Authentication = mCAP.Model.extend({
     } else if (typeof options === 'object') {
       this.set(options);
     }
+    var always = function () {
+      if (typeof options === 'string') {
+        that.set('password', '');
+      }
+    };
     return this.save(null, {
       url: this.url() + 'login'
     }).then(function(){
       // trigger login on successful login
       that._triggerEvent('login', arguments);
+      always();
       return arguments[0];
-    }).fail(function(){
+    }, function(){
       // trigger loginerror on authentication error
       that._triggerEvent('authenticationerror', arguments);
-      return arguments;
-    }).always(function () {
-      if (typeof options === 'string') {
-        that.set('password', '');
-      }
+      always();
       return arguments;
     });
   },
@@ -71,8 +73,9 @@ var Authentication = mCAP.Model.extend({
     var that = this;
     return this.save(null, {
       url: this.url() + 'logout'
-    }).always(function () {
+    }).then(function(data){
       that._triggerEvent('logout', arguments);
+      return data;
     });
   },
 
@@ -103,7 +106,7 @@ var Authentication = mCAP.Model.extend({
    * @example
    * mCAP.authentication.isAuthenticated().then(function(){
             console.log('is authenticated');
-        }).fail(function(){
+        }, function(){
             console.log('is not authenticated');
         });
    */
@@ -128,7 +131,7 @@ var Authentication = mCAP.Model.extend({
       // otherwise reject
       dfd.reject('not authenticated', data);
       return;
-    }).fail(function (err) {
+    }, function (err) {
       dfd.reject(err);
     });
     return dfd.promise();
