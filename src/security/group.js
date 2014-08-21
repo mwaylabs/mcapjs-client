@@ -11,7 +11,6 @@ var Group = mCAP.Model.extend({
       description: null,
       roles: new mCAP.Roles(),
       members: new mCAP.Members(),
-      aclEntries: [],
       effectivePermissions: '',
       sysRoles: [],
       systemPermission: false,

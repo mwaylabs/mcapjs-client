@@ -4,7 +4,6 @@ var Organization = mCAP.Model.extend({
 
   defaults: {
     'uuid': null,
-    'aclEntries': null,
     'name': null,
     'uniqueName': null,
     'address': null,

@@ -17,7 +17,6 @@ var User = mCAP.Model.extend({
     'locked': false,
     'activated': true,
     'version': 0,
-    'aclEntries': [],
     'preferences': {},
     'groups': null,
     'roles': []
