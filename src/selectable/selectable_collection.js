@@ -2,13 +2,12 @@
 
 var CollectionSelectable = function (collectionInstance, options) {
 
-
   var _collection = collectionInstance,
-    _selected = options.selected || [],
+    _selected = options.selected || new Backbone.Collection(),
     _radio = options.radio === true;
 
   this.getSelectedModels = function () {
-    var selected = new Backbone.Collection();
+    var selected = new mCAP.Collection();
     _collection.models.forEach(function (model) {
       if (model.selectable && model.selectable.isSelected()) {
         selected.add(model);
@@ -18,7 +17,7 @@ var CollectionSelectable = function (collectionInstance, options) {
   };
 
   this.getDisabledModels = function () {
-    var disabled = new Backbone.Collection();
+    var disabled = new mCAP.Collection();
     _collection.models.forEach(function (model) {
       if (model.selectable && model.selectable.isDisabled()) {
         disabled.add(model);
@@ -61,7 +60,10 @@ var CollectionSelectable = function (collectionInstance, options) {
   this.selectModels = function (models,force) {
     models.forEach(function (model) {
       var modelToSelect = _collection.findWhere({uuid: model.id});
-      if (modelToSelect && modelToSelect.selectable) {
+      if(!modelToSelect){
+        modelToSelect = _collection.add(model);
+      }
+      if (modelToSelect.selectable) {
         modelToSelect.selectable.select(force);
       }
 
@@ -70,7 +72,7 @@ var CollectionSelectable = function (collectionInstance, options) {
 
   this.reset = function () {
     this.unSelectAllModels();
-    this.selectModels(_selected,true);
+    this.selectModels(_selected.models,true);
   };
 
   this.unSelectAllModels = function () {
@@ -86,14 +88,25 @@ var CollectionSelectable = function (collectionInstance, options) {
   };
 
   this.setPreselectedModels = function(models){
-    _selected = models;
-    this.selectModels(_selected, true);
+    _selected.add(models);
+    this.selectModels(_selected.models, true);
   };
 
   (function _main(self) {
-    collectionInstance.on('add', function () {
-      self.selectModels(_selected, true);
+
+    if(!(_selected instanceof Backbone.Collection)){
+      console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
+      _selected = new mCAP.Collection(_selected);
+    }
+
+    _selected.on('add', function(){
+      self.selectModels(_selected.models, true);
     });
+
+    collectionInstance.on('add', function () {
+      self.selectModels(_selected.models, true);
+    });
+
     if (!_collection instanceof Backbone.Collection) {
       throw new Error('First parameter has to be the instance of a collection');
     }
