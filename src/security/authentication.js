@@ -11,6 +11,13 @@ var Authentication = mCAP.Model.extend({
 
   endpoint: 'gofer/security/rest/auth/',
 
+  prepare: function(){
+    return {
+      user: new mCAP.private.AuthenticatedUser(),
+      organization: new mCAP.Organization()
+    };
+  },
+
   /**
    * Perform a login request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
    * Fires a login event everytime a login is performed. Even if the login was not successful.
@@ -73,6 +80,19 @@ var Authentication = mCAP.Model.extend({
     });
   },
 
+  setReferencedModels: function(obj){
+    if(obj.user && !(obj.user instanceof mCAP.private.AuthenticatedUser) && this.get('user')){
+      this.get('user').set(obj.user);
+      delete obj.user;
+    }
+
+    if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
+      this.get('organization').set(obj.organization);
+      delete obj.organization;
+    }
+    return obj;
+  },
+
   /**
    * Takes the arguments from the server and builds objects needed on the client side
    * @private
@@ -80,27 +100,12 @@ var Authentication = mCAP.Model.extend({
    * @returns {{}}
    */
   parse: function (data) {
-    var attributes = {};
-    if (data) {
-      if (data.user) {
-        // build a user
-        attributes.user = new mCAP.private.AuthenticatedUser(data.user);
-      }
-      if (data.organization) {
-        // build a organization
-        attributes.organization = new mCAP.Organization(data.organization);
-      }
-    }
-    return attributes;
+    return this.setReferencedModels(data);
   },
 
-  set: function (obj) {
-    if (obj.user) {
-      obj.user = obj.user.toJSON ? obj.user.toJSON() : obj.user;
-      this.get('user').set(obj.user);
-      delete obj.user;
-    }
-    mCAP.Model.prototype.set.apply(this, arguments);
+  set: function(key, val, options){
+    key = this.setReferencedModels(key);
+    return mCAP.Model.prototype.set.apply(this,[key, val, options]);
   },
 
   /**
@@ -142,8 +147,6 @@ var Authentication = mCAP.Model.extend({
   },
 
   initialize: function () {
-    this.set('user', new mCAP.private.AuthenticatedUser());
-    this.set('organization', new mCAP.Organization());
     this.once('change:user', function (authentication, user) {
       this.get('user').set(user.toJSON());
     });
