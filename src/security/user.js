@@ -18,11 +18,13 @@ var User = mCAP.Model.extend({
     'version': 0,
     'aclEntries': [],
     'groups': null,
-    'roles': []
+    'roles': null
   },
 
-  parse: function (resp) {
-    return resp.data || resp;
+  prepare: function(){
+    return {
+      groups: new mCAP.UserGroups()
+    };
   },
 
   validate: function(){
@@ -32,6 +34,7 @@ var User = mCAP.Model.extend({
   beforeSave: function(attributes){
     delete attributes.groups;
     delete attributes.roles;
+    delete attributes.authenticated;
     if(attributes.password==='' || attributes.password===null){
       delete attributes.password;
     }
@@ -47,15 +50,19 @@ var User = mCAP.Model.extend({
     });
   },
 
+  parse: function (resp) {
+   return resp.data || resp;
+  },
+
+
   initialize: function(){
-    mCAP.authentication.on('change:organization',function(){
+    mCAP.authentication.get('organization').on('change',function(){
       if(mCAP.authentication.get('organization')){
         this.set('organizationUuid',mCAP.authentication.get('organization').get('uuid'));
       }
     },this);
 
-    this.set('groups',new mCAP.UserGroups());
-    this.once('change:id',function(model){
+    this.once('change',function(model){
       this.get('groups').setUserId(model.id);
     },this);
   }
