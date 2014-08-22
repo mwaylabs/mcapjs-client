@@ -18,13 +18,22 @@ var UserPreferences = mCAP.Model.extend({
 });
 
 var AuthenticatedUser = mCAP.User.extend({
+  defaults: function(){
+    return _.extend(mCAP.User.prototype.defaults,{
+      authenticated: false
+    });
+  },
+  prepare: function(){
+    return{
+      preferences: new UserPreferences()
+    };
+  },
   changePassword: function (oldPassword, newPassword) {
     return Backbone.ajax({
-      url: '/gofer/security/rest/users/changePassword',
+      url: this.url()+'/changePassword',
       params: {
         oldPassword: oldPassword,
-        newPassword: newPassword,
-        uuid: this.id
+        newPassword: newPassword
       },
       type: 'PUT'
     });
@@ -35,17 +44,14 @@ var AuthenticatedUser = mCAP.User.extend({
     delete attrs.preferences;
     return attrs;
   },
-  set: function (obj) {
-    if (obj.preferences) {
-      obj.preferences = obj.preferences.toJSON ? obj.preferences.toJSON() : obj.preferences;
+  set: function(obj){
+    if(obj.preferences && !(obj.preferences instanceof UserPreferences) ){
       this.get('preferences').set(obj.preferences);
       delete obj.preferences;
     }
-    mCAP.User.prototype.set.apply(this, arguments);
+    return mCAP.User.prototype.set.apply(this,arguments);
   },
   initialize: function () {
-    this.set('preferences', new UserPreferences());
-    this.set('authenticated',false);
     this.once('change:uuid', function () {
       this.get('preferences').setUserId(this.id);
       this.set('authenticated',true);
