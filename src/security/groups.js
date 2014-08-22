@@ -38,7 +38,7 @@ var UserGroups = Groups.extend({
     if(args && args.userId){
       this.setUserId(args.userId);
     }
-    Groups.prototype.constructor.apply(this,arguments);
+    return Groups.prototype.constructor.apply(this,arguments);
   },
 
   setUserId: function(id){
