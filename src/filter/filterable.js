@@ -64,7 +64,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.loadPreviousPage = function () {
     _page -= 1;
-    _collection.fetch({remove: false});
+    return _collection.fetch({remove: false});
   };
 
   this.hasPreviousPage = function () {
@@ -73,7 +73,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.loadNextPage = function () {
     _page += 1;
-    _collection.fetch({remove: false});
+    return _collection.fetch({remove: false});
   };
 
   this.hasNextPage = function () {
