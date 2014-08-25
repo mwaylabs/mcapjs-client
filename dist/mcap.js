@@ -170,7 +170,7 @@
   
     this.loadPreviousPage = function () {
       _page -= 1;
-      _collection.fetch({remove: false});
+      return _collection.fetch({remove: false});
     };
   
     this.hasPreviousPage = function () {
@@ -179,7 +179,7 @@
   
     this.loadNextPage = function () {
       _page += 1;
-      _collection.fetch({remove: false});
+      return _collection.fetch({remove: false});
     };
   
     this.hasNextPage = function () {
@@ -755,8 +755,7 @@
         this.setEndpoint(this.endpoint);
       }
   
-      var constr = Backbone.Collection.prototype.constructor.apply(this, arguments);
-      return constr;
+      return Backbone.Collection.prototype.constructor.apply(this, arguments);
     },
   
     setEndpoint: function (endpoint) {
@@ -960,6 +959,7 @@
     endpoint: 'gofer/form/rest/enumerables/paginatedPairs/roles',
   
     defaults: {
+      uuid: null,
       name: ''
     }
   
@@ -1127,6 +1127,7 @@
     model: mCAP.Group,
   
     parse: function (resp) {
+      this.filterable.setTotalAmount(resp.data.nonpagedCount);
       return resp.data.items;
     },
   
@@ -1271,6 +1272,7 @@
     model: mCAP.User,
   
     parse: function(resp){
+      this.filterable.setTotalAmount(resp.data.nonpagedCount);
       return resp.data.items;
     },
   
@@ -1442,16 +1444,6 @@
       });
     },
   
-    /**
-     * Takes the arguments from the server and builds objects needed on the client side
-     * @private
-     * @param data
-     * @returns {{}}
-     */
-    parse: function (data) {
-      return this.setReferencedModels(data);
-    },
-  
     setReferencedModels: function(obj){
       if(obj.user && !(obj.user instanceof mCAP.private.AuthenticatedUser) && this.get('user')){
         this.get('user').set(obj.user);
@@ -1463,6 +1455,16 @@
         delete obj.organization;
       }
       return obj;
+    },
+  
+    /**
+     * Takes the arguments from the server and builds objects needed on the client side
+     * @private
+     * @param data
+     * @returns {{}}
+     */
+    parse: function (data) {
+      return this.setReferencedModels(data);
     },
   
     set: function(key, val, options){
