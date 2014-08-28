@@ -8,12 +8,12 @@ var UserPreferences = mCAP.Model.extend({
   parse: function (attrs) {
     return attrs.data;
   },
-  save: function () {
-    return Backbone.ajax({
+  save: function (options) {
+    return Backbone.ajax(_.extend({
       url: _.result(this, 'url'),
       data: this.toJSON(),
       type: 'PUT'
-    });
+    }, options));
   }
 });
 
