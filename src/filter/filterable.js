@@ -91,6 +91,7 @@ var Filterable = function (collectionInstance, options) {
   this.setSortOrder = function (sortOrder) {
     // TODO: persist sortOrder here
     // ....
+    _page = 1;
     _sortOrder = sortOrder;
   };
 
