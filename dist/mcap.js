@@ -197,6 +197,7 @@
     this.setSortOrder = function (sortOrder) {
       // TODO: persist sortOrder here
       // ....
+      _page = 1;
       _sortOrder = sortOrder;
     };
   
@@ -976,6 +977,11 @@
     parse: function (resp) {
       var items = resp.data.items,
         roles = [];
+  
+      if (this.filterable) {
+        this.filterable.setTotalAmount(resp.data.nonpagedCount || 0);
+      }
+  
       items.forEach(function (item) {
         roles.push({
           uuid: item.value,
