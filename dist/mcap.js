@@ -1278,10 +1278,11 @@
     model: mCAP.User,
   
     parse: function(resp){
-      this.filterable.setTotalAmount(resp.data.nonpagedCount);
+      if(this.filterable){
+        this.filterable.setTotalAmount(resp.data.nonpagedCount);
+      }
       return resp.data.items;
     },
-  
   
   
     filterableOptions: function(){
