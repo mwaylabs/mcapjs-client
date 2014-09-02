@@ -117,7 +117,8 @@
         _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
         _filterDefinition = options.filterDefinition,
         _sortOrder = options.sortOrder,
-        _totalAmount;
+        _totalAmount,
+        _lastFilter;
   
     this.filterValues = options.filterValues || [];
     this.customUrlParams = options.customUrlParams;
@@ -131,6 +132,12 @@
         if (filter) {
           options.params.filter = filter;
         }
+  
+        //reset pagination if filter values change
+        if(JSON.stringify(filter) !== JSON.stringify(_lastFilter)){
+          _page = 1;
+        }
+        _lastFilter = filter;
   
         // Pagination functionality
         if (_perPage && _page && (_limit || _.isUndefined(_limit))) {
