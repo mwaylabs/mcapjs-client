@@ -4,7 +4,7 @@
 
   angular.module('mCAP', [])
 
-    .run(function ($http, $q, $rootScope, $timeout) {
+    .run(['$http', '$q', '$rootScope', '$timeout', function ($http, $q, $rootScope, $timeout) {
 
       if (!window.mCAP) {
         throw new Error('Please include mCAP libary');
@@ -50,7 +50,7 @@
         });
         return _set.apply(this, arguments);
       };
-    })
+    }])
 
     .provider('mCAPApplication', function () {
 
