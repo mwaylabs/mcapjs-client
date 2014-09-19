@@ -35,6 +35,7 @@
   // @include ./model/model.js
   // @include ./model/component.js
   // @include ./collection/collection.js
+  // @include ./collection/enumerable_collection.js
   // @include ./filter/filter.js
   // @include ./application/application.js
   // @include ./security/countries.js
