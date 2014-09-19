@@ -871,6 +871,26 @@
   mCAP.Collection = Collection;
   
   
+  var Filterable = Filterable || {},
+    SelectableFactory = SelectableFactory || {};
+  
+  var EnumerableCollection = mCAP.Collection.extend({
+  
+    selectable: false,
+    filterable: false,
+    parse: function (resp) {
+      var appTypes = [];
+      _.each(resp.data, function (type) {
+        appTypes.push({key: type.value});
+      });
+      return appTypes;
+    }
+  
+  });
+  
+  mCAP.EnumerableCollection = EnumerableCollection;
+  
+  
   var Filter = function () {
     // If it is an invalid value return null otherwise the provided object
     var returnNullOrObjectFor = function (value, object) {
