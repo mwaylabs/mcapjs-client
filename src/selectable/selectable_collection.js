@@ -1,10 +1,17 @@
 /*jshint unused:false */
 
 var CollectionSelectable = function (collectionInstance, options) {
-
   var _collection = collectionInstance,
-    _selected = options.selected || new Backbone.Collection(),
+    _selected = options.selected || (options.radio?new Backbone.Model():new Backbone.Collection()),
     _radio = options.radio === true;
+
+  this.getSelected = function(){
+    if(_selected instanceof Backbone.Model){
+      return this.getSelectedModels().first();
+    } else if(_selected instanceof Backbone.Collection){
+      return this.getSelectedModels();
+    }
+  };
 
   this.getSelectedModels = function () {
     var selected = new mCAP.Collection();
@@ -57,22 +64,36 @@ var CollectionSelectable = function (collectionInstance, options) {
     });
   };
 
-  this.selectModels = function (models,force) {
-    models.forEach(function (model) {
-      var modelToSelect = _collection.findWhere({uuid: model.id});
+  this.selectModel = function(model,force){
+    if(model.get('uuid')){
+      var modelToSelect = _collection.findWhere({uuid: model.get('uuid')});
       if(!modelToSelect){
         modelToSelect = _collection.add(model);
       }
-      if (modelToSelect.selectable) {
+      if (modelToSelect && modelToSelect.selectable) {
         modelToSelect.selectable.select(force);
       }
+    }
+  };
 
-    });
+  this.selectModels = function(models,force){
+    this.select(new Backbone.Collection(models),force);
+    console.warn('The method selectModels() is deprecated and will be removed soon. Please use the new method select');
+  };
+
+  this.select = function (selected,force) {
+    if(selected instanceof Backbone.Collection){
+      selected.models.forEach(function (model) {
+        this.selectModel(model,force);
+      },this);
+    } else if(selected instanceof Backbone.Model){
+      this.selectModel(selected,force);
+    }
   };
 
   this.reset = function () {
     this.unSelectAllModels();
-    this.selectModels(_selected.models,true);
+    this.select(_selected,true);
   };
 
   this.unSelectAllModels = function () {
@@ -89,22 +110,30 @@ var CollectionSelectable = function (collectionInstance, options) {
 
   this.setPreselectedModels = function(models){
     _selected.add(models);
-    this.selectModels(_selected.models, true);
+    this.select(_selected, true);
   };
 
   (function _main(self) {
 
-    if(!(_selected instanceof Backbone.Collection)){
+    if(!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)){
       console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
       _selected = new mCAP.Collection(_selected);
     }
 
+    if(_selected instanceof Backbone.Model){
+      _radio = true;
+    } else if(_selected instanceof Backbone.Collection){
+      _radio = false;
+    }
+
+    //self.select(_selected, true);
+
     _selected.on('add', function(){
-      self.selectModels(_selected.models, true);
+      self.select(_selected, true);
     });
 
-    collectionInstance.on('add', function () {
-      self.selectModels(_selected.models, true);
+    collectionInstance.on('add change', function () {
+      self.select(_selected, true);
     });
 
     if (!_collection instanceof Backbone.Collection) {
