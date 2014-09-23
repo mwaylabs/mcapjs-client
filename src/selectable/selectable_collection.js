@@ -3,7 +3,8 @@
 var CollectionSelectable = function (collectionInstance, options) {
   var _collection = collectionInstance,
     _selected = options.selected || (options.radio?new Backbone.Model():new Backbone.Collection()),
-    _radio = options.radio === true;
+    _radio = options.radio === true,
+    _addWhenNotInList=options.addWhenNotInList !== false;
 
   this.getSelected = function(){
     if(_selected instanceof Backbone.Model){
@@ -67,8 +68,9 @@ var CollectionSelectable = function (collectionInstance, options) {
   this.selectModel = function(model,force){
     if(model.get('uuid')){
       var modelToSelect = _collection.findWhere({uuid: model.get('uuid')});
-      if(!modelToSelect){
-        modelToSelect = _collection.add(model);
+      if(!modelToSelect && _addWhenNotInList){
+        //Adds model to the Collction when it is not already in the list
+        modelToSelect = _collection.models.push(model);
       }
       if (modelToSelect && modelToSelect.selectable) {
         modelToSelect.selectable.select(force);
@@ -114,7 +116,6 @@ var CollectionSelectable = function (collectionInstance, options) {
   };
 
   (function _main(self) {
-
     if(!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)){
       console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
       _selected = new mCAP.Collection(_selected);
@@ -132,7 +133,7 @@ var CollectionSelectable = function (collectionInstance, options) {
       self.select(_selected, true);
     });
 
-    collectionInstance.on('add change', function () {
+    _collection.on('add change', function () {
       self.select(_selected, true);
     });
 
