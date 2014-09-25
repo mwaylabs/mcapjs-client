@@ -372,15 +372,23 @@
         _radio = false;
       }
   
-      //self.select(_selected, true);
-  
       _selected.on('add', function(){
         self.select(_selected, true);
-      });
+      },this);
   
-      _collection.on('add change', function () {
+      _collection.on('add', function (model) {
         self.select(_selected, true);
-      });
+  
+        if(model && model.selectable){
+          model.selectable.on('change:select',function(){
+            self.trigger('change change:add',model,self);
+          },this);
+  
+          model.selectable.on('change:unselect',function(){
+            self.trigger('change change:remove',model,self);
+          },this);
+        }
+      },this);
   
       if (!_collection instanceof Backbone.Collection) {
         throw new Error('First parameter has to be the instance of a collection');
@@ -388,6 +396,8 @@
     }(this));
   
   };
+  
+  
   /*jshint unused:false */
   var ModelSelectable = function (modelInstance, options) {
   
@@ -410,6 +420,7 @@
         if (_model.collection && _model.collection.selectable.isRadio()) {
           _model.collection.selectable.unSelectAllModels();
         }
+        this.trigger('change change:select',modelInstance,this);
         _selected = true;
       } else {
         _selected = false;
@@ -417,6 +428,7 @@
     };
   
     this.unSelect = function () {
+      this.trigger('change change:unselect',modelInstance,this);
       _selected = false;
     };
   
@@ -437,6 +449,9 @@
   /*jshint unused:false */
   var ModelSelectable = ModelSelectable || {},
       CollectionSelectable = CollectionSelectable || {};
+  
+  _.extend(ModelSelectable.prototype, Backbone.Events);
+  _.extend(CollectionSelectable.prototype, Backbone.Events);
   
   var SelectableFactory = function (instance, options) {
     if (instance instanceof Backbone.Model) {
