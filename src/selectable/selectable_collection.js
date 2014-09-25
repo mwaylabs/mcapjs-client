@@ -127,15 +127,23 @@ var CollectionSelectable = function (collectionInstance, options) {
       _radio = false;
     }
 
-    //self.select(_selected, true);
-
     _selected.on('add', function(){
       self.select(_selected, true);
-    });
+    },this);
 
-    _collection.on('add change', function () {
+    _collection.on('add', function (model) {
       self.select(_selected, true);
-    });
+
+      if(model && model.selectable){
+        model.selectable.on('change:select',function(){
+          self.trigger('change change:add',model,self);
+        },this);
+
+        model.selectable.on('change:unselect',function(){
+          self.trigger('change change:remove',model,self);
+        },this);
+      }
+    },this);
 
     if (!_collection instanceof Backbone.Collection) {
       throw new Error('First parameter has to be the instance of a collection');
@@ -143,3 +151,4 @@ var CollectionSelectable = function (collectionInstance, options) {
   }(this));
 
 };
+
