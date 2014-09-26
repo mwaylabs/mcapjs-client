@@ -24,9 +24,10 @@ var AuthenticatedUser = mCAP.User.extend({
     });
   },
   prepare: function(){
-    return{
+    var user =  mCAP.User.prototype.prepare.apply(this,arguments);
+    return _.extend(user,{
       preferences: new UserPreferences()
-    };
+    });
   },
   changePassword: function (oldPassword, newPassword) {
     return Backbone.ajax({
