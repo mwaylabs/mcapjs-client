@@ -5,9 +5,11 @@ var Users = mCAP.Collection.extend({
   model: mCAP.User,
 
   parse: function(resp){
+    if(this.filterable){
+      this.filterable.setTotalAmount(resp.data.nonpagedCount);
+    }
     return resp.data.items;
   },
-
 
 
   filterableOptions: function(){
@@ -18,8 +20,11 @@ var Users = mCAP.Collection.extend({
       },
       filterDefinition: function () {
         var filter = new mCAP.Filter();
-        return filter.and([
-          filter.containsString('name', this.filterValues.name)
+        return filter.or([
+          filter.containsString('name', this.filterValues.name),
+          filter.containsString('givenName', this.filterValues.name),
+          filter.containsString('surname', this.filterValues.name),
+          filter.containsString('email', this.filterValues.name)
         ]);
       }
     };

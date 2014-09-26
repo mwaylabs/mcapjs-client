@@ -27,8 +27,31 @@ var Model = Backbone.Model.extend({
     _.bindAll(this, '_markToRevert', 'revert');
     // send the attributes or empty object
     this._markToRevert(arguments[0] || {});
+    var orgInitialize = this.initialize;
+    this.initialize = function(){
+      if(!this.collection){
+        var preparedAttrs = this.prepare.apply(this,arguments);
+        if(preparedAttrs){
+          this.set(preparedAttrs);
+        }
+      }
+      orgInitialize.apply(this,arguments);
+    };
+    var constructor = Backbone.Model.prototype.constructor.apply(this, arguments);
 
-    return Backbone.Model.prototype.constructor.apply(this, arguments);
+    return constructor;
+  },
+
+  //This method has to return an object!
+  //You can do some initialisation stuff e.g. create referenced models or collections
+  prepare: function(){
+      /*
+       * e.g.
+       * return {
+       *  user: new mCAP.User()
+       * }
+       */
+      return {};
   },
 
   setQueryParameter: function (attr, value) {
@@ -127,13 +150,17 @@ var Model = Backbone.Model.extend({
   },
 
   save: function (key, val, options) {
-    var args = this._save(key, val, options);
-    var orgAttributes = this.attributes;
+    var args = this._save(key, val, options),
+        orgAttributes = this.attributes,
+        orgParse = this.parse;
+    this.parse = function(){
+      this.attributes = orgAttributes;
+      this.parse = orgParse;
+      return this.parse.apply(this,arguments);
+    };
     this.attributes = this.beforeSave(_.clone(orgAttributes));
-    var save = Backbone.Model.prototype.save.apply(this, args).then(function (model) {
-      model.attributes = orgAttributes;
-      return model;
-    });
+    var save = Backbone.Model.prototype.save.apply(this, args);
+    this.attributes = orgAttributes;
     return save;
   },
 

@@ -18,6 +18,8 @@
     return sync.apply(Backbone, [method, model, options]);
   };
 
+  mCAP.private = {};
+
   //INCLUDE GLOBAL SETTINGS HERE
   // global mcap constants
   mCAP.MCAP = 'MCAP';
@@ -115,9 +117,10 @@
         _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
         _filterDefinition = options.filterDefinition,
         _sortOrder = options.sortOrder,
-        _totalAmount;
+        _totalAmount,
+        _lastFilter;
   
-    this.filterValues = options.filterValues;
+    this.filterValues = options.filterValues || [];
     this.customUrlParams = options.customUrlParams;
   
     this.getRequestParams = function (method, model, options) {
@@ -129,6 +132,12 @@
         if (filter) {
           options.params.filter = filter;
         }
+  
+        //reset pagination if filter values change
+        if(JSON.stringify(filter) !== JSON.stringify(_lastFilter)){
+          _page = 1;
+        }
+        _lastFilter = filter;
   
         // Pagination functionality
         if (_perPage && _page && (_limit || _.isUndefined(_limit))) {
@@ -168,7 +177,7 @@
   
     this.loadPreviousPage = function () {
       _page -= 1;
-      _collection.fetch({remove: false});
+      return _collection.fetch({remove: false});
     };
   
     this.hasPreviousPage = function () {
@@ -177,7 +186,7 @@
   
     this.loadNextPage = function () {
       _page += 1;
-      _collection.fetch({remove: false});
+      return _collection.fetch({remove: false});
     };
   
     this.hasNextPage = function () {
@@ -195,6 +204,7 @@
     this.setSortOrder = function (sortOrder) {
       // TODO: persist sortOrder here
       // ....
+      _page = 1;
       _sortOrder = sortOrder;
     };
   
@@ -236,27 +246,34 @@
   /*jshint unused:false */
   
   var CollectionSelectable = function (collectionInstance, options) {
-  
-  
     var _collection = collectionInstance,
-      _selected = options.selected || [],
-      _radio = options.radio === true;
+      _selected = options.selected || (options.radio?new Backbone.Model():new Backbone.Collection()),
+      _radio = options.radio === true,
+      _addWhenNotInList=options.addWhenNotInList !== false;
+  
+    this.getSelected = function(){
+      if(_selected instanceof Backbone.Model){
+        return this.getSelectedModels().first();
+      } else if(_selected instanceof Backbone.Collection){
+        return this.getSelectedModels();
+      }
+    };
   
     this.getSelectedModels = function () {
-      var selected = [];
+      var selected = new mCAP.Collection();
       _collection.models.forEach(function (model) {
         if (model.selectable && model.selectable.isSelected()) {
-          selected.push(model);
+          selected.add(model);
         }
       });
       return selected;
     };
   
     this.getDisabledModels = function () {
-      var disabled = [];
+      var disabled = new mCAP.Collection();
       _collection.models.forEach(function (model) {
         if (model.selectable && model.selectable.isDisabled()) {
-          disabled.push(model);
+          disabled.add(model);
         }
       });
       return disabled;
@@ -293,19 +310,37 @@
       });
     };
   
-    this.selectModels = function (models) {
-      models.forEach(function (model) {
-        var modelToSelect = _collection.findWhere({uuid: model.id});
-        if (modelToSelect && modelToSelect.selectable) {
-          modelToSelect.selectable.select();
+    this.selectModel = function(model,force){
+      if(model.get('uuid')){
+        var modelToSelect = _collection.findWhere({uuid: model.get('uuid')});
+        if(!modelToSelect && _addWhenNotInList){
+          //Adds model to the Collction when it is not already in the list
+          modelToSelect = _collection.models.push(model);
         }
+        if (modelToSelect && modelToSelect.selectable) {
+          modelToSelect.selectable.select(force);
+        }
+      }
+    };
   
-      });
+    this.selectModels = function(models,force){
+      this.select(new Backbone.Collection(models),force);
+      console.warn('The method selectModels() is deprecated and will be removed soon. Please use the new method select');
+    };
+  
+    this.select = function (selected,force) {
+      if(selected instanceof Backbone.Collection){
+        selected.models.forEach(function (model) {
+          this.selectModel(model,force);
+        },this);
+      } else if(selected instanceof Backbone.Model){
+        this.selectModel(selected,force);
+      }
     };
   
     this.reset = function () {
       this.unSelectAllModels();
-      this.selectModels(_selected);
+      this.select(_selected,true);
     };
   
     this.unSelectAllModels = function () {
@@ -320,16 +355,49 @@
       return _radio;
     };
   
+    this.setPreselectedModels = function(models){
+      _selected.add(models);
+      this.select(_selected, true);
+    };
+  
     (function _main(self) {
-      collectionInstance.on('add', function () {
-        self.selectModels(_selected);
-      });
+      if(!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)){
+        console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
+        _selected = new mCAP.Collection(_selected);
+      }
+  
+      if(_selected instanceof Backbone.Model){
+        _radio = true;
+      } else if(_selected instanceof Backbone.Collection){
+        _radio = false;
+      }
+  
+      _selected.on('add', function(){
+        self.select(_selected, true);
+      },this);
+  
+      _collection.on('add', function (model) {
+        self.select(_selected, true);
+  
+        if(model && model.selectable){
+          model.selectable.on('change:select',function(){
+            self.trigger('change change:add',model,self);
+          },this);
+  
+          model.selectable.on('change:unselect',function(){
+            self.trigger('change change:remove',model,self);
+          },this);
+        }
+      },this);
+  
       if (!_collection instanceof Backbone.Collection) {
         throw new Error('First parameter has to be the instance of a collection');
       }
     }(this));
   
   };
+  
+  
   /*jshint unused:false */
   var ModelSelectable = function (modelInstance, options) {
   
@@ -347,11 +415,12 @@
       return _selected;
     };
   
-    this.select = function () {
-      if (!this.isDisabled()) {
+    this.select = function (force ) {
+      if (!this.isDisabled() || force) {
         if (_model.collection && _model.collection.selectable.isRadio()) {
           _model.collection.selectable.unSelectAllModels();
         }
+        this.trigger('change change:select',modelInstance,this);
         _selected = true;
       } else {
         _selected = false;
@@ -359,6 +428,7 @@
     };
   
     this.unSelect = function () {
+      this.trigger('change change:unselect',modelInstance,this);
       _selected = false;
     };
   
@@ -379,6 +449,9 @@
   /*jshint unused:false */
   var ModelSelectable = ModelSelectable || {},
       CollectionSelectable = CollectionSelectable || {};
+  
+  _.extend(ModelSelectable.prototype, Backbone.Events);
+  _.extend(CollectionSelectable.prototype, Backbone.Events);
   
   var SelectableFactory = function (instance, options) {
     if (instance instanceof Backbone.Model) {
@@ -418,8 +491,31 @@
       _.bindAll(this, '_markToRevert', 'revert');
       // send the attributes or empty object
       this._markToRevert(arguments[0] || {});
+      var orgInitialize = this.initialize;
+      this.initialize = function(){
+        if(!this.collection){
+          var preparedAttrs = this.prepare.apply(this,arguments);
+          if(preparedAttrs){
+            this.set(preparedAttrs);
+          }
+        }
+        orgInitialize.apply(this,arguments);
+      };
+      var constructor = Backbone.Model.prototype.constructor.apply(this, arguments);
   
-      return Backbone.Model.prototype.constructor.apply(this, arguments);
+      return constructor;
+    },
+  
+    //This method has to return an object!
+    //You can do some initialisation stuff e.g. create referenced models or collections
+    prepare: function(){
+        /*
+         * e.g.
+         * return {
+         *  user: new mCAP.User()
+         * }
+         */
+        return {};
     },
   
     setQueryParameter: function (attr, value) {
@@ -518,13 +614,17 @@
     },
   
     save: function (key, val, options) {
-      var args = this._save(key, val, options);
-      var orgAttributes = this.attributes;
+      var args = this._save(key, val, options),
+          orgAttributes = this.attributes,
+          orgParse = this.parse;
+      this.parse = function(){
+        this.attributes = orgAttributes;
+        this.parse = orgParse;
+        return this.parse.apply(this,arguments);
+      };
       this.attributes = this.beforeSave(_.clone(orgAttributes));
-      var save = Backbone.Model.prototype.save.apply(this, args).then(function (model) {
-        model.attributes = orgAttributes;
-        return model;
-      });
+      var save = Backbone.Model.prototype.save.apply(this, args);
+      this.attributes = orgAttributes;
       return save;
     },
   
@@ -732,6 +832,54 @@
       }
       options = mCAP.Utils.setAuthenticationEvent(options);
       return Backbone.Collection.prototype.sync.apply(this, [method, model, options]);
+    },
+  
+    replace: function(models){
+      this.reset(models);
+      this.trigger('replace',this);
+    },
+  
+    /*
+     * README: Why are we doing this??
+     *
+     * The initialize method of a  model is not always called at the same time
+     * When the model instance is created by the collection the parse method is called before
+     * For referenced collections/models we need to set them up before the parse method is called
+     * We Can not do this in the attributes field because the default attributes are set after the parse method
+     * The only solution is that we have a function that comes always before the parse method and that is also
+     * called when a model instance is created manually(not by a collection)
+     * The following code get the prototype function of the original parse method which is then overwritten by our
+     * custom 'prepare' function. After the prepared has been called we call the original parse method
+     *
+     * New Execution order of functions:
+     * create new Model(): prepare() > initialize()
+     * Colellection creates model instance: prepare() > parse() > initialize()
+     */
+  
+    _prepareModel: function(model,options){
+      var orgParse = this.model.prototype.parse,
+          collection = this,
+          preparedAttrs = {},
+          parsedAttrs = {};
+  
+      //if(model.uuid ==='2345423543252')debugger;
+  
+      //Inject the function which should be called before the parse method into the original parse method
+      if(options.parse){
+        this.model.prototype.parse = function(){
+          if(!this._prepared){
+            preparedAttrs = collection.model.prototype.prepare.apply(this,arguments);
+            this.set(preparedAttrs);
+            this._prepared = true;
+          }
+          this.parse = orgParse;
+          parsedAttrs = this.parse.apply(this,arguments);
+          //Merge the attributes which are then set as model attributes
+          return _.extend(parsedAttrs,preparedAttrs);
+        };
+      }
+  
+      return Backbone.Collection.prototype._prepareModel.apply(this,arguments);
     }
   
   });
@@ -739,10 +887,30 @@
   mCAP.Collection = Collection;
   
   
+  var Filterable = Filterable || {},
+    SelectableFactory = SelectableFactory || {};
+  
+  var EnumerableCollection = mCAP.Collection.extend({
+  
+    selectable: false,
+    filterable: false,
+    parse: function (resp) {
+      var appTypes = [];
+      _.each(resp.data, function (type) {
+        appTypes.push({key: type.value});
+      });
+      return appTypes;
+    }
+  
+  });
+  
+  mCAP.EnumerableCollection = EnumerableCollection;
+  
+  
   var Filter = function () {
     // If it is an invalid value return null otherwise the provided object
     var returnNullOrObjectFor = function (value, object) {
-      return (_.isUndefined(value) || value === null || value === '') ? null : object;
+      return (_.isUndefined(value) || value === null || value === '' || value.length===0) ? null : object;
     };
   
     // See https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filter
@@ -786,6 +954,14 @@
         });
       },
   
+      stringEnum: function (fieldName, values) {
+        return returnNullOrObjectFor(values, {
+          type: 'stringEnum',
+          fieldName: fieldName,
+          values: values
+        });
+      },
+  
       like: function (fieldName, value) {
         return returnNullOrObjectFor(value, {
           type: 'like',
@@ -808,233 +984,21 @@
   });
   
   mCAP.application = new Application();
-  /**
-   * mCAP Authentication
-   */
-  var Authentication = mCAP.Model.extend({
+  var Countries = mCAP.Collection.extend({
   
-    defaults: {
-      'userName': '',
-      'orgaName': '',
-      'password': '',
-      'email': '',
-      'organization': null,
-      'user': null
-    },
+    endpoint: 'gofer/form/rest/enumerables/pairs/localeCountries',
   
-    endpoint: 'gofer/security/rest/auth/',
-  
-    /**
-     * Perform a login request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
-     * Fires a login event everytime a login is performed. Even if the login was not successful.
-     * @param options - Can either be a string for the password or an object with credentials.
-     * @returns promise
-     * @example
-     *
-     * // login with password
-     * mCAP.authentication.login('pass').then(function(){};
-     * // login with credentials
-     * mCAP.authentication.login({
-        userName: 'm.mustermann',
-        orgaName: 'org',
-        password: 'pass'
-      });
-     * // event when auth was successful
-     * mCAP.authentication.on('login', function(){})
-     * // event when auth was not successful
-     * mCAP.authentication.on('authenticationerror', function(obj, err, errMsg){})
-     */
-    login: function (options) {
-      var that = this;
-      if (typeof options === 'string') {
-        this.set('password', options);
-      } else if (typeof options === 'object') {
-        this.set(options);
-      }
-      var always = function () {
-        if (typeof options === 'string') {
-          that.set('password', '');
-        }
-      };
-      return this.save(null, {
-        url: this.url() + 'login'
-      }).then(function(){
-        // trigger login on successful login
-        that._triggerEvent('login', arguments);
-        always();
-        return arguments[0];
-      }, function(){
-        // trigger loginerror on authentication error
-        that._triggerEvent('authenticationerror', arguments);
-        always();
-        return arguments;
-      });
-    },
-  
-    /**
-     * Perform a logout request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
-     * Fires a logout event everytime a login is performed.
-     * @returns promise
-     * @example
-     * mCAP.authentication.logout().always(function(){});
-     * mCAP.authentication.on('logout', function(obj){});
-     */
-    logout: function () {
-      var that = this;
-      return this.save(null, {
-        url: this.url() + 'logout'
-      }).then(function(data){
-        that._triggerEvent('logout', arguments);
-        return data;
-      });
-    },
-  
-    /**
-     * Takes the arguments from the server and builds objects needed on the client side
-     * @private
-     * @param data
-     * @returns {{}}
-     */
-    parse: function (data) {
-      var attributes = {};
-      if (data) {
-        if (data.user) {
-          // build a user
-          attributes.user = new mCAP.User(data.user);
-        }
-        if (data.organization) {
-          // build a organization
-          attributes.organization = new mCAP.Organization(data.organization);
-        }
-      }
-      return attributes;
-    },
-  
-    /**
-     * Check if the current user is authenticated or not. Resolves if it is the case otherwise its rejected.
-     * @returns {promise}
-     * @example
-     * mCAP.authentication.isAuthenticated().then(function(){
-              console.log('is authenticated');
-          }, function(){
-              console.log('is not authenticated');
-          });
-     */
-    isAuthenticated: function () {
-      var dfd = $.Deferred();
-      var uuid = null;
-      // check if there was a login before
-      if(mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')){
-        uuid = mCAP.authentication.get('user').get('uuid');
-      } else {
-        dfd.reject('no user set');
-        return dfd.promise();
-      }
-  
-      mCAP.Utils.request({
-        url: URI(mCAP.application.get('baseUrl') + '/gofer/system/security/currentAuthorization').normalize().toString()
-      }).then(function (data) {
-        // resolve only if the current user is authenticated
-        if (data.user && data.user.uuid && data.user.uuid === uuid) {
-          dfd.resolve(data);
-        }
-        // otherwise reject
-        dfd.reject('not authenticated', data);
-        return;
-      }, function (err) {
-        dfd.reject(err);
-      });
-      return dfd.promise();
-    }
-  
-  });
-  
-  // API
-  mCAP.authentication = new Authentication();
-  var User = mCAP.Model.extend({
-  
-    endpoint: 'gofer/security/rest/users',
-  
-    defaults: {
-      'uuid': null,
-      'name': '',
-      'salutation': null,
-      'givenName': '',
-      'surname': '',
-      'position': null,
-      'email': '',
-      'phone': null,
-      'country': null,
-      'lastLoggedTime': 0,
-      'passwordExpires': null,
-      'locked': false,
-      'activated': true,
-      'version': 0,
-      'aclEntries': [],
-      'preferences': {},
-      'groups': null,
-      'roles': []
-    },
+    model: mCAP.Model.extend({
+      idAttribute: 'value'
+    }),
   
     parse: function (resp) {
-      var data = resp.data || resp;
-      if(this.attributes && !this.attributes.groups){
-        data.groups = new mCAP.UserGroups({userId: this.id});
-      }
-      return resp.data || resp;
-    },
-  
-    validate: function(){
-      this.attributes.version++;
-    },
-  
-    beforeSave: function(attributes){
-      delete attributes.groups;
-      delete attributes.roles;
-      if(attributes.password==='' || attributes.password===null){
-        delete attributes.password;
-      }
-      return attributes;
-    },
-  
-    save: function(){
-      return mCAP.Model.prototype.save.apply(this,arguments);
+      return resp.data;
     }
   
   });
   
-  mCAP.User = User;
-  
-  var Users = mCAP.Collection.extend({
-  
-    endpoint: 'gofer/security/rest/users',
-  
-    model: mCAP.User,
-  
-    parse: function(resp){
-      return resp.data.items;
-    },
-  
-  
-  
-    filterableOptions: function(){
-      return {
-        sortOrder:'+name',
-        filterValues: {
-          name: ''
-        },
-        filterDefinition: function () {
-          var filter = new mCAP.Filter();
-          return filter.and([
-            filter.containsString('name', this.filterValues.name)
-          ]);
-        }
-      };
-    }
-  
-  });
-  
-  mCAP.Users = Users;
+  mCAP.Countries = Countries;
   var Organization = mCAP.Model.extend({
   
     endpoint: 'gofer/security/rest/organizations',
@@ -1093,6 +1057,11 @@
     parse: function (resp) {
       var items = resp.data.items,
         roles = [];
+  
+      if (this.filterable) {
+        this.filterable.setTotalAmount(resp.data.nonpagedCount || 0);
+      }
+  
       items.forEach(function (item) {
         roles.push({
           uuid: item.value,
@@ -1151,13 +1120,20 @@
         version: 0,
         organizationUuid: '',
         description: null,
-        roles: new mCAP.Roles(),
-        members: new mCAP.Members(),
+        roles: null,
+        members: null,
         aclEntries: [],
         effectivePermissions: '',
         sysRoles: [],
         systemPermission: false,
         bundle: null
+      };
+    },
+  
+    prepare: function(){
+      return {
+        roles:new mCAP.Roles(),
+        members:new mCAP.Members()
       };
     },
   
@@ -1170,7 +1146,7 @@
   
     beforeSave: function(data){
       var roles = [],
-          members = [];
+        members = [];
   
       if(data.members){
         data.members.each(function(memberModel){
@@ -1189,27 +1165,41 @@
       return data;
     },
   
-    parse: function (resp) {
-      var data = resp.data || resp,
-        roles = new mCAP.Roles(null,{groupId: data.uuid}),
-        members = new mCAP.Members(null,{groupId: data.uuid});
+    setReferencedCollections: function(attrs){
   
-      if(data.roles){
-        data.roles.forEach(function (role) {
-          roles.add({uuid: role});
-        });
+      if(attrs.roles && !(attrs.roles instanceof mCAP.Roles) && this.get('roles')){
+        attrs.roles.forEach(function(role){
+          this.get('roles').add({uuid:role});
+        },this);
+        delete attrs.roles;
       }
   
-      if(data.members){
-        data.members.forEach(function (member) {
-          members.add({uuid: member});
-        });
+      if(attrs.members && !(attrs.members instanceof mCAP.Members) && this.get('members')){
+        attrs.members.forEach(function(member){
+          this.get('members').add({uuid:member});
+        },this);
+        delete attrs.members;
       }
   
-      data.roles = roles;
-      data.members = members;
+      return attrs;
+    },
   
-      return data;
+    set: function(key, val, options){
+      key = this.setReferencedCollections(key);
+      return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+    },
+  
+    parse: function (attrs) {
+      attrs = attrs.data || attrs;
+      return this.setReferencedCollections(attrs);
+    },
+  
+    initialize: function(){
+      mCAP.authentication.get('organization').on('change',function(){
+        if(mCAP.authentication.get('organization')){
+          this.set('organizationUuid',mCAP.authentication.get('organization').get('uuid'));
+        }
+      },this);
     }
   
   });
@@ -1223,6 +1213,7 @@
     model: mCAP.Group,
   
     parse: function (resp) {
+      this.filterable.setTotalAmount(resp.data.nonpagedCount);
       return resp.data.items;
     },
   
@@ -1253,8 +1244,14 @@
   var UserGroups = Groups.extend({
   
     constructor: function(args){
-      this.endpoint='gofer/security/rest/users/'+args.userId+'/groups';
-      Groups.prototype.constructor.apply(this,arguments);
+      if(args && args.userId){
+        this.setUserId(args.userId);
+      }
+      return Groups.prototype.constructor.apply(this,arguments);
+    },
+  
+    setUserId: function(id){
+      this.setEndpoint('gofer/security/rest/users/'+id+'/groups');
     },
   
     parse:function(resp){
@@ -1268,8 +1265,8 @@
     save:function(){
       var groups = _.pluck(this.models, 'id');
   
-      Backbone.ajax({
-        url:this.endpoint,
+      return Backbone.ajax({
+        url: _.result(this,'url'),
         data: groups,
         type: 'PUT',
         success:function(){}
@@ -1280,6 +1277,367 @@
   
   mCAP.Groups = Groups;
   mCAP.UserGroups = UserGroups;
+  
+  var User = mCAP.Model.extend({
+  
+    endpoint: 'gofer/security/rest/users',
+  
+    defaults: {
+      'name': '',
+      'salutation': null,
+      'givenName': '',
+      'surname': '',
+      'position': null,
+      'email': '',
+      'phone': null,
+      'country': null,
+      'password': '',
+      'organizationUuid':null,
+      'locked': false,
+      'activated': true,
+      'version': 0,
+      'aclEntries': [],
+      'groups': null,
+      'roles': null
+    },
+  
+    prepare: function(){
+      return {
+        groups: new mCAP.UserGroups()
+      };
+    },
+  
+    validate: function(){
+      this.attributes.version++;
+    },
+  
+    beforeSave: function(attributes){
+      delete attributes.groups;
+      delete attributes.roles;
+      delete attributes.authenticated;
+      if(attributes.password==='' || attributes.password===null){
+        delete attributes.password;
+      }
+      return attributes;
+    },
+  
+    save: function(){
+      var self = this;
+      return mCAP.Model.prototype.save.apply(this,arguments).then(function(userModel){
+         return self.get('groups').save().then(function(){
+           return userModel;
+         });
+      });
+    },
+  
+    parse: function (resp) {
+     return resp.data || resp;
+    },
+  
+  
+    initialize: function(){
+      mCAP.authentication.get('organization').on('change',function(){
+        if(mCAP.authentication.get('organization')){
+          this.set('organizationUuid',mCAP.authentication.get('organization').get('uuid'));
+        }
+      },this);
+  
+      this.once('change',function(model){
+        this.get('groups').setUserId(model.id);
+      },this);
+    }
+  
+  });
+  
+  mCAP.User = User;
+  
+  var Users = mCAP.Collection.extend({
+  
+    endpoint: 'gofer/security/rest/users',
+  
+    model: mCAP.User,
+  
+    parse: function(resp){
+      if(this.filterable){
+        this.filterable.setTotalAmount(resp.data.nonpagedCount);
+      }
+      return resp.data.items;
+    },
+  
+  
+    filterableOptions: function(){
+      return {
+        sortOrder:'+name',
+        filterValues: {
+          name: ''
+        },
+        filterDefinition: function () {
+          var filter = new mCAP.Filter();
+          return filter.or([
+            filter.containsString('name', this.filterValues.name),
+            filter.containsString('givenName', this.filterValues.name),
+            filter.containsString('surname', this.filterValues.name),
+            filter.containsString('email', this.filterValues.name)
+          ]);
+        }
+      };
+    }
+  
+  });
+  
+  mCAP.Users = Users;
+  /**
+   * mCAP Authentication
+   */
+  var UserPreferences = mCAP.Model.extend({
+    setUserId: function (userId) {
+      this.setEndpoint('gofer/security/rest/users/' + userId + '/preferences');
+    },
+    parse: function (attrs) {
+      return attrs.data;
+    },
+    save: function (options) {
+      return Backbone.ajax(_.extend({
+        url: _.result(this, 'url'),
+        data: this.toJSON(),
+        type: 'PUT'
+      }, options));
+    }
+  });
+  
+  var AuthenticatedUser = mCAP.User.extend({
+    defaults: function(){
+      return _.extend(mCAP.User.prototype.defaults,{
+        authenticated: false
+      });
+    },
+    prepare: function(){
+      var user =  mCAP.User.prototype.prepare.apply(this,arguments);
+      return _.extend(user,{
+        preferences: new UserPreferences()
+      });
+    },
+    changePassword: function (oldPassword, newPassword) {
+      return Backbone.ajax({
+        url: this.url()+'/changePassword',
+        params: {
+          oldPassword: oldPassword,
+          newPassword: newPassword
+        },
+        type: 'PUT'
+      });
+    },
+    parse: function (attrs) {
+      attrs = mCAP.User.prototype.parse.apply(this, arguments);
+      this.get('preferences').set(attrs.preferences);
+      delete attrs.preferences;
+      return attrs;
+    },
+    set: function(obj){
+      if(obj.preferences && !(obj.preferences instanceof UserPreferences) ){
+        this.get('preferences').set(obj.preferences);
+        delete obj.preferences;
+      }
+      return mCAP.User.prototype.set.apply(this,arguments);
+    },
+    initialize: function () {
+      this.once('change:uuid', function () {
+        this.get('preferences').setUserId(this.id);
+        this.set('authenticated',true);
+      }, this);
+    }
+  });
+  
+  mCAP.private.UserPreferences = UserPreferences;
+  mCAP.private.AuthenticatedUser = AuthenticatedUser;
+  
+  var Authentication = mCAP.Model.extend({
+  
+    defaults: {
+      'userName': '',
+      'orgaName': '',
+      'password': '',
+      'email': '',
+      'organization': null,
+      'user': null
+    },
+  
+    endpoint: 'gofer/security/rest/auth/',
+  
+    prepare: function(){
+      return {
+        user: new mCAP.private.AuthenticatedUser(),
+        organization: new mCAP.Organization()
+      };
+    },
+  
+    /**
+     * Perform a login request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
+     * Fires a login event everytime a login is performed. Even if the login was not successful.
+     * @param options - Can either be a string for the password or an object with credentials.
+     * @returns promise
+     * @example
+     *
+     * // login with password
+     * mCAP.authentication.login('pass').then(function(){};
+     * // login with credentials
+     * mCAP.authentication.login({
+        userName: 'm.mustermann',
+        orgaName: 'org',
+        password: 'pass'
+      });
+     * // event when auth was successful
+     * mCAP.authentication.on('login', function(){})
+     * // event when auth was not successful
+     * mCAP.authentication.on('authenticationerror', function(obj, err, errMsg){})
+     */
+    login: function (options) {
+      var that = this;
+      if (typeof options === 'string') {
+        this.set('password', options);
+      } else if (typeof options === 'object') {
+        this.set(options);
+      }
+      return this.save(null, {
+        url: this.url() + 'login'
+      }).then(function () {
+        // trigger login on successful login
+        that._triggerEvent('login', arguments);
+        return arguments[0];
+      }).fail(function () {
+        // trigger loginerror on authentication error
+        that._triggerEvent('authenticationerror', arguments);
+        return arguments;
+      }).always(function () {
+        if (typeof options === 'string') {
+          that.set('password', '');
+        }
+        return arguments;
+      });
+    },
+  
+    /**
+     * Perform a logout request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
+     * Fires a logout event everytime a login is performed.
+     * @returns promise
+     * @example
+     * mCAP.authentication.logout().always(function(){});
+     * mCAP.authentication.on('logout', function(obj){});
+     */
+    logout: function () {
+      var that = this;
+      return this.save(null, {
+        url: this.url() + 'logout'
+      }).always(function () {
+        that._triggerEvent('logout', arguments);
+      });
+    },
+  
+    setReferencedModels: function(obj){
+      if(obj.user && !(obj.user instanceof mCAP.private.AuthenticatedUser) && this.get('user')){
+        this.get('user').set(obj.user);
+        delete obj.user;
+      }
+  
+      if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
+        this.get('organization').set(obj.organization);
+        delete obj.organization;
+      }
+      return obj;
+    },
+  
+    /**
+     * Takes the arguments from the server and builds objects needed on the client side
+     * @private
+     * @param data
+     * @returns {{}}
+     */
+    parse: function (data) {
+      return this.setReferencedModels(data);
+    },
+  
+    set: function(key, val, options){
+      key = this.setReferencedModels(key);
+      return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+    },
+  
+    /**
+     * Check if the current user is authenticated or not. Resolves if it is the case otherwise its rejected.
+     * @returns {promise}
+     * @example
+     * mCAP.authentication.isAuthenticated().then(function(){
+              console.log('is authenticated');
+          }).fail(function(){
+              console.log('is not authenticated');
+          });
+     */
+    isAuthenticated: function () {
+      var dfd = $.Deferred();
+      var uuid = null;
+  
+      // check if there was a login before
+      if (mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')) {
+        uuid = mCAP.authentication.get('user').get('uuid');
+      } else {
+        dfd.reject('no user set');
+        return dfd.promise();
+      }
+  
+      mCAP.Utils.request({
+        url: URI(mCAP.application.get('baseUrl') + '/gofer/system/security/currentAuthorization').normalize().toString()
+      }).then(function (data) {
+        // resolve only if the current user is authenticated
+        if (data.user && data.user.uuid && data.user.uuid === uuid) {
+          dfd.resolve(data);
+        }
+        // otherwise reject
+        dfd.reject('not authenticated', data);
+        return;
+      }).fail(function (err) {
+        dfd.reject(err);
+      });
+      return dfd.promise();
+    },
+  
+    initialize: function () {
+      this.once('change:user', function (authentication, user) {
+        this.get('user').set(user.toJSON());
+      });
+    }
+  
+  },{
+    requestNewPassword: function(userName,organizationName){
+      return Backbone.ajax({
+        url: '/gofer/security/rest/users/createPasswordResetRequest',
+        params: {
+          userIdentifier: userName,
+          organizationName: organizationName
+        },
+        type: 'PUT'
+      });
+    },
+    resetPassword: function(userIdentifier,organizationName,newPassword,requestUuid){
+      return Backbone.ajax({
+        url: '/gofer/security/rest/users/resetPassword',
+        params: {
+          newPassword:newPassword,
+          organizationName:organizationName,
+          requestUuid:requestUuid,
+          userIdentifier:userIdentifier
+        },
+        type: 'PUT'
+      });
+    }
+  });
+  
+  // API
+  mCAP.authentication = new Authentication();
+  mCAP.Authentication = Authentication;
+  mCAP.authenticatedUser = mCAP.authentication.get('user');
+  
+  Authentication.prototype.initialize = function(){
+    throw new Error('You can not instantiate a second Authentication object please use the mCAP.authentication instance');
+  };
   
 
   /**
@@ -2019,6 +2377,8 @@
     return this;
   };
   
+
+  //delete mCAP.private;
 
   root.mCAP = mCAP;
 

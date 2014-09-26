@@ -9,7 +9,7 @@ describe("mCAP.authentication", function () {
     mCAP.application.set('baseUrl', 'http://www.mcap.com');
 
     mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
-    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
+    mCAP.authentication.set(JSON.parse(mCAPAuthenticationAttributes));
 
     server = sinon.fakeServer.create();
     callback = sinon.spy();
@@ -48,7 +48,7 @@ describe("mCAP.authentication", function () {
     server.restore();
     // reset the baseurl
     mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
-    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
+    mCAP.authentication.set(JSON.parse(mCAPAuthenticationAttributes));
   });
 
 
@@ -61,7 +61,7 @@ describe("mCAP.authentication", function () {
 
   it("isAuthenticated success", function () {
 
-    mCAP.authentication.set('user', new mCAP.User({
+    mCAP.authentication.set('user', new mCAP.private.AuthenticatedUser({
       uuid: authResponseDataSucc.user.uuid
     }));
 
@@ -81,8 +81,12 @@ describe("mCAP.authentication", function () {
 
     server.respondWith(serverSuccCallback);
 
+    var bakUSer = mCAP.authentication.attributes.user;
+    mCAP.authentication.set('user',null);
+
     mCAP.authentication.isAuthenticated().fail(function () {
       callback(true);
+      mCAP.authentication.attributes.user = bakUSer;
     });
 
     server.respond();
@@ -93,9 +97,7 @@ describe("mCAP.authentication", function () {
 
   it("isAuthenticated failure with wrong uuid", function () {
 
-    mCAP.authentication.set('user', new mCAP.User({
-      uuid: '1234'
-    }));
+    mCAP.authentication.get('user').set('uuid','1234');
 
     server.respondWith(serverSuccCallback);
 

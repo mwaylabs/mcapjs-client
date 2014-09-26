@@ -18,6 +18,8 @@
     return sync.apply(Backbone, [method, model, options]);
   };
 
+  mCAP.private = {};
+
   //INCLUDE GLOBAL SETTINGS HERE
   // @include ./utils/globals.js
   // @include ./utils/utils.js
@@ -33,11 +35,10 @@
   // @include ./model/model.js
   // @include ./model/component.js
   // @include ./collection/collection.js
+  // @include ./collection/enumerable_collection.js
   // @include ./filter/filter.js
   // @include ./application/application.js
-  // @include ./security/authentication.js
-  // @include ./security/user.js
-  // @include ./security/users.js
+  // @include ./security/countries.js
   // @include ./security/organization.js
   // @include ./security/organizations.js
   // @include ./security/role.js
@@ -46,6 +47,10 @@
   // @include ./security/members.js
   // @include ./security/group.js
   // @include ./security/groups.js
+  // @include ./security/user.js
+  // @include ./security/users.js
+  // @include ./security/authenticated_user.js
+  // @include ./security/authentication.js
 
   // @include ./push/push_attribute_collection.js
   // @include ./push/device.js
@@ -58,6 +63,8 @@
   // @include ./push/push_apps.js
   // @include ./push/mcap_push.js
   // @include ./push/push_notification.js
+
+  //delete mCAP.private;
 
   root.mCAP = mCAP;
 

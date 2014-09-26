@@ -11,9 +11,10 @@ var Filterable = function (collectionInstance, options) {
       _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
       _filterDefinition = options.filterDefinition,
       _sortOrder = options.sortOrder,
-      _totalAmount;
+      _totalAmount,
+      _lastFilter;
 
-  this.filterValues = options.filterValues;
+  this.filterValues = options.filterValues || [];
   this.customUrlParams = options.customUrlParams;
 
   this.getRequestParams = function (method, model, options) {
@@ -25,6 +26,12 @@ var Filterable = function (collectionInstance, options) {
       if (filter) {
         options.params.filter = filter;
       }
+
+      //reset pagination if filter values change
+      if(JSON.stringify(filter) !== JSON.stringify(_lastFilter)){
+        _page = 1;
+      }
+      _lastFilter = filter;
 
       // Pagination functionality
       if (_perPage && _page && (_limit || _.isUndefined(_limit))) {
@@ -64,7 +71,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.loadPreviousPage = function () {
     _page -= 1;
-    _collection.fetch({remove: false});
+    return _collection.fetch({remove: false});
   };
 
   this.hasPreviousPage = function () {
@@ -73,7 +80,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.loadNextPage = function () {
     _page += 1;
-    _collection.fetch({remove: false});
+    return _collection.fetch({remove: false});
   };
 
   this.hasNextPage = function () {
@@ -91,6 +98,7 @@ var Filterable = function (collectionInstance, options) {
   this.setSortOrder = function (sortOrder) {
     // TODO: persist sortOrder here
     // ....
+    _page = 1;
     _sortOrder = sortOrder;
   };
 

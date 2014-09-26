@@ -15,11 +15,12 @@ var ModelSelectable = function (modelInstance, options) {
     return _selected;
   };
 
-  this.select = function () {
-    if (!this.isDisabled()) {
+  this.select = function (force ) {
+    if (!this.isDisabled() || force) {
       if (_model.collection && _model.collection.selectable.isRadio()) {
         _model.collection.selectable.unSelectAllModels();
       }
+      this.trigger('change change:select',modelInstance,this);
       _selected = true;
     } else {
       _selected = false;
@@ -27,6 +28,7 @@ var ModelSelectable = function (modelInstance, options) {
   };
 
   this.unSelect = function () {
+    this.trigger('change change:unselect',modelInstance,this);
     _selected = false;
   };
 

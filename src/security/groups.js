@@ -5,6 +5,7 @@ var Groups = mCAP.Collection.extend({
   model: mCAP.Group,
 
   parse: function (resp) {
+    this.filterable.setTotalAmount(resp.data.nonpagedCount);
     return resp.data.items;
   },
 
@@ -35,8 +36,14 @@ var Groups = mCAP.Collection.extend({
 var UserGroups = Groups.extend({
 
   constructor: function(args){
-    this.endpoint='gofer/security/rest/users/'+args.userId+'/groups';
-    Groups.prototype.constructor.apply(this,arguments);
+    if(args && args.userId){
+      this.setUserId(args.userId);
+    }
+    return Groups.prototype.constructor.apply(this,arguments);
+  },
+
+  setUserId: function(id){
+    this.setEndpoint('gofer/security/rest/users/'+id+'/groups');
   },
 
   parse:function(resp){
@@ -50,8 +57,8 @@ var UserGroups = Groups.extend({
   save:function(){
     var groups = _.pluck(this.models, 'id');
 
-    Backbone.ajax({
-      url:this.endpoint,
+    return Backbone.ajax({
+      url: _.result(this,'url'),
       data: groups,
       type: 'PUT',
       success:function(){}

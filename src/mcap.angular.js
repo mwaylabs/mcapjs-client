@@ -4,7 +4,7 @@
 
   angular.module('mCAP', [])
 
-    .run(function ($http, $q, $rootScope, $timeout) {
+    .run(['$http', '$q', '$rootScope', '$timeout', function ($http, $q, $rootScope, $timeout) {
 
       if (!window.mCAP) {
         throw new Error('Please include mCAP libary');
@@ -20,11 +20,15 @@
         var dfd = $q.defer();
         // Use angulars $http implementation for requests
         $http.apply(angular, [options]).then(function(resp){
-          options.success(resp);
+          if(options.success && typeof options.success === 'function'){
+            options.success(resp);
+          }
           dfd.resolve(resp);
         },function(resp){
+          if(options.error && typeof options.error === 'function'){
+            options.error(resp);
+          }
           dfd.reject(resp);
-          options.error(resp);
         });
         return dfd.promise;
       };
@@ -46,7 +50,7 @@
         });
         return _set.apply(this, arguments);
       };
-    })
+    }])
 
     .provider('mCAPApplication', function () {
 
@@ -61,6 +65,26 @@
           return window.mCAP.application;
         }
       };
+    })
+
+    .service('MCAPAuthentication', function(){
+      return window.mCAP.Authentication;
+    })
+
+    .service('MCAPauthentication', function(){
+      return window.mCAP.authentication;
+    })
+
+    .service('MCAPauthenticatedUser', function(){
+      return window.mCAP.authenticatedUser;
+    })
+
+    .service('MCAPCountries', function(){
+      return window.mCAP.Countries;
+    })
+
+    .service('MCAPOrganization', function(){
+      return window.mCAP.Organization;
     })
 
     .service('MCAPUsers', function(){
@@ -91,12 +115,12 @@
       return window.mCAP;
     })
 
-    .service('MCAPCollection', function (mCAP) {
-      return mCAP.Collection;
+    .service('MCAPCollection', function () {
+      return window.mCAP.Collection;
     })
 
-    .service('MCAPModel', function (mCAP) {
-      return mCAP.Model;
+    .service('MCAPModel', function () {
+      return window.mCAP.Model;
     });
 
 })(window, angular, Backbone);

@@ -2,6 +2,9 @@
 var ModelSelectable = ModelSelectable || {},
     CollectionSelectable = CollectionSelectable || {};
 
+_.extend(ModelSelectable.prototype, Backbone.Events);
+_.extend(CollectionSelectable.prototype, Backbone.Events);
+
 var SelectableFactory = function (instance, options) {
   if (instance instanceof Backbone.Model) {
     return new ModelSelectable(instance, options);
