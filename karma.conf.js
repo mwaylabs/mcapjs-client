@@ -76,8 +76,6 @@ module.exports = function(config) {
     exclude: [
       'src/mcap.angular.js',
       '**/online/**/*.*',
-      'test/authentication/login.js',
-      'test/authentication/logout.js',
       'karma.conf.js'
     ],
 

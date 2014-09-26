@@ -9,7 +9,7 @@ describe("mCAP.authentication", function () {
     mCAP.application.set('baseUrl', 'http://www.mcap.com');
 
     mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
-    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
+      mCAP.authentication.set(JSON.parse(mCAPAuthenticationAttributes));
 
     server = sinon.fakeServer.create();
     callback = sinon.spy();
@@ -29,7 +29,7 @@ describe("mCAP.authentication", function () {
     server.restore();
 
     mCAP.application.attributes = JSON.parse(mCAPApplicationAttributes);
-    mCAP.authentication.attributes = JSON.parse(mCAPAuthenticationAttributes);
+      mCAP.authentication.set(JSON.parse(mCAPAuthenticationAttributes));
   });
 
 
@@ -59,7 +59,6 @@ describe("mCAP.authentication", function () {
 
     mCAP.authentication.on('logout', function(obj){
       expect(obj).toBeDefined();
-      expect(obj.attributes).toBeDefined();
       expect(obj.message).toBeDefined();
       mCAP.authentication.off('logout');
       callback(true);
