@@ -64,7 +64,6 @@
   // @include ./push/mcap_push.js
   // @include ./push/push_notification.js
 
-  //delete mCAP.private;
 
   root.mCAP = mCAP;
 
