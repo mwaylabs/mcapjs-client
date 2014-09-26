@@ -1412,9 +1412,10 @@
       });
     },
     prepare: function(){
-      return{
+      var user =  mCAP.User.prototype.prepare.apply(this,arguments);
+      return _.extend(user,{
         preferences: new UserPreferences()
-      };
+      });
     },
     changePassword: function (oldPassword, newPassword) {
       return Backbone.ajax({
@@ -1449,6 +1450,7 @@
   
   mCAP.private.UserPreferences = UserPreferences;
   mCAP.private.AuthenticatedUser = AuthenticatedUser;
+  
   var Authentication = mCAP.Model.extend({
   
     defaults: {
@@ -2376,7 +2378,7 @@
   };
   
 
-  delete mCAP.private;
+  //delete mCAP.private;
 
   root.mCAP = mCAP;
 
