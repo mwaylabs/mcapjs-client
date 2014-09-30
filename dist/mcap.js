@@ -954,6 +954,18 @@
         });
       },
   
+      stringMap: function (fieldName, key, value) {
+        if(value === '%%'){
+          value = '';
+        }
+        return returnNullOrObjectFor(value, {
+          type: 'stringMap',
+          fieldName: fieldName,
+          value: value,
+          key: key
+        });
+      },
+  
       stringEnum: function (fieldName, values) {
         return returnNullOrObjectFor(values, {
           type: 'stringEnum',
@@ -1005,7 +1017,6 @@
   
     defaults: {
       'uuid': null,
-      'aclEntries': null,
       'name': null,
       'uniqueName': null,
       'address': null,
@@ -2378,7 +2389,6 @@
   };
   
 
-  //delete mCAP.private;
 
   root.mCAP = mCAP;
 
