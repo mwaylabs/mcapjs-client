@@ -45,6 +45,18 @@ var Filter = function () {
       });
     },
 
+    stringMap: function (fieldName, key, value) {
+      if(value === '%%'){
+        value = '';
+      }
+      return returnNullOrObjectFor(value, {
+        type: 'stringMap',
+        fieldName: fieldName,
+        value: value,
+        key: key
+      });
+    },
+
     stringEnum: function (fieldName, values) {
       return returnNullOrObjectFor(values, {
         type: 'stringEnum',
