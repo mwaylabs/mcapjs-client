@@ -531,6 +531,10 @@
       }
     },
   
+    getEndpoint: function () {
+      return this.urlRoot();
+    },
+  
     setEndpoint: function (endpoint) {
       this.urlRoot = function () {
         if (mCAP.application.get('baseUrl').slice(-1) === '/' && endpoint[0] === '/') {
