@@ -1,6 +1,6 @@
 {
   "name": "mcapjs-client",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/mwaylabs/mcapjs-client",
   "authors": [
     "mwaylabs"
@@ -15,7 +15,6 @@
     "MEAP"
   ],
   "license": "",
-  "private": true,
   "ignore": [
     "**/.*",
     "node_modules",
@@ -26,6 +25,7 @@
   "dependencies": {
     "backbone": "~1.1.2",
     "jquery": "~2.1.1",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "uri.js": "~1.13.2"
   }
 }

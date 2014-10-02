@@ -8,8 +8,8 @@ describe("mCAP.authentication", function () {
 
     expect(Authentication).toBeDefined();
     expect(Authentication.prototype.defaults).toBeDefined();
-    expect(Authentication.prototype.defaults.username).toBeDefined();
-    expect(Authentication.prototype.defaults.organization).toBeDefined();
+    expect(Authentication.prototype.defaults.userName).toBeDefined();
+    expect(Authentication.prototype.defaults.orgaName).toBeDefined();
     expect(Authentication.prototype.defaults.password).toBeDefined();
     expect(Authentication.prototype.endpoint).toEqual('gofer/security/rest/auth/');
     expect(Authentication.prototype.hasOwnProperty('login')).toBeTruthy();
@@ -20,8 +20,8 @@ describe("mCAP.authentication", function () {
     expect(mCAP.authentication).toBeDefined();
     expect(mCAP.Model.prototype.isPrototypeOf(mCAP.authentication)).toBeTruthy();
     expect(Backbone.Model.prototype.isPrototypeOf(mCAP.authentication)).toBeTruthy();
-    expect(mCAP.authentication.get('username')).toEqual('');
-    expect(mCAP.authentication.get('organization')).toEqual('');
+    expect(mCAP.authentication.get('userName')).toEqual('');
+    expect(mCAP.authentication.get('orgaName')).toEqual('');
     expect(mCAP.authentication.get('password')).toEqual('');
     expect(mCAP.authentication.endpoint).toEqual('gofer/security/rest/auth/');
     expect(mCAP.authentication.url()).toEqual(mCAP.application.get('baseUrl') + '/gofer/security/rest/auth/');

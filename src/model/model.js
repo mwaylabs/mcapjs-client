@@ -16,7 +16,7 @@ var Model = Backbone.Model.extend({
     }, this);
 
     if (this.selectable) {
-      this.selectable = new SelectableFactory(this,  _.result(this,'selectableOptions'));
+      this.selectable = new SelectableFactory(this, _.result(this, 'selectableOptions'));
     }
 
     if (typeof this.endpoint === 'string') {
@@ -27,19 +27,42 @@ var Model = Backbone.Model.extend({
     _.bindAll(this, '_markToRevert', 'revert');
     // send the attributes or empty object
     this._markToRevert(arguments[0] || {});
+    var orgInitialize = this.initialize;
+    this.initialize = function(){
+      if(!this.collection){
+        var preparedAttrs = this.prepare.apply(this,arguments);
+        if(preparedAttrs){
+          this.set(preparedAttrs);
+        }
+      }
+      orgInitialize.apply(this,arguments);
+    };
+    var constructor = Backbone.Model.prototype.constructor.apply(this, arguments);
 
-    return Backbone.Model.prototype.constructor.apply(this, arguments);
+    return constructor;
   },
 
-  setQueryParameter: function(attr,value){
+  //This method has to return an object!
+  //You can do some initialisation stuff e.g. create referenced models or collections
+  prepare: function(){
+      /*
+       * e.g.
+       * return {
+       *  user: new mCAP.User()
+       * }
+       */
+      return {};
+  },
+
+  setQueryParameter: function (attr, value) {
     this.queryParameter = this.queryParameter || {};
-    if(typeof attr === 'string'){
-      this.queryParameter[attr]=value;
+    if (typeof attr === 'string') {
+      this.queryParameter[attr] = value;
     }
   },
 
-  removeQueryParameter: function(attr){
-    if(this.queryParameter && attr && this.queryParameter[attr]){
+  removeQueryParameter: function (attr) {
+    if (this.queryParameter && attr && this.queryParameter[attr]) {
       delete this.queryParameter[attr];
     }
   },
@@ -65,10 +88,10 @@ var Model = Backbone.Model.extend({
     }
   },
 
-  url: function(){
-    var url = Backbone.Model.prototype.url.apply(this,arguments);
-    if(this.queryParameter){
-      url+='?'+Backbone.$.param(this.queryParameter);
+  url: function () {
+    var url = Backbone.Model.prototype.url.apply(this, arguments);
+    if (this.queryParameter) {
+      url += '?' + Backbone.$.param(this.queryParameter);
     }
     return url;
   },
@@ -122,18 +145,22 @@ var Model = Backbone.Model.extend({
    * @returns {*}
    */
 
-  beforeSave: function(attributes){
+  beforeSave: function (attributes) {
     return attributes;
   },
 
   save: function (key, val, options) {
-    var args = this._save(key, val, options);
-    var orgAttributes = this.attributes;
+    var args = this._save(key, val, options),
+        orgAttributes = this.attributes,
+        orgParse = this.parse;
+    this.parse = function(){
+      this.attributes = orgAttributes;
+      this.parse = orgParse;
+      return this.parse.apply(this,arguments);
+    };
     this.attributes = this.beforeSave(_.clone(orgAttributes));
-    var save = Backbone.Model.prototype.save.apply(this, args).then(function(model){
-      model.attributes = orgAttributes;
-      return model;
-    });
+    var save = Backbone.Model.prototype.save.apply(this, args);
+    this.attributes = orgAttributes;
     return save;
   },
 
@@ -147,7 +174,8 @@ var Model = Backbone.Model.extend({
    */
   _save: function (key, val, options) {
     // prepare options
-    if (key === null || typeof key === 'object') {
+    // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+    if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
       options = val;
     }
     // make sure options are defined
@@ -167,7 +195,8 @@ var Model = Backbone.Model.extend({
     };
 
     // make sure options are the correct paramater
-    if (key === null || typeof key === 'object') {
+    // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
+    if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
       val = options;
     }
 
@@ -207,6 +236,22 @@ var Model = Backbone.Model.extend({
       }
     };
     return [options];
+  },
+
+  _triggerEvent: function (eventName, args) {
+    // cast arguments to array
+    var _args = Array.prototype.slice.call(args, 0);
+    // add the event name
+    _args.unshift(eventName);
+    // trigger the event
+    this.trigger.apply(this, _args);
+  },
+
+  sync: function () {
+    if(arguments[2]){
+      mCAP.Utils.setAuthenticationEvent(arguments[2]);
+    }
+    return Backbone.Model.prototype.sync.apply(this, arguments);
   }
 
 });

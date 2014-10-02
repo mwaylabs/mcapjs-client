@@ -21,6 +21,7 @@
   "loopfunc": true,
   "globals": {
     "Backbone": true,
+    "URI": true,
     "mCAP": true,
     "angular":true,
     "_": true,

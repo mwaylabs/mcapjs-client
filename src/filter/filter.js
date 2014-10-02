@@ -1,7 +1,7 @@
 var Filter = function () {
   // If it is an invalid value return null otherwise the provided object
   var returnNullOrObjectFor = function (value, object) {
-    return (_.isUndefined(value) || value === null || value === '') ? null : object;
+    return (_.isUndefined(value) || value === null || value === '' || value.length===0) ? null : object;
   };
 
   // See https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filter
@@ -42,6 +42,26 @@ var Filter = function () {
         type: 'boolean',
         fieldName: fieldName,
         value: value
+      });
+    },
+
+    stringMap: function (fieldName, key, value) {
+      if(value === '%%'){
+        value = '';
+      }
+      return returnNullOrObjectFor(value, {
+        type: 'stringMap',
+        fieldName: fieldName,
+        value: value,
+        key: key
+      });
+    },
+
+    stringEnum: function (fieldName, values) {
+      return returnNullOrObjectFor(values, {
+        type: 'stringEnum',
+        fieldName: fieldName,
+        values: values
       });
     },
 

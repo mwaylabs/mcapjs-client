@@ -55,6 +55,8 @@ export PHANTOMJS_BIN=$(which phantomjs)
 To start a test use:
 ```
 karma start karma.conf.js
+// or
+grunt test
 ```
 
 It is also possible to test against a running server:
@@ -70,3 +72,9 @@ window.PASSWORD = window.PASSWORD || 'password';
 ```
 karma start karma.online.conf.js
 ```
+
+## Documentation
+[Documentation](https://wiki.mwaysolutions.com/confluence/display/mCAP/Getting+Started+with+mCAPjs-client)
+
+## Changelog
+[Changelog](https://github.com/mwaylabs/mcapjs-client/blob/master/changelog.md)

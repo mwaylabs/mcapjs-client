@@ -1,7 +1,6 @@
 .idea
 .DS_Store
 node_modules
-dist
 relution-release.zip
 mcap-generator-ionic.zip
 npm-debug.log

@@ -9,13 +9,20 @@ var Group = mCAP.Model.extend({
       version: 0,
       organizationUuid: '',
       description: null,
-      roles: new mCAP.Roles(),
-      members: new mCAP.Members(),
+      roles: null,
+      members: null,
       aclEntries: [],
       effectivePermissions: '',
       sysRoles: [],
       systemPermission: false,
       bundle: null
+    };
+  },
+
+  prepare: function(){
+    return {
+      roles:new mCAP.Roles(),
+      members:new mCAP.Members()
     };
   },
 
@@ -28,7 +35,7 @@ var Group = mCAP.Model.extend({
 
   beforeSave: function(data){
     var roles = [],
-        members = [];
+      members = [];
 
     if(data.members){
       data.members.each(function(memberModel){
@@ -47,27 +54,41 @@ var Group = mCAP.Model.extend({
     return data;
   },
 
-  parse: function (resp) {
-    var data = resp.data || resp,
-      roles = new mCAP.Roles(null,{groupId: data.uuid}),
-      members = new mCAP.Members(null,{groupId: data.uuid});
+  setReferencedCollections: function(attrs){
 
-    if(data.roles){
-      data.roles.forEach(function (role) {
-        roles.add({uuid: role});
-      });
+    if(attrs.roles && !(attrs.roles instanceof mCAP.Roles) && this.get('roles')){
+      attrs.roles.forEach(function(role){
+        this.get('roles').add({uuid:role});
+      },this);
+      delete attrs.roles;
     }
 
-    if(data.members){
-      data.members.forEach(function (member) {
-        members.add({uuid: member});
-      });
+    if(attrs.members && !(attrs.members instanceof mCAP.Members) && this.get('members')){
+      attrs.members.forEach(function(member){
+        this.get('members').add({uuid:member});
+      },this);
+      delete attrs.members;
     }
 
-    data.roles = roles;
-    data.members = members;
+    return attrs;
+  },
 
-    return data;
+  set: function(key, val, options){
+    key = this.setReferencedCollections(key);
+    return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+  },
+
+  parse: function (attrs) {
+    attrs = attrs.data || attrs;
+    return this.setReferencedCollections(attrs);
+  },
+
+  initialize: function(){
+    mCAP.authentication.get('organization').on('change',function(){
+      if(mCAP.authentication.get('organization')){
+        this.set('organizationUuid',mCAP.authentication.get('organization').get('uuid'));
+      }
+    },this);
   }
 
 });

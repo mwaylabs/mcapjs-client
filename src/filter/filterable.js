@@ -8,12 +8,13 @@ var Filterable = function (collectionInstance, options) {
       _offset = _limit ? options.offset : false,
       _page = options.page || 1,
       _perPage = options.perPage || 30,
-      _initialFilterValues = angular.copy(options.filterValues),
+      _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
       _filterDefinition = options.filterDefinition,
       _sortOrder = options.sortOrder,
-      _totalAmount;
+      _totalAmount,
+      _lastFilter;
 
-  this.filterValues = options.filterValues;
+  this.filterValues = options.filterValues || [];
   this.customUrlParams = options.customUrlParams;
 
   this.getRequestParams = function (method, model, options) {
@@ -25,6 +26,12 @@ var Filterable = function (collectionInstance, options) {
       if (filter) {
         options.params.filter = filter;
       }
+
+      //reset pagination if filter values change
+      if(JSON.stringify(filter) !== JSON.stringify(_lastFilter)){
+        _page = 1;
+      }
+      _lastFilter = filter;
 
       // Pagination functionality
       if (_perPage && _page && (_limit || _.isUndefined(_limit))) {
@@ -64,7 +71,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.loadPreviousPage = function () {
     _page -= 1;
-    _collection.fetch({remove: false});
+    return _collection.fetch({remove: false});
   };
 
   this.hasPreviousPage = function () {
@@ -73,7 +80,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.loadNextPage = function () {
     _page += 1;
-    _collection.fetch({remove: false});
+    return _collection.fetch({remove: false});
   };
 
   this.hasNextPage = function () {
@@ -91,6 +98,7 @@ var Filterable = function (collectionInstance, options) {
   this.setSortOrder = function (sortOrder) {
     // TODO: persist sortOrder here
     // ....
+    _page = 1;
     _sortOrder = sortOrder;
   };
 
@@ -116,7 +124,7 @@ var Filterable = function (collectionInstance, options) {
   };
 
   this.resetFilters = function () {
-    this.filterValues = angular.copy(_initialFilterValues);
+    this.filterValues = _initialFilterValues ? JSON.parse(JSON.stringify(_initialFilterValues)) : _initialFilterValues;
   };
 
   (function _main() {

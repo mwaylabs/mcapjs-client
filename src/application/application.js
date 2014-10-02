@@ -1,7 +1,8 @@
 var Application = mCAP.Model.extend({
 
   defaults: {
-    'baseUrl': ''
+    'baseUrl': '',
+    'pushServiceApiVersion': 'v1'
   }
 
 });
