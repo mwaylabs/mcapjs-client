@@ -2,76 +2,76 @@ var User = mCAP.Model.extend({
 
   endpoint: 'gofer/security/rest/users',
 
-  defaults: {
-    'name': '',
-    'salutation': null,
-    'givenName': '',
-    'surname': '',
-    'position': null,
-    'email': '',
-    'phone': null,
-    'country': null,
-    'password': '',
-    'organization':null,
-    'locked': false,
-    'activated': true,
-    'version': 0,
-    'aclEntries': [],
-    'groups': null,
-    'roles': null
+  defaults: function () {
+    return {
+      'name': '',
+      'salutation': null,
+      'givenName': '',
+      'surname': '',
+      'position': null,
+      'email': '',
+      'phone': null,
+      'country': null,
+      'password': '',
+      'organization': null,
+      'locked': false,
+      'activated': true,
+      'version': 0,
+      'aclEntries': [],
+      'groups': null,
+      'roles': null
+    };
   },
 
-  prepare: function(){
+  prepare: function () {
     return {
       groups: new mCAP.UserGroups(),
       organization: new mCAP.Organization()
     };
   },
 
-  validate: function(){
+  validate: function () {
     this.attributes.version++;
   },
 
-  beforeSave: function(attributes){
+  beforeSave: function (attributes) {
     delete attributes.groups;
     delete attributes.roles;
     delete attributes.authenticated;
     attributes.organizationUuid = this.get('organization').get('uuid');
     delete attributes.organization;
-    if(attributes.password==='' || attributes.password===null){
+    if (attributes.password === '' || attributes.password === null) {
       delete attributes.password;
     }
     return attributes;
   },
 
-  save: function(){
+  save: function () {
     var self = this;
-    return mCAP.Model.prototype.save.apply(this,arguments).then(function(userModel){
-       return self.get('groups').save().then(function(){
-         return userModel;
-       });
+    return mCAP.Model.prototype.save.apply(this, arguments).then(function (userModel) {
+      return self.get('groups').save().then(function () {
+        return userModel;
+      });
     });
   },
 
+
   parse: function (resp) {
-   var data = resp.data || resp;
-   this.get('organization').set('uuid',data.organizationUuid);
-   delete data.organizationUuid;
-   return data;
+    var data = resp.data || resp;
+    this.get('organization').set('uuid', data.organizationUuid);
+    delete data.organizationUuid;
+    return data;
   },
 
+  initialize: function () {
+    this.get('organization').set('uuid', mCAP.authentication.get('organization').get('uuid'));
+    mCAP.authentication.get('organization').on('change', function () {
+      this.get('organization').set('uuid', mCAP.authentication.get('organization').get('uuid'));
+    }, this);
 
-  initialize: function(){
-    this.get('organization').set('uuid',mCAP.authentication.get('organization').get('uuid'));
-    mCAP.authentication.get('organization').on('change',function(){
-      if(mCAP.authentication.get('organization')){
-        this.get('organization').set('uuid',mCAP.authentication.get('organization').get('uuid'));
-      }
-    },this);
-
-    this.once('change',function(model){
+    this.once('change:uuid', function (model) {
       this.get('groups').setUserId(model.id);
-    },this);
+    }, this);
   }
 
 });
