@@ -7,7 +7,7 @@ var Model = Backbone.Model.extend({
   selectable: true,
   selectableOptions: {},
   queryParameter: null,
-  constructor: function () {
+  constructor: function (attributes, options) {
     // When a model gets removed, make sure to decrement the total count on the collection
     this.on('destroy', function () {
       if (this.collection && this.collection.filterable && this.collection.filterable.getTotalAmount() > 0) {
@@ -27,31 +27,41 @@ var Model = Backbone.Model.extend({
     _.bindAll(this, '_markToRevert', 'revert');
     // send the attributes or empty object
     this._markToRevert(arguments[0] || {});
-    var orgInitialize = this.initialize;
-    this.initialize = function(){
-      if(!this.collection){
-        var preparedAttrs = this.prepare.apply(this,arguments);
-        if(preparedAttrs){
-          this.set(preparedAttrs);
-        }
-      }
-      orgInitialize.apply(this,arguments);
-    };
-    var constructor = Backbone.Model.prototype.constructor.apply(this, arguments);
 
-    return constructor;
+    /*
+     * Instead of super apply we use the whole backbone constructor implementation because we need to inject
+     * code inbetween which is hard to implement otherwise
+     */
+    var attrs = attributes || {},
+      nested = {};
+
+    options = options || {};
+    this.cid = _.uniqueId('c');
+    this.attributes = {};
+    if (options.collection) {
+      this.collection = options.collection;
+    }
+    nested = this.prepare();
+    this.set(nested);
+    if (options.parse) {
+      attrs = this.parse(attrs, options) || {};
+    }
+    attrs = _.defaults({}, attrs, nested, _.result(this, 'defaults'));
+    this.set(attrs, options);
+    this.changed = {};
+    this.initialize.apply(this, arguments);
   },
 
   //This method has to return an object!
   //You can do some initialisation stuff e.g. create referenced models or collections
-  prepare: function(){
-      /*
-       * e.g.
-       * return {
-       *  user: new mCAP.User()
-       * }
-       */
-      return {};
+  prepare: function () {
+    /*
+     * e.g.
+     * return {
+     *  user: new mCAP.User()
+     * }
+     */
+    return {};
   },
 
   setQueryParameter: function (attr, value) {
@@ -155,12 +165,12 @@ var Model = Backbone.Model.extend({
 
   save: function (key, val, options) {
     var args = this._save(key, val, options),
-        orgAttributes = this.attributes,
-        orgParse = this.parse;
-    this.parse = function(){
+      orgAttributes = this.attributes,
+      orgParse = this.parse;
+    this.parse = function () {
       this.attributes = orgAttributes;
       this.parse = orgParse;
-      return this.parse.apply(this,arguments);
+      return this.parse.apply(this, arguments);
     };
     this.attributes = this.beforeSave(_.clone(orgAttributes));
     var save = Backbone.Model.prototype.save.apply(this, args);
@@ -252,7 +262,7 @@ var Model = Backbone.Model.extend({
   },
 
   sync: function () {
-    if(arguments[2]){
+    if (arguments[2]) {
       mCAP.Utils.setAuthenticationEvent(arguments[2]);
     }
     return Backbone.Model.prototype.sync.apply(this, arguments);
