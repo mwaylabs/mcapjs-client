@@ -11,6 +11,9 @@ var EnumerableCollection = mCAP.Collection.extend({
       appTypes.push({key: type.value});
     });
     return appTypes;
+  },
+  toJSON: function () {
+    return this.pluck('key');
   }
 
 });
