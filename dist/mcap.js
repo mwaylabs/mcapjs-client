@@ -471,7 +471,7 @@
     selectable: true,
     selectableOptions: {},
     queryParameter: null,
-    constructor: function () {
+    constructor: function (attributes, options) {
       // When a model gets removed, make sure to decrement the total count on the collection
       this.on('destroy', function () {
         if (this.collection && this.collection.filterable && this.collection.filterable.getTotalAmount() > 0) {
@@ -491,31 +491,41 @@
       _.bindAll(this, '_markToRevert', 'revert');
       // send the attributes or empty object
       this._markToRevert(arguments[0] || {});
-      var orgInitialize = this.initialize;
-      this.initialize = function(){
-        if(!this.collection){
-          var preparedAttrs = this.prepare.apply(this,arguments);
-          if(preparedAttrs){
-            this.set(preparedAttrs);
-          }
-        }
-        orgInitialize.apply(this,arguments);
-      };
-      var constructor = Backbone.Model.prototype.constructor.apply(this, arguments);
   
-      return constructor;
+      /*
+       * Instead of super apply we use the whole backbone constructor implementation because we need to inject
+       * code inbetween which is hard to implement otherwise
+       */
+      var attrs = attributes || {},
+        nested = {};
+  
+      options = options || {};
+      this.cid = _.uniqueId('c');
+      this.attributes = {};
+      if (options.collection) {
+        this.collection = options.collection;
+      }
+      nested = this.prepare();
+      this.set(nested);
+      if (options.parse) {
+        attrs = this.parse(attrs, options) || {};
+      }
+      attrs = _.defaults({}, attrs, nested, _.result(this, 'defaults'));
+      this.set(attrs, options);
+      this.changed = {};
+      this.initialize.apply(this, arguments);
     },
   
     //This method has to return an object!
     //You can do some initialisation stuff e.g. create referenced models or collections
-    prepare: function(){
-        /*
-         * e.g.
-         * return {
-         *  user: new mCAP.User()
-         * }
-         */
-        return {};
+    prepare: function () {
+      /*
+       * e.g.
+       * return {
+       *  user: new mCAP.User()
+       * }
+       */
+      return {};
     },
   
     setQueryParameter: function (attr, value) {
@@ -619,12 +629,12 @@
   
     save: function (key, val, options) {
       var args = this._save(key, val, options),
-          orgAttributes = this.attributes,
-          orgParse = this.parse;
-      this.parse = function(){
+        orgAttributes = this.attributes,
+        orgParse = this.parse;
+      this.parse = function () {
         this.attributes = orgAttributes;
         this.parse = orgParse;
-        return this.parse.apply(this,arguments);
+        return this.parse.apply(this, arguments);
       };
       this.attributes = this.beforeSave(_.clone(orgAttributes));
       var save = Backbone.Model.prototype.save.apply(this, args);
@@ -716,7 +726,7 @@
     },
   
     sync: function () {
-      if(arguments[2]){
+      if (arguments[2]) {
         mCAP.Utils.setAuthenticationEvent(arguments[2]);
       }
       return Backbone.Model.prototype.sync.apply(this, arguments);
@@ -841,49 +851,6 @@
     replace: function(models){
       this.reset(models);
       this.trigger('replace',this);
-    },
-  
-    /*
-     * README: Why are we doing this??
-     *
-     * The initialize method of a  model is not always called at the same time
-     * When the model instance is created by the collection the parse method is called before
-     * For referenced collections/models we need to set them up before the parse method is called
-     * We Can not do this in the attributes field because the default attributes are set after the parse method
-     * The only solution is that we have a function that comes always before the parse method and that is also
-     * called when a model instance is created manually(not by a collection)
-     * The following code get the prototype function of the original parse method which is then overwritten by our
-     * custom 'prepare' function. After the prepared has been called we call the original parse method
-     *
-     * New Execution order of functions:
-     * create new Model(): prepare() > initialize()
-     * Colellection creates model instance: prepare() > parse() > initialize()
-     */
-  
-    _prepareModel: function(model,options){
-      var orgParse = this.model.prototype.parse,
-          collection = this,
-          preparedAttrs = {},
-          parsedAttrs = {};
-  
-      //if(model.uuid ==='2345423543252')debugger;
-  
-      //Inject the function which should be called before the parse method into the original parse method
-      if(options.parse){
-        this.model.prototype.parse = function(){
-          if(!this._prepared){
-            preparedAttrs = collection.model.prototype.prepare.apply(this,arguments);
-            this.set(preparedAttrs);
-            this._prepared = true;
-          }
-          this.parse = orgParse;
-          parsedAttrs = this.parse.apply(this,arguments);
-          //Merge the attributes which are then set as model attributes
-          return _.extend(parsedAttrs,preparedAttrs);
-        };
-      }
-  
-      return Backbone.Collection.prototype._prepareModel.apply(this,arguments);
     }
   
   });
@@ -904,6 +871,9 @@
         appTypes.push({key: type.value});
       });
       return appTypes;
+    },
+    toJSON: function () {
+      return this.pluck('key');
     }
   
   });
@@ -1297,76 +1267,76 @@
   
     endpoint: 'gofer/security/rest/users',
   
-    defaults: {
-      'name': '',
-      'salutation': null,
-      'givenName': '',
-      'surname': '',
-      'position': null,
-      'email': '',
-      'phone': null,
-      'country': null,
-      'password': '',
-      'organization':null,
-      'locked': false,
-      'activated': true,
-      'version': 0,
-      'aclEntries': [],
-      'groups': null,
-      'roles': null
+    defaults: function () {
+      return {
+        'name': '',
+        'salutation': null,
+        'givenName': '',
+        'surname': '',
+        'position': null,
+        'email': '',
+        'phone': null,
+        'country': null,
+        'password': '',
+        'organization': null,
+        'locked': false,
+        'activated': true,
+        'version': 0,
+        'aclEntries': [],
+        'groups': null,
+        'roles': null
+      };
     },
   
-    prepare: function(){
+    prepare: function () {
       return {
         groups: new mCAP.UserGroups(),
         organization: new mCAP.Organization()
       };
     },
   
-    validate: function(){
+    validate: function () {
       this.attributes.version++;
     },
   
-    beforeSave: function(attributes){
+    beforeSave: function (attributes) {
       delete attributes.groups;
       delete attributes.roles;
       delete attributes.authenticated;
       attributes.organizationUuid = this.get('organization').get('uuid');
       delete attributes.organization;
-      if(attributes.password==='' || attributes.password===null){
+      if (attributes.password === '' || attributes.password === null) {
         delete attributes.password;
       }
       return attributes;
     },
   
-    save: function(){
+    save: function () {
       var self = this;
-      return mCAP.Model.prototype.save.apply(this,arguments).then(function(userModel){
-         return self.get('groups').save().then(function(){
-           return userModel;
-         });
+      return mCAP.Model.prototype.save.apply(this, arguments).then(function (userModel) {
+        return self.get('groups').save().then(function () {
+          return userModel;
+        });
       });
     },
   
+  
     parse: function (resp) {
-     var data = resp.data || resp;
-     this.get('organization').set('uuid',data.organizationUuid);
-     delete data.organizationUuid;
-     return data;
+      var data = resp.data || resp;
+      this.get('organization').set('uuid', data.organizationUuid);
+      delete data.organizationUuid;
+      return data;
     },
   
+    initialize: function () {
+      this.get('organization').set('uuid', mCAP.authentication.get('organization').get('uuid'));
+      mCAP.authentication.get('organization').on('change', function () {
+        this.get('organization').set('uuid', mCAP.authentication.get('organization').get('uuid'));
+      }, this);
   
-    initialize: function(){
-      this.get('organization').set('uuid',mCAP.authentication.get('organization').get('uuid'));
-      mCAP.authentication.get('organization').on('change',function(){
-        if(mCAP.authentication.get('organization')){
-          this.get('organization').set('uuid',mCAP.authentication.get('organization').get('uuid'));
-        }
-      },this);
-  
-      this.once('change',function(model){
+      this.once('change:uuid', function (model) {
         this.get('groups').setUserId(model.id);
-      },this);
+      }, this);
     }
   
   });
