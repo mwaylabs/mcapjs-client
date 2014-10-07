@@ -1334,7 +1334,7 @@
         this.get('organization').set('uuid', mCAP.authentication.get('organization').get('uuid'));
       }, this);
   
-      this.once('change:uuid', function (model) {
+      this.once('change', function (model) {
         this.get('groups').setUserId(model.id);
       }, this);
     }
