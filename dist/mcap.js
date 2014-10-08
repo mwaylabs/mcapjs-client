@@ -251,14 +251,6 @@
       _radio = options.radio === true,
       _addWhenNotInList=options.addWhenNotInList !== false;
   
-    this.getSelected = function(){
-      if(_selected instanceof Backbone.Model){
-        return this.getSelectedModels().first();
-      } else if(_selected instanceof Backbone.Collection){
-        return this.getSelectedModels();
-      }
-    };
-  
     this.getSelectedModels = function () {
       var selected = new mCAP.Collection();
       _collection.models.forEach(function (model) {
