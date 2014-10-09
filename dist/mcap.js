@@ -409,7 +409,7 @@
   
     this.select = function (force ) {
       if (!this.isDisabled() || force) {
-        if (_model.collection && _model.collection.selectable.isRadio()) {
+        if (_model.collection && _model.collection.selectable && _model.collection.selectable.isRadio()) {
           _model.collection.selectable.unSelectAllModels();
         }
         this.trigger('change change:select',modelInstance,this);
