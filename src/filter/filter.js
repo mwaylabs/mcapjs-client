@@ -15,6 +15,14 @@ var Filter = function () {
       });
     },
 
+    string: function (fieldName, value) {
+      return returnNullOrObjectFor(value, {
+        type: 'string',
+        fieldName: fieldName,
+        value: value
+      });
+    },
+
     and: function (filters) {
       return this.logOp(filters, 'AND');
     },
