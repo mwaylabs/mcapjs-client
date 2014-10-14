@@ -890,6 +890,14 @@
         });
       },
   
+      string: function (fieldName, value) {
+        return returnNullOrObjectFor(value, {
+          type: 'string',
+          fieldName: fieldName,
+          value: value
+        });
+      },
+  
       and: function (filters) {
         return this.logOp(filters, 'AND');
       },
@@ -1199,7 +1207,9 @@
         sortOrder: '+name',
         filterValues: {
           name: '',
-          systemPermission: false
+          uuid: '',
+          systemPermission: false,
+          members: []
         },
         filterDefinition: function () {
           var filter = new mCAP.Filter();
@@ -1211,6 +1221,8 @@
           if (this.filterValues.systemPermission !== true) {
             filters.push(filter.boolean('systemPermission', this.filterValues.systemPermission));
           }
+          filters.push(filter.stringEnum('members',this.filterValues.members));
+          filters.push(filter.string('uuid',this.filterValues.uuid));
           return filter.and(filters);
         }
       };
