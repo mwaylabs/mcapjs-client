@@ -50,6 +50,12 @@ var AuthenticatedUser = mCAP.User.extend({
       this.get('preferences').set(obj.preferences);
       delete obj.preferences;
     }
+
+    if(obj.organization && !(obj.organization instanceof mCAP.Organization) ){
+      this.get('organization').set(obj.organization);
+      delete obj.organization;
+    }
+
     return mCAP.User.prototype.set.apply(this,arguments);
   },
   initialize: function () {

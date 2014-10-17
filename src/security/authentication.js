@@ -13,8 +13,7 @@ var Authentication = mCAP.Model.extend({
 
   prepare: function(){
     return {
-      user: new mCAP.private.AuthenticatedUser(),
-      organization: new mCAP.Organization()
+      user: new mCAP.private.AuthenticatedUser()
     };
   },
 
@@ -86,8 +85,8 @@ var Authentication = mCAP.Model.extend({
       delete obj.user;
     }
 
-    if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
-      this.get('organization').set(obj.organization);
+    if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user')){
+      this.get('user').get('organization').set(obj.organization);
       delete obj.organization;
     }
     return obj;
@@ -123,8 +122,8 @@ var Authentication = mCAP.Model.extend({
     var uuid = null;
 
     // check if there was a login before
-    if (mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')) {
-      uuid = mCAP.authentication.get('user').get('uuid');
+    if (this.get('user') && this.get('user').get('uuid')) {
+      uuid = this.get('user').get('uuid');
     } else {
       dfd.reject('no user set');
       return dfd.promise();
@@ -147,9 +146,9 @@ var Authentication = mCAP.Model.extend({
   },
 
   initialize: function () {
-    this.once('change:user', function (authentication, user) {
-      this.get('user').set(user.toJSON());
-    });
+//    this.on('change', function () {
+//      mCAP.authenticatedUser.set(this.get('user'));
+//    },this);
   }
 
 },{
@@ -181,6 +180,7 @@ var Authentication = mCAP.Model.extend({
 mCAP.authentication = new Authentication();
 mCAP.Authentication = Authentication;
 mCAP.authenticatedUser = mCAP.authentication.get('user');
+mCAP.currentOrganization = mCAP.authentication.get('user').get('organization');
 
 Authentication.prototype.initialize = function(){
   throw new Error('You can not instantiate a second Authentication object please use the mCAP.authentication instance');
