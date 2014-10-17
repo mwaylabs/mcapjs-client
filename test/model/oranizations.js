@@ -3,7 +3,7 @@ describe("mCAP Organization Model and Organizations Collection", function () {
   it("Organization(s) Object", function () {
 
 
-    expect(mCAP.authentication.get('organization')).toBeDefined();
+    expect(mCAP.currentOrganization).toBeDefined();
     expect(typeof mCAP.Organization).toBe('function');
     expect(typeof mCAP.Organizations).toBe('function');
 

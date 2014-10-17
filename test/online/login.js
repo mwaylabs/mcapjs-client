@@ -28,7 +28,7 @@ describe("mCAP.authentication", function () {
 
     mCAP.authentication.login().then(function () {
       expect(mCAP.authentication.get('username')).toBe(USERNAME);
-      expect(mCAP.authentication.get('organization')).toBe(ORGANIZATION);
+      expect(mCAP.currentOrganization).toBe(ORGANIZATION);
       expect(mCAP.authentication.get('password')).toBe(PASSWORD);
       done();
     });
@@ -40,7 +40,7 @@ describe("mCAP.authentication", function () {
 
     mCAP.authentication.login().fail(function () {
       expect(mCAP.authentication.get('username')).toBe('');
-      expect(mCAP.authentication.get('organization')).toBe('');
+      expect(mCAP.currentOrganization).toBe('');
       expect(mCAP.authentication.get('password')).toBe('');
       done();
     });
@@ -52,7 +52,7 @@ describe("mCAP.authentication", function () {
     mCAP.authentication.set('organization', ORGANIZATION);
     mCAP.authentication.login(PASSWORD).then(function () {
       expect(mCAP.authentication.get('username')).toBe(USERNAME);
-      expect(mCAP.authentication.get('organization')).toBe(ORGANIZATION);
+      expect(mCAP.currentOrganization).toBe(ORGANIZATION);
       expect(mCAP.authentication.get('password')).toBe('');
       done();
     });
@@ -68,7 +68,7 @@ describe("mCAP.authentication", function () {
       organization: ORGANIZATION
     }).then(function () {
       expect(mCAP.authentication.get('username')).toBe(USERNAME);
-      expect(mCAP.authentication.get('organization')).toBe(ORGANIZATION);
+      expect(mCAP.currentOrganization).toBe(ORGANIZATION);
       expect(mCAP.authentication.get('password')).toBe(PASSWORD);
       done();
     });

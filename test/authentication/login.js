@@ -144,7 +144,7 @@ describe("mCAP.authentication", function () {
     expect(mCAP.authentication.get('password')).toBe('');
 
     mCAP.authentication.login('pass').then(function (data) {
-      expect(mCAP.Organization.prototype.isPrototypeOf(mCAP.authentication.get('organization'))).toBeTruthy();
+      expect(mCAP.Organization.prototype.isPrototypeOf(mCAP.currentOrganization)).toBeTruthy();
       expect(mCAP.authentication.get('userName')).toBe('m.mustermann');
       expect(mCAP.authentication.get('orgaName')).toBe('org');
       expect(mCAP.authentication.get('password')).toBe('');
