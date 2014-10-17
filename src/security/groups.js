@@ -28,7 +28,7 @@ var Groups = mCAP.Collection.extend({
         if (this.filterValues.systemPermission !== true) {
           filters.push(filter.boolean('systemPermission', this.filterValues.systemPermission));
         }
-        filters.push(filter.stringEnum('members',this.filterValues.members));
+        filters.push(filter.string('members',this.filterValues.members));
         filters.push(filter.string('uuid',this.filterValues.uuid));
         return filter.and(filters);
       }
