@@ -1180,10 +1180,9 @@
     },
   
     initialize: function(){
-      mCAP.authentication.get('organization').on('change',function(){
-        if(mCAP.authentication.get('organization')){
-          this.set('organizationUuid',mCAP.authentication.get('organization').get('uuid'));
-        }
+      this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
+      mCAP.currentOrganization.on('change',function(){
+          this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
       },this);
     }
   
@@ -1221,7 +1220,7 @@
           if (this.filterValues.systemPermission !== true) {
             filters.push(filter.boolean('systemPermission', this.filterValues.systemPermission));
           }
-          filters.push(filter.stringEnum('members',this.filterValues.members));
+          filters.push(filter.string('members',this.filterValues.members));
           filters.push(filter.string('uuid',this.filterValues.uuid));
           return filter.and(filters);
         }
@@ -1333,9 +1332,9 @@
     },
   
     initialize: function () {
-      this.get('organization').set('uuid', mCAP.authentication.get('organization').get('uuid'));
-      mCAP.authentication.get('organization').on('change', function () {
-        this.get('organization').set('uuid', mCAP.authentication.get('organization').get('uuid'));
+      this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
+      mCAP.currentOrganization.on('change', function () {
+        this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
       }, this);
   
       this.once('change', function (model) {
@@ -1434,6 +1433,12 @@
         this.get('preferences').set(obj.preferences);
         delete obj.preferences;
       }
+  
+      if(obj.organization && !(obj.organization instanceof mCAP.Organization) ){
+        this.get('organization').set(obj.organization);
+        delete obj.organization;
+      }
+  
       return mCAP.User.prototype.set.apply(this,arguments);
     },
     initialize: function () {
@@ -1462,8 +1467,7 @@
   
     prepare: function(){
       return {
-        user: new mCAP.private.AuthenticatedUser(),
-        organization: new mCAP.Organization()
+        user: new mCAP.private.AuthenticatedUser()
       };
     },
   
@@ -1535,8 +1539,8 @@
         delete obj.user;
       }
   
-      if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
-        this.get('organization').set(obj.organization);
+      if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user')){
+        this.get('user').get('organization').set(obj.organization);
         delete obj.organization;
       }
       return obj;
@@ -1572,8 +1576,8 @@
       var uuid = null;
   
       // check if there was a login before
-      if (mCAP.authentication.get('user') && mCAP.authentication.get('user').get('uuid')) {
-        uuid = mCAP.authentication.get('user').get('uuid');
+      if (this.get('user') && this.get('user').get('uuid')) {
+        uuid = this.get('user').get('uuid');
       } else {
         dfd.reject('no user set');
         return dfd.promise();
@@ -1596,9 +1600,9 @@
     },
   
     initialize: function () {
-      this.once('change:user', function (authentication, user) {
-        this.get('user').set(user.toJSON());
-      });
+  //    this.on('change', function () {
+  //      mCAP.authenticatedUser.set(this.get('user'));
+  //    },this);
     }
   
   },{
@@ -1630,6 +1634,7 @@
   mCAP.authentication = new Authentication();
   mCAP.Authentication = Authentication;
   mCAP.authenticatedUser = mCAP.authentication.get('user');
+  mCAP.currentOrganization = mCAP.authentication.get('user').get('organization');
   
   Authentication.prototype.initialize = function(){
     throw new Error('You can not instantiate a second Authentication object please use the mCAP.authentication instance');
