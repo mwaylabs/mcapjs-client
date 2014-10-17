@@ -84,10 +84,9 @@ var Group = mCAP.Model.extend({
   },
 
   initialize: function(){
-    mCAP.authentication.get('organization').on('change',function(){
-      if(mCAP.authentication.get('organization')){
-        this.set('organizationUuid',mCAP.authentication.get('organization').get('uuid'));
-      }
+    this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
+    mCAP.currentOrganization.on('change',function(){
+        this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
     },this);
   }
 
