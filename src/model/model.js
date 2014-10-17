@@ -163,6 +163,44 @@ var Model = Backbone.Model.extend({
     return attributes;
   },
 
+  recursiveBeforeSave: function(attr){
+    var attributes = this.beforeSave(attr);
+
+    var process = function(attribute){
+      if(attribute instanceof Backbone.Model){
+        return attribute.recursiveBeforeSave(attribute.toJSON());
+      }
+      if(attribute instanceof mCAP.EnumerableCollection){
+        return attribute.toJSON();
+      }
+      if(attribute instanceof Backbone.Collection){
+        var models = [];
+        attribute.each(function(model){
+          var x = process(model);
+          models.push(x);
+        });
+        return models;
+      }
+      if(_.isArray(attribute)){
+        var items = [];
+        _.each(attribute, function(item){
+          items.push(process(item));
+        });
+        return items;
+      }
+      if(_.isObject(attribute)){
+        var obj = {};
+        _.each(attribute, function(item, key){
+          obj[key] = process(item);
+        });
+        return obj;
+      }
+      return attribute;
+    };
+
+    return process(attributes);
+  },
+
   save: function (key, val, options) {
     var args = this._save(key, val, options),
       orgAttributes = this.attributes,
@@ -172,7 +210,7 @@ var Model = Backbone.Model.extend({
       this.parse = orgParse;
       return this.parse.apply(this, arguments);
     };
-    this.attributes = this.beforeSave(_.clone(orgAttributes));
+    this.attributes = this.recursiveBeforeSave(_.clone(orgAttributes));
     var save = Backbone.Model.prototype.save.apply(this, args);
     this.attributes = orgAttributes;
     return save;
