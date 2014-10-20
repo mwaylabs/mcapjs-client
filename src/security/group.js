@@ -7,7 +7,7 @@ var Group = mCAP.Model.extend({
       uuid: null,
       name: '',
       version: 0,
-      organizationUuid: '',
+      organizationUuid: null,
       description: null,
       roles: null,
       members: null,
@@ -86,7 +86,9 @@ var Group = mCAP.Model.extend({
   initialize: function(){
     this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
     mCAP.currentOrganization.on('change',function(){
+      if(!this.get('organizationUuid')){
         this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
+      }
     },this);
   }
 
