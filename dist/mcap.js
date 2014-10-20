@@ -1141,7 +1141,7 @@
         uuid: null,
         name: '',
         version: 0,
-        organizationUuid: '',
+        organizationUuid: null,
         description: null,
         roles: null,
         members: null,
@@ -1220,7 +1220,9 @@
     initialize: function(){
       this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
       mCAP.currentOrganization.on('change',function(){
+        if(!this.get('organizationUuid')){
           this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
+        }
       },this);
     }
   
@@ -1362,17 +1364,38 @@
     },
   
   
+    setReferencedCollections: function(obj){
+      if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
+        this.get('organization').set(obj.organization);
+        delete obj.organization;
+      }
+  
+      if(obj.groups && !(obj.groups instanceof mCAP.Groups) && this.get('groups')){
+        this.get('groups').add(obj.groups);
+        delete obj.groups;
+      }
+  
+      return obj;
+    },
+  
     parse: function (resp) {
       var data = resp.data || resp;
       this.get('organization').set('uuid', data.organizationUuid);
       delete data.organizationUuid;
-      return data;
+      return this.setReferencedCollections(data);
+    },
+  
+    set: function(key, val, options){
+      key = this.setReferencedCollections(key);
+      return mCAP.Model.prototype.set.apply(this,[key, val, options]);
     },
   
     initialize: function () {
       this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
       mCAP.currentOrganization.on('change', function () {
-        this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
+        if(!this.get('organization')){
+          this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
+        }
       }, this);
   
       this.once('change', function (model) {
