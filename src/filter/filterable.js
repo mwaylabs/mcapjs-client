@@ -9,13 +9,14 @@ var Filterable = function (collectionInstance, options) {
       _page = options.page || 1,
       _perPage = options.perPage || 30,
       _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
+      _initialCustomUrlParams = _.clone(options.customUrlParams),
       _filterDefinition = options.filterDefinition,
       _sortOrder = options.sortOrder,
       _totalAmount,
       _lastFilter;
 
-  this.filterValues = options.filterValues || [];
-  this.customUrlParams = options.customUrlParams;
+  this.filterValues = options.filterValues || {};
+  this.customUrlParams = options.customUrlParams || {};
 
   this.getRequestParams = function (method, model, options) {
     options.params = options.params || {};
@@ -125,6 +126,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.resetFilters = function () {
     this.filterValues = _initialFilterValues ? JSON.parse(JSON.stringify(_initialFilterValues)) : _initialFilterValues;
+    this.customUrlParams = _initialCustomUrlParams;
   };
 
   (function _main() {
