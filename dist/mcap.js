@@ -906,7 +906,10 @@
     },
     toJSON: function () {
       return this.pluck('key');
-    }
+    },
+    model: mCAP.Model.extend({
+      idAttribute:'key'
+    })
   
   });
   
