@@ -919,7 +919,7 @@
   var Filter = function () {
     // If it is an invalid value return null otherwise the provided object
     var returnNullOrObjectFor = function (value, object) {
-      return (_.isUndefined(value) || value === null || value === '' || value.length===0) ? null : object;
+      return (_.isUndefined(value) || value === null || value === '' || value.length===0 || (_.isArray(value) && _.compact(value).length===0)) ? null : object;
     };
   
     // See https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filter
