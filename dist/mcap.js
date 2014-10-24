@@ -1488,6 +1488,10 @@
         type: 'PUT'
       });
     },
+    beforeSave: function(attrs){
+      delete attrs.preferences;
+      return mCAP.User.prototype.beforeSave.call(this,attrs);
+    },
     parse: function (attrs) {
       attrs = mCAP.User.prototype.parse.apply(this, arguments);
       this.get('preferences').set(attrs.preferences);
