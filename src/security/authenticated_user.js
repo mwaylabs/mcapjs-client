@@ -45,7 +45,9 @@ var AuthenticatedUser = mCAP.User.extend({
   },
   parse: function (attrs) {
     attrs = mCAP.User.prototype.parse.apply(this, arguments);
-    this.get('preferences').set(attrs.preferences);
+    if(attrs.preferences && this.get('preferences')){
+      this.get('preferences').set(attrs.preferences);
+    }
     delete attrs.preferences;
     return attrs;
   },
@@ -64,7 +66,9 @@ var AuthenticatedUser = mCAP.User.extend({
   },
   initialize: function () {
     this.once('change:uuid', function () {
-      this.get('preferences').setUserId(this.id);
+      if(this.get('preferences')){
+        this.get('preferences').setUserId(this.id);
+      }
       this.set('authenticated',true);
     }, this);
   }
