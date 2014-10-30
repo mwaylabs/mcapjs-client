@@ -1451,6 +1451,7 @@
    * mCAP Authentication
    */
   var UserPreferences = mCAP.Model.extend({
+    hasPreferences: true,
     setUserId: function (userId) {
       this.setEndpoint('gofer/security/rest/users/' + userId + '/preferences');
     },
@@ -1492,32 +1493,38 @@
       delete attrs.preferences;
       return mCAP.User.prototype.beforeSave.call(this,attrs);
     },
-    parse: function (attrs) {
-      attrs = mCAP.User.prototype.parse.apply(this, arguments);
-      if(attrs.preferences && this.get('preferences')){
-        this.get('preferences').set(attrs.preferences);
-      }
-      delete attrs.preferences;
-      return attrs;
+    set: function (key, val, options) {
+      key = this.setReferencedCollections(key);
+      return mCAP.User.prototype.set.apply(this, [key, val, options]);
     },
-    set: function(obj){
-      if(obj.preferences && !(obj.preferences instanceof UserPreferences) ){
-        this.get('preferences').set(obj.preferences);
-        delete obj.preferences;
+    setReferencedCollections: function (attr) {
+      mCAP.User.prototype.setReferencedCollections.apply(this, [attr]);
+  
+      if (attr.preferences && !(attr.preferences instanceof mCAP.Model) && this.get('preferences')) {
+        this.get('preferences').set(attr.preferences);
+        this.get('preferences').hasPreferences = true;
+        delete attr.preferences;
       }
   
-      if(obj.organization && !(obj.organization instanceof mCAP.Organization) ){
-        this.get('organization').set(obj.organization);
-        delete obj.organization;
+      //special case for LDAP users
+      if(attr.preferences === null){
+        this.get('preferences').hasPreferences = false;
+        delete attr.preferences;
       }
   
-      return mCAP.User.prototype.set.apply(this,arguments);
+      if (attr.organization && !(attr.organization instanceof mCAP.Model) && this.get('organization')) {
+        this.get('organization').set(attr.organization);
+        delete attr.organization;
+      }
+      return attr;
+    },
+    parse: function (resp) {
+      var parsedResp = mCAP.User.prototype.parse.apply(this, [resp]);
+      return this.setReferencedCollections(parsedResp);
     },
     initialize: function () {
       this.once('change:uuid', function () {
-        if(this.get('preferences')){
-          this.get('preferences').setUserId(this.id);
-        }
+        this.get('preferences').setUserId(this.id);
         this.set('authenticated',true);
       }, this);
     }
