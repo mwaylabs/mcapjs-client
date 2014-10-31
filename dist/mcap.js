@@ -123,6 +123,7 @@
   
     this.filterValues = options.filterValues || {};
     this.customUrlParams = options.customUrlParams || {};
+    this.fields = options.fields;
   
     this.getRequestParams = function (method, model, options) {
       options.params = options.params || {};
@@ -157,6 +158,10 @@
         if (_limit || _offset) {
           options.params.limit = _limit;
           options.params.offset = _offset;
+        }
+  
+        if(this.fields){
+          options.params.field = this.fields;
         }
   
         // Custom URL parameters
@@ -866,7 +871,7 @@
     parse: function (response) {
       response.data = response.data || {};
       if (this.filterable) {
-        this.filterable.setTotalAmount(response.data.total || 0);
+        this.filterable.setTotalAmount(response.data.total || response.data.nonpagedCount || 0);
       }
       return response.data.results;
     },
@@ -1255,6 +1260,7 @@
           systemPermission: false,
           members: []
         },
+        fields:['uuid','name','description'],
         filterDefinition: function () {
           var filter = new mCAP.Filter();
   
