@@ -18,6 +18,7 @@ var Groups = mCAP.Collection.extend({
         systemPermission: false,
         members: []
       },
+      fields:['uuid','name','description'],
       filterDefinition: function () {
         var filter = new mCAP.Filter();
 
