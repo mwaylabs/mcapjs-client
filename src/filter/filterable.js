@@ -17,6 +17,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.filterValues = options.filterValues || {};
   this.customUrlParams = options.customUrlParams || {};
+  this.fields = options.fields;
 
   this.getRequestParams = function (method, model, options) {
     options.params = options.params || {};
@@ -51,6 +52,10 @@ var Filterable = function (collectionInstance, options) {
       if (_limit || _offset) {
         options.params.limit = _limit;
         options.params.offset = _offset;
+      }
+
+      if(this.fields){
+        options.params.field = this.fields;
       }
 
       // Custom URL parameters
