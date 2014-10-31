@@ -35,7 +35,7 @@ var Collection = Backbone.Collection.extend({
   parse: function (response) {
     response.data = response.data || {};
     if (this.filterable) {
-      this.filterable.setTotalAmount(response.data.total || 0);
+      this.filterable.setTotalAmount(response.data.total || response.data.nonpagedCount || 0);
     }
     return response.data.results;
   },
