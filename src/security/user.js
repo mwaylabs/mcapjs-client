@@ -85,7 +85,7 @@ var User = mCAP.Model.extend({
   initialize: function () {
     this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
     mCAP.currentOrganization.on('change', function () {
-      if(!this.get('organization')){
+      if(!this.get('organization').get('uuid')){
         this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
       }
     }, this);
