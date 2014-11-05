@@ -79,6 +79,10 @@
       return window.mCAP.authenticatedUser;
     })
 
+    .service('MCAPcurrentOrganization', function(){
+      return window.mCAP.currentOrganization;
+    })
+
     .service('MCAPCountries', function(){
       return window.mCAP.Countries;
     })
