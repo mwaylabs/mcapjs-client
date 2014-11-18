@@ -1492,8 +1492,8 @@
     changePassword: function (oldPassword, newPassword) {
       return Backbone.ajax({
         url: this.url()+'/changePassword',
-        params: {
-          oldPassword: oldPassword,
+        data: {
+          password: oldPassword,
           newPassword: newPassword
         },
         type: 'PUT'
