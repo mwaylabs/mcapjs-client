@@ -82,6 +82,10 @@ var User = mCAP.Model.extend({
     return mCAP.Model.prototype.set.apply(this,[key, val, options]);
   },
 
+  isLocked: function(){
+    return (this.get('readonly') || this.get('locked'));
+  },
+
   initialize: function () {
     this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
     mCAP.currentOrganization.on('change', function () {
