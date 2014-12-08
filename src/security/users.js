@@ -11,6 +11,9 @@ var Users = mCAP.Collection.extend({
     return resp.data.items;
   },
 
+  //customUrlParams:{
+  //  getNonpagedCount:true
+  //},
 
   filterableOptions: function(){
     return {

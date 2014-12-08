@@ -18,6 +18,9 @@ var Groups = mCAP.Collection.extend({
         systemPermission: false,
         members: []
       },
+      customUrlParams:{
+        getNonpagedCount:true
+      },
       fields:['uuid','name','description','readonly'],
       filterDefinition: function () {
         var filter = new mCAP.Filter();
