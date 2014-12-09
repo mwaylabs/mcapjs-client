@@ -256,31 +256,13 @@
     var _collection = collectionInstance,
       _selected = options.selected || (options.radio ? new Backbone.Model() : new Backbone.Collection()),
       _radio = options.radio === true,
-      _addWhenNotInList = false;
-  
-    /*
-     We need this function for the counter
-     selected is the actual collection whereas _selected is the collection with all selected items
-     Some items just are not fetched yet because of pagination
-    */
-    this.getSelectedAmount = function(){
-      var selected = new mCAP.Collection();
-      _collection.models.forEach(function (model) {
-        if (model.selectable && model.selectable.isSelected()) {
-          selected.add(model);
-        }
-      });
-      //We are getting the total selected amount by adding the differenceamount to the actual selected amount of the collection
-      //The difference amount is difference between selected models of the fetched collection and the actual selection collection
-      var differenceAmount = _.difference(_selected.pluck('uuid'),selected.pluck('uuid')).length;
-      return differenceAmount + selected.length;
-    };
+      _addWhenNotInList = true;
   
     this.getSelectedModels = function () {
       var selected = new mCAP.Collection();
       _collection.models.forEach(function (model) {
         if (model.selectable && model.selectable.isSelected()) {
-          selected.add(model);
+          selected.add(model,{silent:true});
         }
       });
       return selected;
@@ -373,7 +355,7 @@
     };
   
     this.setPreselectedModels = function (models) {
-      _selected.add(models);
+      _selected.add(models,{silent:true});
       this.select(_selected, true);
     };
   
@@ -1278,6 +1260,9 @@
           systemPermission: false,
           members: []
         },
+        customUrlParams:{
+          getNonpagedCount:true
+        },
         fields:['uuid','name','description','readonly'],
         filterDefinition: function () {
           var filter = new mCAP.Filter();
@@ -1453,6 +1438,9 @@
       return resp.data.items;
     },
   
+    //customUrlParams:{
+    //  getNonpagedCount:true
+    //},
   
     filterableOptions: function(){
       return {
