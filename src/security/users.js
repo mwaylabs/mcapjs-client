@@ -11,15 +11,14 @@ var Users = mCAP.Collection.extend({
     return resp.data.items;
   },
 
-  //customUrlParams:{
-  //  getNonpagedCount:true
-  //},
-
   filterableOptions: function(){
     return {
       sortOrder:'+name',
       filterValues: {
         name: ''
+      },
+      customUrlParams:{
+        getNonpagedCount:true
       },
       filterDefinition: function () {
         var filter = new mCAP.Filter();
