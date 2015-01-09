@@ -69,6 +69,7 @@ var UserGroups = Groups.extend({
       url: _.result(this,'url'),
       data: groups,
       type: 'PUT',
+      instance: this,
       success:function(){}
     });
   }

@@ -302,6 +302,8 @@ var Model = Backbone.Model.extend({
   sync: function () {
     if (arguments[2]) {
       mCAP.Utils.setAuthenticationEvent(arguments[2]);
+      //add model instance to request options
+      arguments[2].instance = arguments[1];
     }
     return Backbone.Model.prototype.sync.apply(this, arguments);
   }
