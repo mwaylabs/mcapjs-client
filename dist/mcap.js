@@ -765,6 +765,8 @@
     sync: function () {
       if (arguments[2]) {
         mCAP.Utils.setAuthenticationEvent(arguments[2]);
+        //add model instance to request options
+        arguments[2].instance = arguments[1];
       }
       return Backbone.Model.prototype.sync.apply(this, arguments);
     }
@@ -1311,6 +1313,7 @@
         url: _.result(this,'url'),
         data: groups,
         type: 'PUT',
+        instance: this,
         success:function(){}
       });
     }
