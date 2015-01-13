@@ -1,65 +1,15 @@
 var Authentication = mCAP.Model.extend({
 
   defaults: {
-    'userName': '',
-    'orgaName': '',
-    'password': '',
-    'email': '',
-    'organization': null,
     'user': null
   },
 
   endpoint: 'gofer/security/rest/auth/',
 
-  prepare: function(){
+  prepare: function () {
     return {
       user: new mCAP.private.AuthenticatedUser()
     };
-  },
-
-  /**
-   * Perform a login request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
-   * Fires a login event everytime a login is performed. Even if the login was not successful.
-   * @param options - Can either be a string for the password or an object with credentials.
-   * @returns promise
-   * @example
-   *
-   * // login with password
-   * mCAP.authentication.login('pass').then(function(){};
-   * // login with credentials
-   * mCAP.authentication.login({
-      userName: 'm.mustermann',
-      orgaName: 'org',
-      password: 'pass'
-    });
-   * // event when auth was successful
-   * mCAP.authentication.on('login', function(){})
-   * // event when auth was not successful
-   * mCAP.authentication.on('authenticationerror', function(obj, err, errMsg){})
-   */
-  login: function (options) {
-    var that = this;
-    if (typeof options === 'string') {
-      this.set('password', options);
-    } else if (typeof options === 'object') {
-      this.set(options);
-    }
-    return this.save(null, {
-      url: this.url() + 'login'
-    }).then(function () {
-      // trigger login on successful login
-      that._triggerEvent('login', arguments);
-      return arguments[0];
-    }).fail(function () {
-      // trigger loginerror on authentication error
-      that._triggerEvent('authenticationerror', arguments);
-      return arguments;
-    }).always(function () {
-      if (typeof options === 'string') {
-        that.set('password', '');
-      }
-      return arguments;
-    });
   },
 
   /**
@@ -79,13 +29,13 @@ var Authentication = mCAP.Model.extend({
     });
   },
 
-  setReferencedModels: function(obj){
-    if(obj.user && !(obj.user instanceof mCAP.private.AuthenticatedUser) && this.get('user')){
+  setReferencedModels: function (obj) {
+    if (obj.user && !(obj.user instanceof mCAP.private.AuthenticatedUser) && this.get('user')) {
       this.get('user').set(obj.user);
       delete obj.user;
     }
 
-    if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user')){
+    if (obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user')) {
       this.get('user').get('organization').set(obj.organization);
       delete obj.organization;
     }
@@ -102,9 +52,9 @@ var Authentication = mCAP.Model.extend({
     return this.setReferencedModels(data);
   },
 
-  set: function(key, val, options){
+  set: function (key, val, options) {
     key = this.setReferencedModels(key);
-    return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+    return mCAP.Model.prototype.set.apply(this, [key, val, options]);
   },
 
   /**
@@ -119,21 +69,12 @@ var Authentication = mCAP.Model.extend({
    */
   isAuthenticated: function () {
     var dfd = $.Deferred();
-    var uuid = null;
-
-    // check if there was a login before
-    if (this.get('user') && this.get('user').get('uuid')) {
-      uuid = this.get('user').get('uuid');
-    } else {
-      dfd.reject('no user set');
-      return dfd.promise();
-    }
 
     mCAP.Utils.request({
       url: URI(mCAP.application.get('baseUrl') + '/gofer/system/security/currentAuthorization').normalize().toString()
     }).then(function (data) {
       // resolve only if the current user is authenticated
-      if (data.user && data.user.uuid && data.user.uuid === uuid) {
+      if (data.user && data.user.uuid) {
         dfd.resolve(data);
       }
       // otherwise reject
@@ -151,8 +92,8 @@ var Authentication = mCAP.Model.extend({
 //    },this);
   }
 
-},{
-  requestNewPassword: function(userName,organizationName){
+}, {
+  requestNewPassword: function (userName, organizationName) {
     return Backbone.ajax({
       url: '/gofer/security/rest/users/createPasswordResetRequest',
       params: {
@@ -162,16 +103,34 @@ var Authentication = mCAP.Model.extend({
       type: 'PUT'
     });
   },
-  resetPassword: function(userIdentifier,organizationName,newPassword,requestUuid){
+  resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid) {
     return Backbone.ajax({
       url: '/gofer/security/rest/users/resetPassword',
       params: {
-        newPassword:newPassword,
-        organizationName:organizationName,
-        requestUuid:requestUuid,
-        userIdentifier:userIdentifier
+        newPassword: newPassword,
+        organizationName: organizationName,
+        requestUuid: requestUuid,
+        userIdentifier: userIdentifier
       },
       type: 'PUT'
+    });
+  },
+  login: function (userName, password, organizationName) {
+    return Backbone.ajax({
+      url: this.prototype.endpoint+'login',
+      data: {
+        'userName': (organizationName ? organizationName + '\\' : '') + userName,
+        'password': password
+      },
+      type: 'POST'
+    }).then(function (response) {
+      var data = response.data,
+        user = mCAP.authentication.get('user');
+
+      user.set(data.user);
+      user.get('groups').add(data.roles.roles);
+      user.set('organization', data.organization);
+      return mCAP.authentication;
     });
   }
 });
@@ -182,6 +141,6 @@ mCAP.Authentication = Authentication;
 mCAP.authenticatedUser = mCAP.authentication.get('user');
 mCAP.currentOrganization = mCAP.authentication.get('user').get('organization');
 
-Authentication.prototype.initialize = function(){
+Authentication.prototype.initialize = function () {
   throw new Error('You can not instantiate a second Authentication object please use the mCAP.authentication instance');
 };
