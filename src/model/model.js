@@ -105,7 +105,7 @@ var Model = Backbone.Model.extend({
   url: function () {
     var url = Backbone.Model.prototype.url.apply(this, arguments);
     if (this.queryParameter) {
-      url += '?' + Backbone.$.param(this.queryParameter);
+      url += '?' + Backbone.$.param(_.result(this, 'queryParameter'));
     }
     return url;
   },
