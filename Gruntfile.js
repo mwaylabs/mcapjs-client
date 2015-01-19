@@ -69,4 +69,6 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['preprocess:js','copy:mCAPAngular','watch']);
 
   grunt.registerTask('build', ['jshint:all','preprocess:js','copy:mCAPAngular','uglify:js']);
+
+  grunt.registerTask('prepush', ['jshint:all','test']);
 };
