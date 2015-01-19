@@ -4,6 +4,7 @@ var User = mCAP.Model.extend({
 
   defaults: function () {
     return {
+      'uuid': null,
       'name': '',
       'salutation': null,
       'givenName': '',
