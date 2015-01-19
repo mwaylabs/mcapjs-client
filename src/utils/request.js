@@ -22,5 +22,5 @@ mCAP.Utils.request = function (settings) {
 
   ajaxOptions = _.extend(settings,ajaxOptions);
 
-  return $.ajax(ajaxOptions);
+  return Backbone.ajax(ajaxOptions);
 };
