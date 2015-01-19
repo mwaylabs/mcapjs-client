@@ -1,7 +1,8 @@
 var Authentication = mCAP.Model.extend({
 
   defaults: {
-    'user': null
+    'user': null,
+    'authenticated': false
   },
 
   endpoint: 'gofer/security/rest/auth/',
@@ -21,11 +22,16 @@ var Authentication = mCAP.Model.extend({
    * mCAP.authentication.on('logout', function(obj){});
    */
   logout: function () {
-    var that = this;
-    return this.save(null, {
-      url: this.url() + 'logout'
+    var self = this;
+    return mCAP.Utils.request({
+      url: this.url() + 'logout',
+      type: 'POST'
     }).always(function () {
-      that._triggerEvent('logout', arguments);
+      self.set({authenticated:false});
+      self.set('user', new mCAP.private.AuthenticatedUser());
+      mCAP.authenticatedUser = mCAP.authentication.get('user');
+      mCAP.currentOrganization = mCAP.authentication.get('user').get('organization');
+      self._triggerEvent('logout', arguments);
     });
   },
 
@@ -35,7 +41,7 @@ var Authentication = mCAP.Model.extend({
       delete obj.user;
     }
 
-    if (obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user')) {
+    if (obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user').get('organization')) {
       this.get('user').get('organization').set(obj.organization);
       delete obj.organization;
     }
@@ -68,15 +74,18 @@ var Authentication = mCAP.Model.extend({
         });
    */
   isAuthenticated: function () {
-    var dfd = $.Deferred();
+    var dfd = $.Deferred(),
+      self = this;
 
     mCAP.Utils.request({
-      url: URI(mCAP.application.get('baseUrl') + '/gofer/system/security/currentAuthorization').normalize().toString()
+      url: mCAP.Utils.getUrl('/gofer/system/security/currentAuthorization')
     }).then(function (data) {
       // resolve only if the current user is authenticated
       if (data.user && data.user.uuid) {
-        dfd.resolve(data);
+        self.set({authenticated:true});
+        dfd.resolve(self);
       }
+      self.set({authenticated:false});
       // otherwise reject
       dfd.reject('not authenticated', data);
       return;
@@ -94,8 +103,8 @@ var Authentication = mCAP.Model.extend({
 
 }, {
   requestNewPassword: function (userName, organizationName) {
-    return Backbone.ajax({
-      url: '/gofer/security/rest/users/createPasswordResetRequest',
+    return mCAP.Utils.request({
+      url: mCAP.Utils.getUrl('/gofer/security/rest/users/createPasswordResetRequest'),
       params: {
         userIdentifier: userName,
         organizationName: organizationName
@@ -104,8 +113,8 @@ var Authentication = mCAP.Model.extend({
     });
   },
   resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid) {
-    return Backbone.ajax({
-      url: '/gofer/security/rest/users/resetPassword',
+    return mCAP.Utils.request({
+      url: mCAP.Utils.getUrl('/gofer/security/rest/users/resetPassword'),
       params: {
         newPassword: newPassword,
         organizationName: organizationName,
@@ -116,20 +125,16 @@ var Authentication = mCAP.Model.extend({
     });
   },
   login: function (userName, password, organizationName) {
-    return Backbone.ajax({
-      url: this.prototype.endpoint+'login',
+    return mCAP.Utils.request({
+      url: mCAP.Utils.getUrl(Authentication.prototype.endpoint + 'login'),
       data: {
         'userName': (organizationName ? organizationName + '\\' : '') + userName,
         'password': password
       },
       type: 'POST'
     }).then(function (response) {
-      var data = response.data,
-        user = mCAP.authentication.get('user');
-
-      user.set(data.user);
-      user.get('groups').add(data.roles.roles);
-      user.set('organization', data.organization);
+      mCAP.authentication.set({authenticated:true});
+      mCAP.authentication.set(response);
       return mCAP.authentication;
     });
   }
