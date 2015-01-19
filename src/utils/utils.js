@@ -4,6 +4,13 @@
  */
 mCAP.Utils = {};
 
+mCAP.Utils.getUrl = function(endpoint){
+  if(endpoint.charAt(0)==='/'){
+    endpoint = endpoint.substr(1);
+  }
+  return mCAP.application.get('baseUrl') + '/' + endpoint;
+};
+
 /**
  * Returns the component type enum of the given model
  * Compare the return value with an mCAP constant/global
