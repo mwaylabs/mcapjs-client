@@ -100,11 +100,6 @@ var CollectionSelectable = function (collectionInstance, options) {
     return _radio;
   };
 
-  this.setPreselectedModels = function (models) {
-    _selected.add(models,{silent:true});
-    this.select(_selected, true);
-  };
-
   (function _main(self) {
     if (!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)) {
       console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
