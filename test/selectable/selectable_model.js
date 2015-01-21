@@ -1,4 +1,4 @@
-describe('Model Selectable ', function () {
+describe('Model Selectable', function () {
 
   it('should be initialized as unselected', function () {
     var model = new mCAP.Model();
@@ -74,7 +74,7 @@ describe('Model Selectable ', function () {
     expect(createModel).toThrow();
   });
 
-  it('should fire events', function(){
+  it('should fire the correct change events', function(){
     var changeHandler = jasmine.createSpy('changeHandler');
     var changeSelectHandler = jasmine.createSpy('changeSelectHandler');
     var changeUnselectHandler = jasmine.createSpy('changeUnselectHandler');
