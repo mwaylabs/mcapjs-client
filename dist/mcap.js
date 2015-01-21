@@ -268,6 +268,11 @@
       return selected;
     };
   
+    //this method will replace the getSelectedModels method and return a either a model or a collection depending on isRadio
+    this.getSelected = function () {
+      return this.getSelectedModels();
+    };
+  
     this.getDisabledModels = function () {
       var disabled = new mCAP.Collection();
       _collection.models.forEach(function (model) {
@@ -309,8 +314,8 @@
       });
     };
   
-    this.selectModel = function (model, force) {
-      if (model.get('uuid')) {
+    var selectModel = function (model, force) {
+      if (model.get(model.idAttribute)) {
         var modelToSelect = _collection.get(model);
         if (!modelToSelect && _addWhenNotInList) {
           //Adds model to the Collction when it is not already in the list
@@ -322,18 +327,13 @@
       }
     };
   
-    this.selectModels = function (models, force) {
-      this.select(new Backbone.Collection(models), force);
-      console.warn('The method selectModels() is deprecated and will be removed soon. Please use the new method select');
-    };
-  
     this.select = function (selected, force) {
       if (selected instanceof Backbone.Collection) {
         selected.models.forEach(function (model) {
-          this.selectModel(model, force);
+          selectModel(model, force);
         }, this);
       } else if (selected instanceof Backbone.Model) {
-        this.selectModel(selected, force);
+        selectModel(selected, force);
       }
     };
   
@@ -344,9 +344,7 @@
   
     this.unSelectAllModels = function () {
       this.getSelectedModels().forEach(function (model) {
-        if (model.selectable) {
-          model.selectable.unSelect();
-        }
+        model.selectable.unSelect();
       });
     };
   
@@ -354,22 +352,15 @@
       return _radio;
     };
   
-    this.setPreselectedModels = function (models) {
-      _selected.add(models,{silent:true});
-      this.select(_selected, true);
-    };
-  
     (function _main(self) {
+      if (!(_collection instanceof Backbone.Collection)) {
+        throw new Error('CollectionSelectable: First parameter has to be the instance of a collection');
+      }
       if (!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)) {
-        console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
-        _selected = new mCAP.Collection(_selected);
+        throw new Error('CollectionSelectable: Selected attribute has to be a collection or a model!');
       }
   
-      if (_selected instanceof Backbone.Model) {
-        _radio = true;
-      } else if (_selected instanceof Backbone.Collection) {
-        _radio = false;
-      }
+      _radio = _selected instanceof Backbone.Model;
   
       _selected.on('add', function () {
         self.select(_selected, true);
@@ -388,10 +379,6 @@
           }, this);
         }
       }, this);
-  
-      if (!_collection instanceof Backbone.Collection) {
-        throw new Error('First parameter has to be the instance of a collection');
-      }
     }(this));
   
   };
@@ -440,7 +427,7 @@
     };
   
     (function _main () {
-      if (!_model instanceof Backbone.Model) {
+      if (!(_model instanceof Backbone.Model)) {
         throw new Error('First parameter has to be the instance of a collection');
       }
     }());
@@ -457,6 +444,8 @@
       return new ModelSelectable(instance, options);
     } else if (instance instanceof Backbone.Collection) {
       return new CollectionSelectable(instance, options);
+    } else {
+      throw new Error('SelectableFactory: instance has to be either a model or a collection');
     }
   };
 
