@@ -92,9 +92,7 @@ var CollectionSelectable = function (collectionInstance, options) {
 
   this.unSelectAllModels = function () {
     this.getSelectedModels().forEach(function (model) {
-      if (model.selectable) {
-        model.selectable.unSelect();
-      }
+      model.selectable.unSelect();
     });
   };
 
