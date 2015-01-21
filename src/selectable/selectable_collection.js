@@ -62,8 +62,8 @@ var CollectionSelectable = function (collectionInstance, options) {
     });
   };
 
-  this.selectModel = function (model, force) {
-    if (model.get('uuid')) {
+  var selectModel = function (model, force) {
+    if (model.get(model.idAttribute)) {
       var modelToSelect = _collection.get(model);
       if (!modelToSelect && _addWhenNotInList) {
         //Adds model to the Collction when it is not already in the list
@@ -75,18 +75,13 @@ var CollectionSelectable = function (collectionInstance, options) {
     }
   };
 
-  this.selectModels = function (models, force) {
-    this.select(new Backbone.Collection(models), force);
-    console.warn('The method selectModels() is deprecated and will be removed soon. Please use the new method select');
-  };
-
   this.select = function (selected, force) {
     if (selected instanceof Backbone.Collection) {
       selected.models.forEach(function (model) {
-        this.selectModel(model, force);
+        selectModel(model, force);
       }, this);
     } else if (selected instanceof Backbone.Model) {
-      this.selectModel(selected, force);
+      selectModel(selected, force);
     }
   };
 
