@@ -108,11 +108,7 @@ var CollectionSelectable = function (collectionInstance, options) {
       throw new Error('CollectionSelectable: Selected attribute has to be a collection or a model!');
     }
 
-    if (_selected instanceof Backbone.Model) {
-      _radio = true;
-    } else if (_selected instanceof Backbone.Collection) {
-      _radio = false;
-    }
+    _radio = _selected instanceof Backbone.Model;
 
     _selected.on('add', function () {
       self.select(_selected, true);
