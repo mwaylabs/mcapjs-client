@@ -105,8 +105,7 @@ var CollectionSelectable = function (collectionInstance, options) {
       throw new Error('CollectionSelectable: First parameter has to be the instance of a collection');
     }
     if (!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)) {
-      console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
-      _selected = new mCAP.Collection(_selected);
+      throw new Error('CollectionSelectable: Selected attribute has to be a collection or a model!');
     }
 
     if (_selected instanceof Backbone.Model) {
