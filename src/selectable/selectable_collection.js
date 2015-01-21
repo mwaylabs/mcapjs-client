@@ -16,6 +16,11 @@ var CollectionSelectable = function (collectionInstance, options) {
     return selected;
   };
 
+  //this method will replace the getSelectedModels method and return a either a model or a collection depending on isRadio
+  this.getSelected = function () {
+    return this.getSelectedModels();
+  };
+
   this.getDisabledModels = function () {
     var disabled = new mCAP.Collection();
     _collection.models.forEach(function (model) {
