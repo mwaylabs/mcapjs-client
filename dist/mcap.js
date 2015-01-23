@@ -893,6 +893,9 @@
   
     selectable: false,
     filterable: false,
+    defaults: function(){
+      return [];
+    },
     parse: function (resp) {
       var appTypes = [];
       _.each(resp.data, function (type) {
@@ -905,7 +908,20 @@
     },
     model: mCAP.Model.extend({
       idAttribute:'key'
-    })
+    }),
+    constructor: function(){
+      var superConstructor = mCAP.Collection.prototype.constructor.apply(this,arguments),
+          defaults = _.result(this, 'defaults');
+  
+      if(defaults.length>0){
+        _.each(defaults,function(key){
+          this.add({
+            key: key
+          });
+        },this);
+      }
+      return superConstructor;
+    }
   
   });
   
