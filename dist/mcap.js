@@ -169,6 +169,9 @@
           _.extend(options.params, this.customUrlParams);
         }
   
+        //always set non paged parameter
+        options.params.getNonpagedCount = true;
+  
         return options;
       }
     };
