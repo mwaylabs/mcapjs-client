@@ -835,8 +835,12 @@
   
     selectable: true,
     filterable: true,
-    filterableOptions: {},
-    selectableOptions: {},
+    filterableOptions: function(){
+      return {};
+    },
+    selectableOptions: function(){
+      return {};
+    },
   
     model: mCAP.Model,
   
