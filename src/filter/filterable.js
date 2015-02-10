@@ -54,6 +54,10 @@ var Filterable = function (collectionInstance, options) {
         options.params.offset = _offset;
       }
 
+      if(_limit === false){
+        delete options.params.limit;
+      }
+
       if(this.fields){
         options.params.field = this.fields;
       }
