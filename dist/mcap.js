@@ -160,6 +160,10 @@
           options.params.offset = _offset;
         }
   
+        if(_limit === false){
+          delete options.params.limit;
+        }
+  
         if(this.fields){
           options.params.field = this.fields;
         }
@@ -230,7 +234,6 @@
           throw new Error('Filter named \'' + key + '\' not found, did you add it to filterValues of the model?');
         }
       }, this);
-  
     };
   
     this.getFilters = function () {
