@@ -230,6 +230,7 @@
           throw new Error('Filter named \'' + key + '\' not found, did you add it to filterValues of the model?');
         }
       }, this);
+  
     };
   
     this.getFilters = function () {
@@ -1006,7 +1007,7 @@
         return returnNullOrObjectFor(values, {
           type: 'stringEnum',
           fieldName: fieldName,
-          values: values
+          values: _.flatten(values)
         });
       },
   
