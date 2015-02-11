@@ -69,7 +69,7 @@ var Filter = function () {
       return returnNullOrObjectFor(values, {
         type: 'stringEnum',
         fieldName: fieldName,
-        values: values
+        values: _.flatten(values)
       });
     },
 
