@@ -46,13 +46,13 @@ describe("mCAP.authentication", function () {
     serverAuthSuccCallback = function (xhr) {
       var postData = JSON.parse(xhr.requestBody);
 
-      xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(authResponseDataSucc));
+      xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify({data: authResponseDataSucc}));
     };
 
     serverAuthFailCallback = function (xhr) {
       var postData = JSON.parse(xhr.requestBody);
 
-      xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(authResponseDataFail));
+      xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify({data: authResponseDataFail}));
     };
   });
 
