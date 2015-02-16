@@ -1648,18 +1648,19 @@
         self = this;
   
       mCAP.Utils.request({
-        url: mCAP.Utils.getUrl('/gofer/system/security/currentAuthorization')
-      }).then(function (data) {
+        url: mCAP.Utils.getUrl('/gofer/system/security/currentAuthorization'),
+        type: 'GET'
+      }).then(function (resp) {
         // resolve only if the current user is authenticated
-        if (data.user && data.user.uuid) {
+        if (resp.data.user && resp.data.user.uuid) {
           self.set({authenticated:true});
           dfd.resolve(self);
         }
         self.set({authenticated:false});
         // otherwise reject
-        dfd.reject('not authenticated', data);
+        dfd.reject('not authenticated', resp.data);
         return;
-      }).fail(function (err) {
+      }, function(err){
         dfd.reject(err);
       });
       return dfd.promise();
