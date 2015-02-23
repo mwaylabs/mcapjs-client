@@ -4,14 +4,11 @@
 
   angular.module('mCAP', [])
 
-    .run(['$http', '$q', '$rootScope', '$timeout', function ($http, $q, $rootScope, $timeout) {
+    .run(['$http', '$q', '$rootScope', '$timeout', function ($http, $q) {
 
       if (!window.mCAP) {
         throw new Error('Please include mCAP libary');
       }
-
-      var _sync = Backbone.sync,
-          _set = Backbone.Model.prototype.set;
 
       Backbone.ajax = function (options) {
         // Set HTTP Verb as 'method'
@@ -31,24 +28,6 @@
           dfd.reject(resp);
         });
         return dfd.promise;
-      };
-
-      Backbone.sync = function (method, model, options) {
-        var dfd = $q.defer();
-        _sync.apply(Backbone, [method, model, options]).then(function () {
-          dfd.resolve(model);
-        },function(resp){
-          dfd.reject(resp);
-        });
-        return dfd.promise;
-      };
-
-      Backbone.Model.prototype.set = function(){
-        //trigger digest cycle for the angular two way binding
-        $timeout(function(){
-          _set.apply(this, arguments);
-        });
-        return _set.apply(this, arguments);
       };
     }])
 
@@ -130,5 +109,37 @@
     .service('MCAPModel', function () {
       return window.mCAP.Model;
     });
+
+
+  (function(){
+    var _$timeout;
+    var _$q;
+    var _set = Backbone.Model.prototype.set;
+    var _sync = Backbone.sync;
+
+    angular.module('mCAP').run(function($timeout, $q){
+      _$timeout = $timeout;
+      _$q = $q;
+    });
+
+    Backbone.Model.prototype.set = function(){
+      //trigger digest cycle for the angular two way binding
+      var returnValue = _set.apply(this, arguments);
+      if(_$timeout){
+        _$timeout(function(){});
+      }
+      return returnValue;
+    };
+
+    Backbone.sync = function (method, model, options) {
+      var dfd = _$q.defer();
+      _sync.apply(Backbone, [method, model, options]).then(function () {
+        dfd.resolve(model);
+      },function(resp){
+        dfd.reject(resp);
+      });
+      return dfd.promise;
+    };
+  }());
 
 })(window, angular, Backbone);
