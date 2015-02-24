@@ -117,10 +117,10 @@
     var _set = Backbone.Model.prototype.set;
     var _sync = Backbone.sync;
 
-    angular.module('mCAP').run(function($timeout, $q){
+    angular.module('mCAP').run(['$timeout', '$q', function($timeout, $q){
       _$timeout = $timeout;
       _$q = $q;
-    });
+    }]);
 
     Backbone.Model.prototype.set = function(){
       //trigger digest cycle for the angular two way binding
