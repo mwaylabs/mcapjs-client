@@ -79,6 +79,13 @@ var Filter = function () {
         fieldName: fieldName,
         like: value
       });
+    },
+
+    notNull: function (fieldName) {
+      return returnNullOrObjectFor(true, {
+        type: 'null',
+        fieldName: fieldName
+      });
     }
   };
 
