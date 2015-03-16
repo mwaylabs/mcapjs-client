@@ -1206,15 +1206,19 @@
       var roles = [],
         members = [];
   
-      if(data.members){
-        data.members.each(function(memberModel){
-          members.push(memberModel.id);
-        });
-      }
-  
       if(data.roles){
         data.roles.each(function(roleModel){
           roles.push(roleModel.id);
+        });
+      }
+  
+      if(data.members){
+        data.members.each(function(memberModel){
+          // Members does not work anymore so this is quickfix
+          // TODO Find out the difference between roles and memebrs
+          if(roles.indexOf(memberModel.id) === -1){
+            roles.push(memberModel.id);
+          }
         });
       }
   
