@@ -64,7 +64,7 @@ var Filterable = function (collectionInstance, options) {
 
       // Custom URL parameters
       if (this.customUrlParams) {
-        _.extend(options.params, this.customUrlParams);
+        _.extend(options.params, _.result(this,'customUrlParams'));
       }
 
       //always set non paged parameter
