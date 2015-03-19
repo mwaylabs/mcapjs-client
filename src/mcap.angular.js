@@ -4,31 +4,13 @@
 
   angular.module('mCAP', [])
 
-    .run(['$http', '$q', '$rootScope', '$timeout', function ($http, $q) {
+    .run([function () {
 
       if (!window.mCAP) {
         throw new Error('Please include mCAP libary');
       }
 
-      Backbone.ajax = function (options) {
-        // Set HTTP Verb as 'method'
-        options.method = options.type;
 
-        var dfd = $q.defer();
-        // Use angulars $http implementation for requests
-        $http.apply(angular, [options]).then(function(resp){
-          if(options.success && typeof options.success === 'function'){
-            options.success(resp);
-          }
-          dfd.resolve(resp);
-        },function(resp){
-          if(options.error && typeof options.error === 'function'){
-            options.error(resp);
-          }
-          dfd.reject(resp);
-        });
-        return dfd.promise;
-      };
     }])
 
     .provider('mCAPApplication', function () {
@@ -112,24 +94,14 @@
 
 
   (function(){
-    var _$timeout;
     var _$q;
-    var _set = Backbone.Model.prototype.set;
+    var _$http;
     var _sync = Backbone.sync;
 
-    angular.module('mCAP').run(['$timeout', '$q', function($timeout, $q){
-      _$timeout = $timeout;
+    angular.module('mCAP').run(['$http', '$q', function($http, $q){
       _$q = $q;
+      _$http = $http;
     }]);
-
-    Backbone.Model.prototype.set = function(){
-      //trigger digest cycle for the angular two way binding
-      var returnValue = _set.apply(this, arguments);
-      if(_$timeout){
-        _$timeout(function(){});
-      }
-      return returnValue;
-    };
 
     Backbone.sync = function (method, model, options) {
       var dfd = _$q.defer();
@@ -140,6 +112,27 @@
       });
       return dfd.promise;
     };
+
+    Backbone.ajax = function (options) {
+      // Set HTTP Verb as 'method'
+      options.method = options.type;
+
+      var dfd = _$q.defer();
+      // Use angulars $http implementation for requests
+      _$http.apply(angular, [options]).then(function(resp){
+        if(options.success && typeof options.success === 'function'){
+          options.success(resp);
+        }
+        dfd.resolve(resp);
+      },function(resp){
+        if(options.error && typeof options.error === 'function'){
+          options.error(resp);
+        }
+        dfd.reject(resp);
+      });
+      return dfd.promise;
+    };
+
   }());
 
 })(window, angular, Backbone);
