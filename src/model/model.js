@@ -23,11 +23,6 @@ var Model = Backbone.Model.extend({
       this.setEndpoint(this.endpoint);
     }
 
-    // apply scope to _markToRevert
-    _.bindAll(this, '_markToRevert', 'revert');
-    // send the attributes or empty object
-    this._markToRevert(arguments[0] || {});
-
     /*
      * Instead of super apply we use the whole backbone constructor implementation because we need to inject
      * code inbetween which is hard to implement otherwise
@@ -110,46 +105,6 @@ var Model = Backbone.Model.extend({
     return url;
   },
 
-  /**
-   * Initialize the Backbone extended object
-   * @returns {*}
-   */
-  initialize: function () {
-    // DO NOT IMPLEMENT CODE HERE! THE USER SHOULDN'T CALL SUPER IN HIS OWN IMPL.
-    return Backbone.Model.prototype.initialize.apply(this, arguments);
-  },
-
-  /**
-   * Reverts a model to the latest saved state
-   * @example
-   * var model = new mCAP.Model({
-   *  name: 'Max'
-   * });
-   * model.set('name', 'Maximilian');
-   * console.log(model.get('name')); // Maximilian
-   * model.revert();
-   * console.log(model.get('name')); // Max
-   */
-  revert: function () {
-    if (this._revertAttributes) {
-      this.attributes = JSON.parse(JSON.stringify(this._revertAttributes));
-    }
-  },
-
-  /**
-   * Store attributes to enable a revert - useful for cancel for example
-   */
-  _markToRevert: function (data) {
-    this._revertAttributes = JSON.parse(JSON.stringify(data || this.attributes));
-  },
-
-  /**
-   * Check if the model is still in sync with the last saved state.
-   * @returns {Boolean|boolean}
-   */
-  isInSync: function () {
-    return _.isEqual(this._revertAttributes, this.attributes);
-  },
 
   /**
    * Save the model to the server
@@ -201,9 +156,8 @@ var Model = Backbone.Model.extend({
     return process(attributes);
   },
 
-  save: function (key, val, options) {
-    var args = this._save(key, val, options),
-      orgAttributes = this.attributes,
+  save: function () {
+    var orgAttributes = this.attributes,
       orgParse = this.parse;
     this.parse = function () {
       this.attributes = orgAttributes;
@@ -211,83 +165,9 @@ var Model = Backbone.Model.extend({
       return this.parse.apply(this, arguments);
     };
     this.attributes = this.recursiveBeforeSave(_.clone(orgAttributes));
-    var save = Backbone.Model.prototype.save.apply(this, args);
+    var save = Backbone.Model.prototype.save.apply(this, arguments);
     this.attributes = orgAttributes;
     return save;
-  },
-
-  /**
-   * Handle stuff for a save
-   * @param key
-   * @param val
-   * @param options
-   * @returns {Array}
-   * @private
-   */
-  _save: function (key, val, options) {
-    // prepare options
-    // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
-    if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
-      options = val;
-    }
-    // make sure options are defined
-    options = _.extend({validate: true}, options);
-    // cache success
-    var success = options.success;
-    // cache model
-    var model = this;
-
-    // overwrite success
-    options.success = function (resp) {
-      model._markToRevert();
-      // call cached success
-      if (success) {
-        success(model, resp, options);
-      }
-    };
-
-    // make sure options are the correct paramater
-    // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
-    if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
-      val = options;
-    }
-
-    return [key, val, options];
-  },
-
-  /**
-   * Fetch the model to the server
-   * @param options
-   * @returns {*}
-   */
-  fetch: function (options) {
-    // implement own fetch callback
-    var args = this._fetch(options);
-    return Backbone.Model.prototype.fetch.apply(this, args);
-  },
-
-  /**
-   * Adds markToRevert to successful fetch
-   * @param options
-   * @returns {*[]}
-   * @private
-   */
-  _fetch: function (options) {
-    options = options || {};
-    // cache success
-    var success = options.success;
-    // cache model
-    var model = this;
-
-    // overwrite success
-    options.success = function (resp) {
-      model._markToRevert();
-      // call cached success
-      if (typeof success === 'function') {
-        success(model, resp, options);
-      }
-    };
-    return [options];
   },
 
   _triggerEvent: function (eventName, args) {

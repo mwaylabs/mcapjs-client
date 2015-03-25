@@ -26,7 +26,7 @@ var Component = mCAP.Model.extend({
    * @returns {Array}
    * @private
    */
-  _save: function (key, val, options) {
+  save: function (key, val, options) {
     // prepare options
     // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
     if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
@@ -54,7 +54,7 @@ var Component = mCAP.Model.extend({
     if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
       val = options;
     }
-    return mCAP.Model.prototype._save.call(this, key, val, options);
+    return mCAP.Model.prototype.save.call(this, key, val, options);
   }
 
 });
