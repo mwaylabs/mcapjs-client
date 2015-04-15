@@ -113,8 +113,8 @@ var Authentication = mCAP.Model.extend({
       type: 'PUT'
     });
   },
-  resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid) {
-    return mCAP.Utils.request({
+  resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid, options) {
+    var config = {
       url: mCAP.Utils.getUrl('/gofer/security/rest/users/resetPassword'),
       params: {
         newPassword: newPassword,
@@ -123,7 +123,9 @@ var Authentication = mCAP.Model.extend({
         userIdentifier: userIdentifier
       },
       type: 'PUT'
-    });
+    };
+    _.extend(config, options);
+    return mCAP.Utils.request(config);
   },
   login: function (userName, password, organizationName) {
     return mCAP.Utils.request({
