@@ -1574,8 +1574,8 @@
         type: 'PUT'
       });
     },
-    resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid) {
-      return mCAP.Utils.request({
+    resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid, options) {
+      var config = {
         url: mCAP.Utils.getUrl('/gofer/security/rest/users/resetPassword'),
         params: {
           newPassword: newPassword,
@@ -1584,7 +1584,9 @@
           userIdentifier: userIdentifier
         },
         type: 'PUT'
-      });
+      };
+      _.extend(config, options);
+      return mCAP.Utils.request(config);
     },
     login: function (userName, password, organizationName) {
       return mCAP.Utils.request({
