@@ -180,6 +180,10 @@
       }
     };
   
+    this.setLimit = function(limit){
+      _limit = limit;
+    };
+  
     this.setTotalAmount = function (totalAmount) {
       _totalAmount = totalAmount;
     };
