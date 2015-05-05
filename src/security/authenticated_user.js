@@ -67,6 +67,11 @@ var AuthenticatedUser = mCAP.User.extend({
       this.get('organization').set(attr.organization);
       delete attr.organization;
     }
+
+    if (attr.organization === null){
+      delete attr.organization;
+    }
+
     return attr;
   },
   parse: function (resp) {
