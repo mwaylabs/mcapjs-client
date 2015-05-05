@@ -1098,11 +1098,7 @@
   
       if(data.members){
         data.members.each(function(memberModel){
-          // Members does not work anymore so this is quickfix
-          // TODO Find out the difference between roles and memebrs
-          if(roles.indexOf(memberModel.id) === -1){
-            roles.push(memberModel.id);
-          }
+          members.push(memberModel.id);
         });
       }
   
@@ -1446,6 +1442,11 @@
         this.get('organization').set(attr.organization);
         delete attr.organization;
       }
+  
+      if (attr.organization === null){
+        delete attr.organization;
+      }
+  
       return attr;
     },
     parse: function (resp) {
