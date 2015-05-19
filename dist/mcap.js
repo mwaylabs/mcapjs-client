@@ -1276,6 +1276,11 @@
       if (attributes.password === '' || attributes.password === null) {
         delete attributes.password;
       }
+  
+      if (attributes.phone === '' || attributes.phone === null) {
+        delete attributes.phone;
+      }
+  
       return attributes;
     },
   
