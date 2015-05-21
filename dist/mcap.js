@@ -1167,7 +1167,8 @@
           name: '',
           uuid: '',
           systemPermission: false,
-          members: []
+          members: [],
+          strictSearch: false
         },
         customUrlParams:{
           getNonpagedCount:true
@@ -1176,9 +1177,13 @@
         filterDefinition: function () {
           var filter = new mCAP.Filter();
   
-          var filters = [
-            filter.containsString('name', this.filterValues.name)
-          ];
+          var filters = [];
+  
+          if(this.filterValues.strictSearch){
+            filters.push(filter.string('name', this.filterValues.name));
+          } else {
+            filters.push(filter.containsString('name', this.filterValues.name));
+          }
   
           if (this.filterValues.systemPermission !== true) {
             filters.push(filter.boolean('systemPermission', this.filterValues.systemPermission));
