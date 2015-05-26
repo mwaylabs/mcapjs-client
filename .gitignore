@@ -7,3 +7,4 @@ npm-debug.log
 bower_components
 password.js
 online.conf.js
+/test-coverage

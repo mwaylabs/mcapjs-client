@@ -37,15 +37,15 @@ var Group = mCAP.Model.extend({
     var roles = [],
       members = [];
 
-    if(data.members){
-      data.members.each(function(memberModel){
-        members.push(memberModel.id);
-      });
-    }
-
     if(data.roles){
       data.roles.each(function(roleModel){
         roles.push(roleModel.id);
+      });
+    }
+
+    if(data.members){
+      data.members.each(function(memberModel){
+        members.push(memberModel.id);
       });
     }
 

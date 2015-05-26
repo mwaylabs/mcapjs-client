@@ -12,22 +12,15 @@
 mCAP.Utils.request = function (settings) {
 
   var ajaxOptions = {
-    url: settings.url,
-    dataType: settings.dataType || '',
     data: settings.data || {t: new Date().getTime()}
   };
 
-  if (settings.method) {
-    ajaxOptions.method = settings.method;
+  if(ajaxOptions.data && (settings.type === 'POST' || settings.type === 'PUT')){
+    ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+    ajaxOptions.contentType = 'application/json';
   }
 
-  if (settings.contentType) {
-    ajaxOptions.contentType = settings.contentType;
-  }
+  ajaxOptions = _.extend(settings,ajaxOptions);
 
-  if (settings.timeout) {
-    ajaxOptions.timeout = settings.timeout;
-  }
-
-  return $.ajax(ajaxOptions);
+  return Backbone.ajax(ajaxOptions);
 };

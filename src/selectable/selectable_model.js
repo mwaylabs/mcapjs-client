@@ -41,7 +41,7 @@ var ModelSelectable = function (modelInstance, options) {
   };
 
   (function _main () {
-    if (!_model instanceof Backbone.Model) {
+    if (!(_model instanceof Backbone.Model)) {
       throw new Error('First parameter has to be the instance of a collection');
     }
   }());

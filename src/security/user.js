@@ -4,6 +4,7 @@ var User = mCAP.Model.extend({
 
   defaults: function () {
     return {
+      'uuid': null,
       'name': '',
       'salutation': null,
       'givenName': '',
@@ -43,6 +44,11 @@ var User = mCAP.Model.extend({
     if (attributes.password === '' || attributes.password === null) {
       delete attributes.password;
     }
+
+    if (attributes.phone === '' || attributes.phone === null) {
+      delete attributes.phone;
+    }
+
     return attributes;
   },
 

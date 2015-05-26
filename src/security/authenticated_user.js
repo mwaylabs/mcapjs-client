@@ -20,7 +20,7 @@ var UserPreferences = mCAP.Model.extend({
 
 var AuthenticatedUser = mCAP.User.extend({
   defaults: function(){
-    return _.extend(mCAP.User.prototype.defaults,{
+    return _.extend(mCAP.User.prototype.defaults.apply(this,arguments),{
       authenticated: false
     });
   },
@@ -67,6 +67,11 @@ var AuthenticatedUser = mCAP.User.extend({
       this.get('organization').set(attr.organization);
       delete attr.organization;
     }
+
+    if (attr.organization === null){
+      delete attr.organization;
+    }
+
     return attr;
   },
   parse: function (resp) {

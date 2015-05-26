@@ -56,6 +56,18 @@ module.exports = function (grunt) {
         singleRun: true,
         browsers: ['PhantomJS'],
         frameworks: ['jasmine']
+      },
+      coverage: {
+        configFile: 'karma.conf.js',
+        preprocessors: {
+          'src/*/{,**/}*.js': ['coverage']
+        },
+        reporters: ['progress', 'coverage'],
+        coverageReporter: {
+          type : 'html',
+          dir : 'test-coverage/'
+        },
+        singleRun: true
       }
     }
   });
@@ -63,10 +75,13 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-karma');
 
   grunt.registerTask('test', ['karma:travis']);
+  grunt.registerTask('test:coverage', ['karma:coverage']);
 
   grunt.renameTask('regarde', 'watch');
 
   grunt.registerTask('default', ['preprocess:js','copy:mCAPAngular','watch']);
 
   grunt.registerTask('build', ['jshint:all','preprocess:js','copy:mCAPAngular','uglify:js']);
+
+  grunt.registerTask('prepush', ['jshint:all','test']);
 };

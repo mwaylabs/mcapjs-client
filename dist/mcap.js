@@ -44,6 +44,13 @@
    */
   mCAP.Utils = {};
   
+  mCAP.Utils.getUrl = function(endpoint){
+    if(endpoint.charAt(0)==='/'){
+      endpoint = endpoint.substr(1);
+    }
+    return mCAP.application.get('baseUrl') + '/' + endpoint;
+  };
+  
   /**
    * Returns the component type enum of the given model
    * Compare the return value with an mCAP constant/global
@@ -83,24 +90,17 @@
   mCAP.Utils.request = function (settings) {
   
     var ajaxOptions = {
-      url: settings.url,
-      dataType: settings.dataType || '',
       data: settings.data || {t: new Date().getTime()}
     };
   
-    if (settings.method) {
-      ajaxOptions.method = settings.method;
+    if(ajaxOptions.data && (settings.type === 'POST' || settings.type === 'PUT')){
+      ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+      ajaxOptions.contentType = 'application/json';
     }
   
-    if (settings.contentType) {
-      ajaxOptions.contentType = settings.contentType;
-    }
+    ajaxOptions = _.extend(settings,ajaxOptions);
   
-    if (settings.timeout) {
-      ajaxOptions.timeout = settings.timeout;
-    }
-  
-    return $.ajax(ajaxOptions);
+    return Backbone.ajax(ajaxOptions);
   };
 
   // INCLUDE PRIVATE VARS HERE
@@ -170,11 +170,18 @@
   
         // Custom URL parameters
         if (this.customUrlParams) {
-          _.extend(options.params, this.customUrlParams);
+          _.extend(options.params, _.result(this,'customUrlParams'));
         }
+  
+        //always set non paged parameter
+        options.params.getNonpagedCount = true;
   
         return options;
       }
+    };
+  
+    this.setLimit = function(limit){
+      _limit = limit;
     };
   
     this.setTotalAmount = function (totalAmount) {
@@ -272,6 +279,11 @@
       return selected;
     };
   
+    //this method will replace the getSelectedModels method and return a either a model or a collection depending on isRadio
+    this.getSelected = function () {
+      return this.getSelectedModels();
+    };
+  
     this.getDisabledModels = function () {
       var disabled = new mCAP.Collection();
       _collection.models.forEach(function (model) {
@@ -313,8 +325,8 @@
       });
     };
   
-    this.selectModel = function (model, force) {
-      if (model.get('uuid')) {
+    var selectModel = function (model, force) {
+      if (model.get(model.idAttribute)) {
         var modelToSelect = _collection.get(model);
         if (!modelToSelect && _addWhenNotInList) {
           //Adds model to the Collction when it is not already in the list
@@ -326,18 +338,13 @@
       }
     };
   
-    this.selectModels = function (models, force) {
-      this.select(new Backbone.Collection(models), force);
-      console.warn('The method selectModels() is deprecated and will be removed soon. Please use the new method select');
-    };
-  
     this.select = function (selected, force) {
       if (selected instanceof Backbone.Collection) {
         selected.models.forEach(function (model) {
-          this.selectModel(model, force);
+          selectModel(model, force);
         }, this);
       } else if (selected instanceof Backbone.Model) {
-        this.selectModel(selected, force);
+        selectModel(selected, force);
       }
     };
   
@@ -348,9 +355,7 @@
   
     this.unSelectAllModels = function () {
       this.getSelectedModels().forEach(function (model) {
-        if (model.selectable) {
-          model.selectable.unSelect();
-        }
+        model.selectable.unSelect();
       });
     };
   
@@ -358,22 +363,15 @@
       return _radio;
     };
   
-    this.setPreselectedModels = function (models) {
-      _selected.add(models,{silent:true});
-      this.select(_selected, true);
-    };
-  
     (function _main(self) {
+      if (!(_collection instanceof Backbone.Collection)) {
+        throw new Error('CollectionSelectable: First parameter has to be the instance of a collection');
+      }
       if (!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)) {
-        console.error('Selected attribute has to be a collection! For now it will be converted into an collection but this function will be removed soon');
-        _selected = new mCAP.Collection(_selected);
+        throw new Error('CollectionSelectable: Selected attribute has to be a collection or a model!');
       }
   
-      if (_selected instanceof Backbone.Model) {
-        _radio = true;
-      } else if (_selected instanceof Backbone.Collection) {
-        _radio = false;
-      }
+      _radio = _selected instanceof Backbone.Model;
   
       _selected.on('add', function () {
         self.select(_selected, true);
@@ -392,10 +390,6 @@
           }, this);
         }
       }, this);
-  
-      if (!_collection instanceof Backbone.Collection) {
-        throw new Error('First parameter has to be the instance of a collection');
-      }
     }(this));
   
   };
@@ -444,7 +438,7 @@
     };
   
     (function _main () {
-      if (!_model instanceof Backbone.Model) {
+      if (!(_model instanceof Backbone.Model)) {
         throw new Error('First parameter has to be the instance of a collection');
       }
     }());
@@ -461,6 +455,8 @@
       return new ModelSelectable(instance, options);
     } else if (instance instanceof Backbone.Collection) {
       return new CollectionSelectable(instance, options);
+    } else {
+      throw new Error('SelectableFactory: instance has to be either a model or a collection');
     }
   };
 
@@ -489,11 +485,6 @@
       if (typeof this.endpoint === 'string') {
         this.setEndpoint(this.endpoint);
       }
-  
-      // apply scope to _markToRevert
-      _.bindAll(this, '_markToRevert', 'revert');
-      // send the attributes or empty object
-      this._markToRevert(arguments[0] || {});
   
       /*
        * Instead of super apply we use the whole backbone constructor implementation because we need to inject
@@ -572,51 +563,11 @@
     url: function () {
       var url = Backbone.Model.prototype.url.apply(this, arguments);
       if (this.queryParameter) {
-        url += '?' + Backbone.$.param(this.queryParameter);
+        url += '?' + Backbone.$.param(_.result(this, 'queryParameter'));
       }
       return url;
     },
   
-    /**
-     * Initialize the Backbone extended object
-     * @returns {*}
-     */
-    initialize: function () {
-      // DO NOT IMPLEMENT CODE HERE! THE USER SHOULDN'T CALL SUPER IN HIS OWN IMPL.
-      return Backbone.Model.prototype.initialize.apply(this, arguments);
-    },
-  
-    /**
-     * Reverts a model to the latest saved state
-     * @example
-     * var model = new mCAP.Model({
-     *  name: 'Max'
-     * });
-     * model.set('name', 'Maximilian');
-     * console.log(model.get('name')); // Maximilian
-     * model.revert();
-     * console.log(model.get('name')); // Max
-     */
-    revert: function () {
-      if (this._revertAttributes) {
-        this.attributes = JSON.parse(JSON.stringify(this._revertAttributes));
-      }
-    },
-  
-    /**
-     * Store attributes to enable a revert - useful for cancel for example
-     */
-    _markToRevert: function (data) {
-      this._revertAttributes = JSON.parse(JSON.stringify(data || this.attributes));
-    },
-  
-    /**
-     * Check if the model is still in sync with the last saved state.
-     * @returns {Boolean|boolean}
-     */
-    isInSync: function () {
-      return _.isEqual(this._revertAttributes, this.attributes);
-    },
   
     /**
      * Save the model to the server
@@ -668,9 +619,8 @@
       return process(attributes);
     },
   
-    save: function (key, val, options) {
-      var args = this._save(key, val, options),
-        orgAttributes = this.attributes,
+    save: function () {
+      var orgAttributes = this.attributes,
         orgParse = this.parse;
       this.parse = function () {
         this.attributes = orgAttributes;
@@ -678,83 +628,9 @@
         return this.parse.apply(this, arguments);
       };
       this.attributes = this.recursiveBeforeSave(_.clone(orgAttributes));
-      var save = Backbone.Model.prototype.save.apply(this, args);
+      var save = Backbone.Model.prototype.save.apply(this, arguments);
       this.attributes = orgAttributes;
       return save;
-    },
-  
-    /**
-     * Handle stuff for a save
-     * @param key
-     * @param val
-     * @param options
-     * @returns {Array}
-     * @private
-     */
-    _save: function (key, val, options) {
-      // prepare options
-      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
-      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
-        options = val;
-      }
-      // make sure options are defined
-      options = _.extend({validate: true}, options);
-      // cache success
-      var success = options.success;
-      // cache model
-      var model = this;
-  
-      // overwrite success
-      options.success = function (resp) {
-        model._markToRevert();
-        // call cached success
-        if (success) {
-          success(model, resp, options);
-        }
-      };
-  
-      // make sure options are the correct paramater
-      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
-      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
-        val = options;
-      }
-  
-      return [key, val, options];
-    },
-  
-    /**
-     * Fetch the model to the server
-     * @param options
-     * @returns {*}
-     */
-    fetch: function (options) {
-      // implement own fetch callback
-      var args = this._fetch(options);
-      return Backbone.Model.prototype.fetch.apply(this, args);
-    },
-  
-    /**
-     * Adds markToRevert to successful fetch
-     * @param options
-     * @returns {*[]}
-     * @private
-     */
-    _fetch: function (options) {
-      options = options || {};
-      // cache success
-      var success = options.success;
-      // cache model
-      var model = this;
-  
-      // overwrite success
-      options.success = function (resp) {
-        model._markToRevert();
-        // call cached success
-        if (typeof success === 'function') {
-          success(model, resp, options);
-        }
-      };
-      return [options];
     },
   
     _triggerEvent: function (eventName, args) {
@@ -769,6 +645,8 @@
     sync: function () {
       if (arguments[2]) {
         mCAP.Utils.setAuthenticationEvent(arguments[2]);
+        //add model instance to request options
+        arguments[2].instance = arguments[1];
       }
       return Backbone.Model.prototype.sync.apply(this, arguments);
     }
@@ -804,7 +682,7 @@
      * @returns {Array}
      * @private
      */
-    _save: function (key, val, options) {
+    save: function (key, val, options) {
       // prepare options
       // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
       if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
@@ -832,7 +710,7 @@
       if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
         val = options;
       }
-      return mCAP.Model.prototype._save.call(this, key, val, options);
+      return mCAP.Model.prototype.save.call(this, key, val, options);
     }
   
   });
@@ -845,8 +723,12 @@
   
     selectable: true,
     filterable: true,
-    filterableOptions: {},
-    selectableOptions: {},
+    filterableOptions: function(){
+      return {};
+    },
+    selectableOptions: function(){
+      return {};
+    },
   
     model: mCAP.Model,
   
@@ -906,6 +788,9 @@
   
     selectable: false,
     filterable: false,
+    defaults: function(){
+      return [];
+    },
     parse: function (resp) {
       var appTypes = [];
       _.each(resp.data, function (type) {
@@ -918,7 +803,20 @@
     },
     model: mCAP.Model.extend({
       idAttribute:'key'
-    })
+    }),
+    constructor: function(){
+      var superConstructor = mCAP.Collection.prototype.constructor.apply(this,arguments),
+          defaults = _.result(this, 'defaults');
+  
+      if(defaults.length>0){
+        _.each(defaults,function(key){
+          this.add({
+            key: key
+          });
+        },this);
+      }
+      return superConstructor;
+    }
   
   });
   
@@ -996,7 +894,7 @@
         return returnNullOrObjectFor(values, {
           type: 'stringEnum',
           fieldName: fieldName,
-          values: values
+          values: _.flatten(values)
         });
       },
   
@@ -1005,6 +903,13 @@
           type: 'like',
           fieldName: fieldName,
           like: value
+        });
+      },
+  
+      notNull: function (fieldName) {
+        return returnNullOrObjectFor(true, {
+          type: 'null',
+          fieldName: fieldName
         });
       }
     };
@@ -1185,15 +1090,15 @@
       var roles = [],
         members = [];
   
-      if(data.members){
-        data.members.each(function(memberModel){
-          members.push(memberModel.id);
-        });
-      }
-  
       if(data.roles){
         data.roles.each(function(roleModel){
           roles.push(roleModel.id);
+        });
+      }
+  
+      if(data.members){
+        data.members.each(function(memberModel){
+          members.push(memberModel.id);
         });
       }
   
@@ -1262,7 +1167,8 @@
           name: '',
           uuid: '',
           systemPermission: false,
-          members: []
+          members: [],
+          strictSearch: false
         },
         customUrlParams:{
           getNonpagedCount:true
@@ -1271,9 +1177,13 @@
         filterDefinition: function () {
           var filter = new mCAP.Filter();
   
-          var filters = [
-            filter.containsString('name', this.filterValues.name)
-          ];
+          var filters = [];
+  
+          if(this.filterValues.strictSearch){
+            filters.push(filter.string('name', this.filterValues.name));
+          } else {
+            filters.push(filter.containsString('name', this.filterValues.name));
+          }
   
           if (this.filterValues.systemPermission !== true) {
             filters.push(filter.boolean('systemPermission', this.filterValues.systemPermission));
@@ -1315,6 +1225,7 @@
         url: _.result(this,'url'),
         data: groups,
         type: 'PUT',
+        instance: this,
         success:function(){}
       });
     }
@@ -1330,6 +1241,7 @@
   
     defaults: function () {
       return {
+        'uuid': null,
         'name': '',
         'salutation': null,
         'givenName': '',
@@ -1369,6 +1281,11 @@
       if (attributes.password === '' || attributes.password === null) {
         delete attributes.password;
       }
+  
+      if (attributes.phone === '' || attributes.phone === null) {
+        delete attributes.phone;
+      }
+  
       return attributes;
     },
   
@@ -1488,7 +1405,7 @@
   
   var AuthenticatedUser = mCAP.User.extend({
     defaults: function(){
-      return _.extend(mCAP.User.prototype.defaults,{
+      return _.extend(mCAP.User.prototype.defaults.apply(this,arguments),{
         authenticated: false
       });
     },
@@ -1535,6 +1452,11 @@
         this.get('organization').set(attr.organization);
         delete attr.organization;
       }
+  
+      if (attr.organization === null){
+        delete attr.organization;
+      }
+  
       return attr;
     },
     parse: function (resp) {
@@ -1555,65 +1477,16 @@
   var Authentication = mCAP.Model.extend({
   
     defaults: {
-      'userName': '',
-      'orgaName': '',
-      'password': '',
-      'email': '',
-      'organization': null,
-      'user': null
+      'user': null,
+      'authenticated': false
     },
   
     endpoint: 'gofer/security/rest/auth/',
   
-    prepare: function(){
+    prepare: function () {
       return {
         user: new mCAP.private.AuthenticatedUser()
       };
-    },
-  
-    /**
-     * Perform a login request against the server configured with mCAP.application.set('baseUrl', 'https://server.com');
-     * Fires a login event everytime a login is performed. Even if the login was not successful.
-     * @param options - Can either be a string for the password or an object with credentials.
-     * @returns promise
-     * @example
-     *
-     * // login with password
-     * mCAP.authentication.login('pass').then(function(){};
-     * // login with credentials
-     * mCAP.authentication.login({
-        userName: 'm.mustermann',
-        orgaName: 'org',
-        password: 'pass'
-      });
-     * // event when auth was successful
-     * mCAP.authentication.on('login', function(){})
-     * // event when auth was not successful
-     * mCAP.authentication.on('authenticationerror', function(obj, err, errMsg){})
-     */
-    login: function (options) {
-      var that = this;
-      if (typeof options === 'string') {
-        this.set('password', options);
-      } else if (typeof options === 'object') {
-        this.set(options);
-      }
-      return this.save(null, {
-        url: this.url() + 'login'
-      }).then(function () {
-        // trigger login on successful login
-        that._triggerEvent('login', arguments);
-        return arguments[0];
-      }).fail(function () {
-        // trigger loginerror on authentication error
-        that._triggerEvent('authenticationerror', arguments);
-        return arguments;
-      }).always(function () {
-        if (typeof options === 'string') {
-          that.set('password', '');
-        }
-        return arguments;
-      });
     },
   
     /**
@@ -1625,21 +1498,26 @@
      * mCAP.authentication.on('logout', function(obj){});
      */
     logout: function () {
-      var that = this;
-      return this.save(null, {
-        url: this.url() + 'logout'
+      var self = this;
+      return mCAP.Utils.request({
+        url: this.url() + 'logout',
+        type: 'POST'
       }).always(function () {
-        that._triggerEvent('logout', arguments);
+        self.set({authenticated:false});
+        self.set('user', new mCAP.private.AuthenticatedUser());
+        mCAP.authenticatedUser = mCAP.authentication.get('user');
+        mCAP.currentOrganization = mCAP.authentication.get('user').get('organization');
+        self._triggerEvent('logout', arguments);
       });
     },
   
-    setReferencedModels: function(obj){
-      if(obj.user && !(obj.user instanceof mCAP.private.AuthenticatedUser) && this.get('user')){
+    setReferencedModels: function (obj) {
+      if (obj.user && !(obj.user instanceof mCAP.private.AuthenticatedUser) && this.get('user')) {
         this.get('user').set(obj.user);
         delete obj.user;
       }
   
-      if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user')){
+      if (obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('user').get('organization')) {
         this.get('user').get('organization').set(obj.organization);
         delete obj.organization;
       }
@@ -1656,9 +1534,9 @@
       return this.setReferencedModels(data);
     },
   
-    set: function(key, val, options){
+    set: function (key, val, options) {
       key = this.setReferencedModels(key);
-      return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+      return mCAP.Model.prototype.set.apply(this, [key, val, options]);
     },
   
     /**
@@ -1672,28 +1550,23 @@
           });
      */
     isAuthenticated: function () {
-      var dfd = $.Deferred();
-      var uuid = null;
-  
-      // check if there was a login before
-      if (this.get('user') && this.get('user').get('uuid')) {
-        uuid = this.get('user').get('uuid');
-      } else {
-        dfd.reject('no user set');
-        return dfd.promise();
-      }
+      var dfd = $.Deferred(),
+        self = this;
   
       mCAP.Utils.request({
-        url: URI(mCAP.application.get('baseUrl') + '/gofer/system/security/currentAuthorization').normalize().toString()
-      }).then(function (data) {
+        url: mCAP.Utils.getUrl('/gofer/system/security/currentAuthorization'),
+        type: 'GET'
+      }).then(function (resp) {
         // resolve only if the current user is authenticated
-        if (data.user && data.user.uuid && data.user.uuid === uuid) {
-          dfd.resolve(data);
+        if (resp.data.user && resp.data.user.uuid) {
+          self.set({authenticated:true});
+          dfd.resolve(self);
         }
+        self.set({authenticated:false});
         // otherwise reject
-        dfd.reject('not authenticated', data);
+        dfd.reject('not authenticated', resp.data);
         return;
-      }).fail(function (err) {
+      }, function(err){
         dfd.reject(err);
       });
       return dfd.promise();
@@ -1705,10 +1578,10 @@
   //    },this);
     }
   
-  },{
-    requestNewPassword: function(userName,organizationName){
-      return Backbone.ajax({
-        url: '/gofer/security/rest/users/createPasswordResetRequest',
+  }, {
+    requestNewPassword: function (userName, organizationName) {
+      return mCAP.Utils.request({
+        url: mCAP.Utils.getUrl('/gofer/security/rest/users/createPasswordResetRequest'),
         params: {
           userIdentifier: userName,
           organizationName: organizationName
@@ -1716,16 +1589,32 @@
         type: 'PUT'
       });
     },
-    resetPassword: function(userIdentifier,organizationName,newPassword,requestUuid){
-      return Backbone.ajax({
-        url: '/gofer/security/rest/users/resetPassword',
+    resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid, options) {
+      var config = {
+        url: mCAP.Utils.getUrl('/gofer/security/rest/users/resetPassword'),
         params: {
-          newPassword:newPassword,
-          organizationName:organizationName,
-          requestUuid:requestUuid,
-          userIdentifier:userIdentifier
+          newPassword: newPassword,
+          organizationName: organizationName,
+          requestUuid: requestUuid,
+          userIdentifier: userIdentifier
         },
         type: 'PUT'
+      };
+      _.extend(config, options);
+      return mCAP.Utils.request(config);
+    },
+    login: function (userName, password, organizationName) {
+      return mCAP.Utils.request({
+        url: mCAP.Utils.getUrl(Authentication.prototype.endpoint + 'login'),
+        data: {
+          'userName': (organizationName ? organizationName + '\\' : '') + userName,
+          'password': password
+        },
+        type: 'POST'
+      }).then(function (response) {
+        mCAP.authentication.set({authenticated:true});
+        mCAP.authentication.set(response);
+        return mCAP.authentication;
       });
     }
   });
@@ -1736,7 +1625,7 @@
   mCAP.authenticatedUser = mCAP.authentication.get('user');
   mCAP.currentOrganization = mCAP.authentication.get('user').get('organization');
   
-  Authentication.prototype.initialize = function(){
+  Authentication.prototype.initialize = function () {
     throw new Error('You can not instantiate a second Authentication object please use the mCAP.authentication instance');
   };
   

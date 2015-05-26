@@ -1,4 +1,4 @@
-describe("mCAP.authentication", function () {
+describe("mCAP.authentication logout", function () {
 
   var baseUrl, mCAPApplicationAttributes, mCAPAuthenticationAttributes, server, callback, responseDataSucc, serverSuccCallback;
 
@@ -17,12 +17,11 @@ describe("mCAP.authentication", function () {
     responseDataSucc = {"message":"Successfully logged out"};
 
     serverSuccCallback = function (xhr) {
-//      console.log(JSON.stringify(xhr, null, 10));
       var postData = JSON.parse(xhr.requestBody);
       if (xhr.method == "POST" && xhr.url === mCAP.authentication.url() + 'logout') {
         xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(responseDataSucc));
       }
-    }
+    };
   });
 
   afterEach(function () {
@@ -33,7 +32,7 @@ describe("mCAP.authentication", function () {
   });
 
 
-  it("Logout", function () {
+  it("should logout the user", function () {
 
     server.respondWith(serverSuccCallback);
 
@@ -41,7 +40,10 @@ describe("mCAP.authentication", function () {
       delete data.attributes;
       callback(data);
     }).always(function(data){
-      //console.log(data);
+      expect(mCAP.authentication.get('user').get('name')).toBe('');
+      expect(mCAP.authentication.get('user').get('uuid')).toBeNull();
+      expect(mCAP.authentication.get('user').get('organization').get('uuid')).toBeNull();
+      expect(mCAP.authentication.get('authenticated')).toBeFalsy();
     });
 
     server.respond();

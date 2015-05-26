@@ -64,11 +64,18 @@ var Filterable = function (collectionInstance, options) {
 
       // Custom URL parameters
       if (this.customUrlParams) {
-        _.extend(options.params, this.customUrlParams);
+        _.extend(options.params, _.result(this,'customUrlParams'));
       }
+
+      //always set non paged parameter
+      options.params.getNonpagedCount = true;
 
       return options;
     }
+  };
+
+  this.setLimit = function(limit){
+    _limit = limit;
   };
 
   this.setTotalAmount = function (totalAmount) {

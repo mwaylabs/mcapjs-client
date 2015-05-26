@@ -1,6 +1,6 @@
 describe("mCAP.authentication", function () {
 
-  var mCAPApplicationAttributes, mCAPAuthenticationAttributes, server, callback, authResponseDataSucc, serverSuccCallback;
+  var mCAPApplicationAttributes, mCAPAuthenticationAttributes, server, callback, authResponseDataSucc, authResponseDataFail, serverAuthSuccCallback, serverFailSuccCallback;
 
   mCAPApplicationAttributes = JSON.stringify(mCAP.application.attributes);
   mCAPAuthenticationAttributes = JSON.stringify(mCAP.authentication.attributes);
@@ -33,15 +33,27 @@ describe("mCAP.authentication", function () {
         "name": "M-Way Solutions",
         "uuid": "0144e9bf-923d-4e4a-b232-edd9dcd27d23",
         "uniqueName": "mway"
-      }
+      },
+      roles: []
     };
 
-    serverSuccCallback = function (xhr) {
-//      console.log(JSON.stringify(xhr, null, 10));
+    authResponseDataFail = {
+      user: null,
+      roles: [],
+      organization: null
+    };
+
+    serverAuthSuccCallback = function (xhr) {
       var postData = JSON.parse(xhr.requestBody);
 
-      xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify(authResponseDataSucc));
-    }
+      xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify({data: authResponseDataSucc}));
+    };
+
+    serverAuthFailCallback = function (xhr) {
+      var postData = JSON.parse(xhr.requestBody);
+
+      xhr.respond(200, { "Content-Type": "application/json" }, JSON.stringify({data: authResponseDataFail}));
+    };
   });
 
   afterEach(function () {
@@ -59,15 +71,16 @@ describe("mCAP.authentication", function () {
     expect(mCAP.authentication.isAuthenticated().always).toBeDefined();
   });
 
-  it("isAuthenticated success", function () {
+  it("isAuthenticated success when session exists", function () {
 
     mCAP.authentication.set('user', new mCAP.private.AuthenticatedUser({
       uuid: authResponseDataSucc.user.uuid
     }));
 
-    server.respondWith(serverSuccCallback);
+    server.respondWith(serverAuthSuccCallback);
 
     mCAP.authentication.isAuthenticated().then(function () {
+      expect(mCAP.authentication.get('authenticated')).toBeTruthy();
       callback(true);
     });
 
@@ -77,32 +90,13 @@ describe("mCAP.authentication", function () {
     sinon.assert.calledOnce(callback);
   });
 
-  it("isAuthenticated failure without any user", function () {
+  it("isAuthenticated failure when no session exists", function () {
 
-    server.respondWith(serverSuccCallback);
-
-    var bakUSer = mCAP.authentication.attributes.user;
-    mCAP.authentication.set('user',null);
+    server.respondWith(serverAuthFailCallback);
 
     mCAP.authentication.isAuthenticated().fail(function () {
       callback(true);
-      mCAP.authentication.attributes.user = bakUSer;
-    });
-
-    server.respond();
-
-    sinon.assert.calledWith(callback, true);
-    sinon.assert.calledOnce(callback);
-  });
-
-  it("isAuthenticated failure with wrong uuid", function () {
-
-    mCAP.authentication.get('user').set('uuid','1234');
-
-    server.respondWith(serverSuccCallback);
-
-    mCAP.authentication.isAuthenticated().fail(function () {
-      callback(true);
+      expect(mCAP.authentication.get('authenticated')).toBeFalsy();
     });
 
     server.respond();
