@@ -73,11 +73,11 @@ var Filter = function () {
       });
     },
 
-    longEnum: function (fieldName, values) {
-      return returnNullOrObjectFor(values, {
-        type: 'longEnum',
+    long: function (fieldName, value) {
+      return returnNullOrObjectFor(value, {
+        type: 'long',
         fieldName: fieldName,
-        values: _.flatten(values)
+        value: value
       });
     },
 
