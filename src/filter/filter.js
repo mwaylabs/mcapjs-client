@@ -73,6 +73,14 @@ var Filter = function () {
       });
     },
 
+    longEnum: function (fieldName, values) {
+      return returnNullOrObjectFor(values, {
+        type: 'longEnum',
+        fieldName: fieldName,
+        values: _.flatten(values)
+      });
+    },
+
     like: function (fieldName, value) {
       return returnNullOrObjectFor(value, {
         type: 'like',
