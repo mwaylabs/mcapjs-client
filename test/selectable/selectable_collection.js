@@ -1,7 +1,8 @@
-describe('Collection Selectable', function () {
+fdescribe('Collection Selectable', function () {
 
   var collection;
   var TestModel;
+  var DisabledModel;
   var __selectedCount = function(){
     return collection.selectable.getSelected().length;
   };
@@ -12,8 +13,15 @@ describe('Collection Selectable', function () {
     collection.add([new mCAP.Model(), new mCAP.Model(), new mCAP.Model()]);*/
 
     collection = new mCAP.Collection();
-    TestModel = mCAP.Model.extend({
-      idAttribute: 'uuid'
+    TestModel = mCAP.Model;
+    DisabledModel = mCAP.Model.extend({
+      selectableOptions: function(){
+       return {
+         isDisabled: function(){
+           return true;
+         }
+       }
+      }
     });
     collection.add([new TestModel({uuid: 1}), new TestModel({uuid: 2}), new TestModel({uuid: 3})]);
   });
@@ -32,7 +40,7 @@ describe('Collection Selectable', function () {
   });
 
   //fails because we check if a model has an idAttribute
-  xit('should select models without an idAttribute', function(){
+  it('should select models without an idAttribute', function(){
     collection.reset();
     collection.add([new mCAP.Model(), new mCAP.Model(), new mCAP.Model()]);
     expect(__selectedCount()).toBe(0);
@@ -41,7 +49,7 @@ describe('Collection Selectable', function () {
   });
 
   //fails because we have no unselect method yet
-  xit('should unselect models', function(){
+  it('should unselect models', function(){
     collection.selectable.select(collection.at(0));
     expect(__selectedCount()).toBe(1);
     collection.selectable.unSelect(collection.at(0));
@@ -62,61 +70,141 @@ describe('Collection Selectable', function () {
     expect(__selectedCount()).toBe(0);
   });
 
+  it('should return model as selected even when it is was removed from the collection', function(){
+    collection.selectable.select(collection.at(0));
+    collection.remove(collection.at(0));
+    expect(__selectedCount()).toBe(1);
+  });
+
+  it('should return model as selected even when it collection was reset', function(){
+    collection.selectable.select(collection.at(0));
+    collection.selectable.select(collection.at(2));
+    collection.reset();
+    expect(__selectedCount()).toBe(2);
+  });
+
+  it('should not return model as selected when it was removed from the collection and the option unselectOnRemove is set to true', function(){
+    var unSelectCollection = new (mCAP.Collection.extend({
+      selectableOptions: function(){
+        return {
+          unSelectOnRemove: true
+        }
+      }
+    }) )();
+    unSelectCollection.add(new TestModel({uuid:1}));
+    unSelectCollection.add(new TestModel({uuid:2}));
+    unSelectCollection.add(new TestModel({uuid:3}));
+    unSelectCollection.selectable.select(collection.at(0));
+    expect(unSelectCollection.selectable.getSelected().length).toBe(1);
+    unSelectCollection.remove(collection.at(0));
+    expect(unSelectCollection.selectable.getSelected().length).toBe(0);
+  });
+
+  it('should not return model as selected when it was removed from the collection and the option unselectOnRemove is set to true', function(){
+    var unSelectCollection = new (mCAP.Collection.extend({
+      selectableOptions: function(){
+        return {
+          unSelectOnRemove: true
+        }
+      }
+    }) )();
+    unSelectCollection.add(new TestModel({uuid:1}));
+    unSelectCollection.add(new TestModel({uuid:2}));
+    unSelectCollection.add(new TestModel({uuid:3}));
+    unSelectCollection.selectable.select(collection.at(0));
+    unSelectCollection.selectable.select(collection.at(1));
+    unSelectCollection.selectable.select(collection.at(2));
+    expect(unSelectCollection.selectable.getSelected().length).toBe(3);
+    unSelectCollection.reset();
+    expect(unSelectCollection.selectable.getSelected().length).toBe(0);
+  });
+
   it('should select all models', function(){
-    collection.selectable.selectAllModels();
+    collection.selectable.selectAll();
     expect(__selectedCount()).toBe(collection.length);
   });
 
   it('should unselect all models', function(){
-    collection.selectable.select(new mCAP.Collection([collection.at(0), collection.at(1)]));
+    collection.selectable.select(collection.at(0));
+    collection.selectable.select(collection.at(1));
     expect(__selectedCount()).toBe(2);
-    collection.selectable.unSelectAllModels();
+    collection.selectable.unSelectAll();
     expect(__selectedCount()).toBe(0);
   });
 
-  it('should provide if all models are selected', function(){
-    expect(collection.selectable.allModelsSelected()).toBe(false);
-    collection.selectable.selectAllModels();
-    expect(collection.selectable.allModelsSelected()).toBe(true);
+  it('should provide if all models are selected when calling selectAll', function(){
+    expect(collection.selectable.allSelected()).toBeFalsy(false);
+    collection.selectable.selectAll();
+    expect(collection.selectable.allSelected()).toBeTruthy(true);
   });
 
+  it('should provide if all models are selected when the models are selected', function(){
+    expect(collection.selectable.allSelected()).toBeFalsy();
+    collection.selectable.select(collection.at(0));
+    expect(collection.selectable.allSelected()).toBeFalsy();
+    collection.selectable.select(collection.at(1));
+    collection.selectable.select(collection.at(2));
+    expect(collection.selectable.allSelected()).toBeTruthy();
+    collection.selectable.unSelect(collection.at(2));
+    expect(collection.selectable.allSelected()).toBeFalsy();
+  });
+
+  it('should return models where the selectable is disabled', function(){
+    var disabledModel = new DisabledModel();
+    expect(collection.selectable.getDisabled().length).toBe(0);
+    collection.add(disabledModel);
+    expect(collection.selectable.getDisabled().length).toBe(1);
+    collection.remove(disabledModel);
+    expect(collection.selectable.getDisabled().length).toBe(0);
+  });
+
+
   it('should ignore disabled models when providing if all models are selected', function(){
-    collection.selectable.select(new mCAP.Collection([collection.at(0), collection.at(1)]));
-    var model = collection.at(2);
-    model.selectable.isDisabled = function(){
-      return true;
+    var disabledModel = new DisabledModel(),
+        modelIsDisabled = true;
+
+    disabledModel.selectable.isDisabled = function(){
+      return modelIsDisabled;
     };
-    expect(collection.selectable.allModelsSelected()).toBe(true);
+
+    collection.add(disabledModel);
+    collection.selectable.select(collection.at(0));
+    collection.selectable.select(collection.at(1));
+    collection.selectable.select(collection.at(2));
+    expect(collection.selectable.allSelected()).toBeTruthy();
+    modelIsDisabled = false;
+    expect(collection.selectable.allSelected()).toBeFalsy();
+    collection.remove(disabledModel);
+    expect(collection.selectable.allSelected()).toBeTruthy();
+    collection.add(disabledModel);
   });
 
   it('should provide if all models are disabled', function(){
-    expect(collection.selectable.allModelsDisabled()).toBe(false);
-    var disableFn = jasmine.createSpy('disableFn').and.returnValue(true);
-    collection.at(0).selectable.isDisabled = disableFn;
-    collection.at(1).selectable.isDisabled = disableFn;
-    expect(collection.selectable.allModelsDisabled()).toBe(false);
-    collection.at(2).selectable.isDisabled = disableFn;
-    expect(collection.selectable.allModelsDisabled()).toBe(true);
+    expect(collection.selectable.allDisabled()).toBeFalsy();
+    collection.reset();
+    expect(collection.selectable.getSelected().length).toBe(0);
+    collection.add(new DisabledModel());
+    expect(collection.selectable.allDisabled()).toBeTruthy();
   });
 
 
   /* Toggle all */
   it('should toggle all models selected', function(){
     expect(__selectedCount()).toBe(0);
-    collection.selectable.toggleSelectAllModels();
+    collection.selectable.toggleSelectAll();
     expect(__selectedCount()).toBe(collection.length);
   });
 
   it('should toggle all models selected when not every model is already selected', function(){
     collection.selectable.select(collection.at(0));
     expect(__selectedCount()).toBe(1);
-    collection.selectable.toggleSelectAllModels();
+    collection.selectable.toggleSelectAll();
     expect(__selectedCount()).toBe(collection.length);
   });
 
   it('should toggle all models unselected when all models are already selected', function(){
-    collection.selectable.selectAllModels();
-    collection.selectable.toggleSelectAllModels();
+    collection.selectable.selectAll();
+    collection.selectable.toggleSelectAll();
     expect(__selectedCount()).toBe(0);
   });
 
@@ -125,22 +213,22 @@ describe('Collection Selectable', function () {
   it('should not initialize with radio selection when no options passed', function(){
     //make a new selection with the already existing collection (ust for testing)
     var selectable = new CollectionSelectable(collection, {});
-    expect(selectable.isRadio()).toBe(false);
+    expect(selectable.isSingleSelection()).toBe(false);
   });
 
   it('should initialize with radio selection when passed via options', function(){
-    var selectable = new CollectionSelectable(collection, {radio: true});
-    expect(selectable.isRadio()).toBe(true);
+    var selectable = new CollectionSelectable(collection, {isSingleSelection: true});
+    expect(selectable.isSingleSelection()).toBe(true);
   });
 
   it('should not initialize with radio selection when the "selected" option is a collection', function(){
-    var selectable = new CollectionSelectable(collection, {selected: new mCAP.Collection()});
-    expect(selectable.isRadio()).toBe(false);
+    var selectable = new CollectionSelectable(collection, {preSelected: new mCAP.Collection()});
+    expect(selectable.isSingleSelection()).toBe(false);
   });
 
-  it('should initialize with radio selection when the "selected" option is a model', function(){
-    var selectable = new CollectionSelectable(collection, {selected: new mCAP.Model()});
-    expect(selectable.isRadio()).toBe(true);
+  fit('should initialize with radio selection when the "selected" option is a model', function(){
+    var selectable = new CollectionSelectable(collection, {preSelected: new mCAP.Model()});
+    expect(selectable.isSingleSelection()).toBe(true);
   });
 
   //fails because getSelected does not return a model when in radio mode yet (it returns always a collection)

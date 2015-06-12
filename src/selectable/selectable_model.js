@@ -15,21 +15,21 @@ var ModelSelectable = function (modelInstance, options) {
     return _selected;
   };
 
-  this.select = function (force ) {
-    if (!this.isDisabled() || force) {
-      if (_model.collection && _model.collection.selectable && _model.collection.selectable.isRadio()) {
-        _model.collection.selectable.unSelectAllModels();
-      }
-      this.trigger('change change:select',modelInstance,this);
+  this.select = function (force) {
+    if ( (!this.isDisabled() || force) && !this.isSelected()) {
+      //if (_model.collection && _model.collection.selectable && _model.collection.selectable.isRadio()) {
+      //  _model.collection.selectable.unSelectAllModels();
+      //}
       _selected = true;
-    } else {
-      _selected = false;
+      this.trigger('change change:select',modelInstance,this);
     }
   };
 
   this.unSelect = function () {
-    this.trigger('change change:unselect',modelInstance,this);
-    _selected = false;
+    if(_selected){
+      _selected = false;
+      this.trigger('change change:unselect',modelInstance,this);
+    }
   };
 
   this.toggleSelect = function () {
