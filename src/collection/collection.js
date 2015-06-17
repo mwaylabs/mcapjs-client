@@ -15,6 +15,7 @@ var Collection = Backbone.Collection.extend({
   model: mCAP.Model,
 
   constructor: function () {
+    var superConstructor = Backbone.Collection.prototype.constructor.apply(this, arguments);
     if (this.selectable) {
       this.selectable = new SelectableFactory(this,  _.result(this,'selectableOptions'));
     }
@@ -27,7 +28,7 @@ var Collection = Backbone.Collection.extend({
       this.setEndpoint(this.endpoint);
     }
 
-    return Backbone.Collection.prototype.constructor.apply(this, arguments);
+    return superConstructor;
   },
 
   setEndpoint: function (endpoint) {
