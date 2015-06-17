@@ -50,23 +50,6 @@ describe('Model Selectable', function () {
     expect(model.selectable.isSelected()).toBe(false);
   });
 
-  it('should unselect all other models if it has a parent collection and radio select is on', function() {
-    var RadioCollection = mCAP.Collection.extend({
-      selectableOptions: {radio: true}
-    });
-    var collection = new RadioCollection();
-    spyOn(collection.selectable, 'unSelectAllModels').and.callThrough();
-    var model1 = collection.add(new mCAP.Model());
-    var model2 = collection.add(new mCAP.Model());
-
-    model1.selectable.select();
-    expect(model1.selectable.isSelected()).toBe(true);
-    model2.selectable.select();
-    expect(collection.selectable.unSelectAllModels).toHaveBeenCalled();
-    expect(model1.selectable.isSelected()).toBe(false);
-    expect(model2.selectable.isSelected()).toBe(true);
-  });
-
   it('should throw an error if provided model is not a Backbone model instance', function(){
     var createModel = function(){
       new ModelSelectable({}, {});

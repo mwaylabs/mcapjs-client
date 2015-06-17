@@ -15,20 +15,23 @@ var ModelSelectable = function (modelInstance, options) {
     return _selected;
   };
 
-  this.select = function (force) {
-    if ( (!this.isDisabled() || force) && !this.isSelected()) {
-      //if (_model.collection && _model.collection.selectable && _model.collection.selectable.isRadio()) {
-      //  _model.collection.selectable.unSelectAllModels();
-      //}
+  this.select = function (options) {
+    options = options || {};
+    if ( (!this.isDisabled() || options.force) && !this.isSelected()) {
       _selected = true;
-      this.trigger('change change:select',modelInstance,this);
+      if(!options.silent){
+        this.trigger('change change:select',modelInstance,this);
+      }
     }
   };
 
-  this.unSelect = function () {
-    if(_selected){
+  this.unSelect = function (options) {
+    options = options || {};
+    if(this.isSelected()){
       _selected = false;
-      this.trigger('change change:unselect',modelInstance,this);
+      if(!options.silent){
+        this.trigger('change change:unselect',modelInstance,this);
+      }
     }
   };
 
