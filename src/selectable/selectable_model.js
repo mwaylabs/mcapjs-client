@@ -4,6 +4,8 @@ var ModelSelectable = function (modelInstance, options) {
   var _model = modelInstance,
       _selected = options.selected || false;
 
+  this.isInCollection = false;
+
   this.isDisabled = function () {
     if (options.isDisabled) {
       return options.isDisabled.apply(modelInstance, arguments);
