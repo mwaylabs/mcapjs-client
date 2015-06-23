@@ -530,7 +530,7 @@
   
     var main = function(){
       if (!(_model instanceof Backbone.Model)) {
-        throw new Error('First parameter has to be the instance of a collection');
+        throw new Error('First parameter has to be the instance of a model');
       }
     };
   
@@ -989,6 +989,14 @@
           type: 'stringEnum',
           fieldName: fieldName,
           values: _.flatten(values)
+        });
+      },
+  
+      long: function (fieldName, value) {
+        return returnNullOrObjectFor(value, {
+          type: 'long',
+          fieldName: fieldName,
+          value: value
         });
       },
   

@@ -73,6 +73,14 @@ var Filter = function () {
       });
     },
 
+    long: function (fieldName, value) {
+      return returnNullOrObjectFor(value, {
+        type: 'long',
+        fieldName: fieldName,
+        value: value
+      });
+    },
+
     like: function (fieldName, value) {
       return returnNullOrObjectFor(value, {
         type: 'like',
