@@ -23,7 +23,7 @@ var CollectionSelectable = function (collectionInstance, options) {
   };
 
   var _setModelSelectableOptions = function (model, options) {
-    if(model.selectable){
+    if(model && model.selectable){
       var selectedModel = _selected.get(model);
 
       if (selectedModel) {
