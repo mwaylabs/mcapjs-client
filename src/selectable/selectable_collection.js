@@ -128,11 +128,10 @@ var CollectionSelectable = function (collectionInstance, options) {
   };
 
   this.unSelectAll = function () {
-    this.getSelected().each(function (model) {
-      model.selectable.unSelect();
-    });
-
-    _selected.reset();
+    var selection = this.getSelected().clone();
+    selection.each(function (model) {
+      this.unSelect(model);
+    },this);
   };
 
   this.toggleSelectAll = function () {
