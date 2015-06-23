@@ -3,6 +3,7 @@
 var CollectionSelectable = function (collectionInstance, options) {
   var _collection = collectionInstance,
     _options = options || {},
+    _modelHasDisabledFn = true,
     _isSingleSelection = _options.isSingleSelection || false,
     _addPreSelectedToCollection = _options.addPreSelectedToCollection || false,
     _unSelectOnRemove = _options.unSelectOnRemove,
@@ -66,12 +67,13 @@ var CollectionSelectable = function (collectionInstance, options) {
 
   this.getDisabled = function () {
     var disabled = new Backbone.Collection();
-
-    _collection.each(function (model) {
-      if (model.selectable && model.selectable.isDisabled()) {
-        disabled.add(model);
-      }
-    });
+    if(_modelHasDisabledFn){
+      _collection.each(function (model) {
+        if (model.selectable && model.selectable.isDisabled()) {
+          disabled.add(model);
+        }
+      });
+    }
 
     return disabled;
   };
@@ -187,6 +189,7 @@ var CollectionSelectable = function (collectionInstance, options) {
     }
 
     _collection.on('add', function (model) {
+      _modelHasDisabledFn = model.selectable.hasDisabledFn;
       _setModelSelectableOptions.call(this,model);
     }, this);
 
