@@ -6,8 +6,10 @@ var ModelSelectable = function (modelInstance, options) {
 
   this.isInCollection = false;
 
+  this.hasDisabledFn = (typeof options.isDisabled === 'function') || false;
+
   this.isDisabled = function () {
-    if (options.isDisabled) {
+    if (this.hasDisabledFn) {
       return options.isDisabled.apply(modelInstance, arguments);
     }
     return false;
@@ -45,9 +47,11 @@ var ModelSelectable = function (modelInstance, options) {
     }
   };
 
-  (function _main () {
+  var main = function(){
     if (!(_model instanceof Backbone.Model)) {
       throw new Error('First parameter has to be the instance of a collection');
     }
-  }());
+  };
+
+  main.call(this);
 };
