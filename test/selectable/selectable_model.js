@@ -13,6 +13,19 @@ describe('Model Selectable', function () {
     expect(model.selectable.isSelected()).toBe(true);
   });
 
+  it('should return true when a isDisabled function is defined', function(){
+    var SelectedModel = mCAP.Model.extend({
+      selectableOptions: {isDisabled: function(){return true}}
+    });
+    var model = new SelectedModel();
+    expect(model.selectable.hasDisabledFn).toBeTruthy();
+  });
+
+  it('should return false when no isDisabled function is defined', function(){
+    var model = new mCAP.Model();
+    expect(model.selectable.hasDisabledFn).toBeFalsy();
+  });
+
   it('should be selectable and unselectable', function(){
     var model = new mCAP.Model();
     model.selectable.select();
