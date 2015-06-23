@@ -97,9 +97,6 @@ var CollectionSelectable = function (collectionInstance, options) {
         this.unSelectAll();
       }
 
-      _selected.add(model);
-      _setModelSelectableOptions.call(this, model, options);
-
       model.on('change', function(model){
         var selectedModel = _selected.get(model);
         if(model.id){
@@ -108,6 +105,10 @@ var CollectionSelectable = function (collectionInstance, options) {
           this.unSelect(selectedModel);
         }
       }, this);
+
+      _selected.add(model);
+      _setModelSelectableOptions.call(this, model, options);
+      this.trigger('change change:add', model, this);
     } else {
       throw new Error('The first argument has to be a Backbone Model');
     }
@@ -123,6 +124,7 @@ var CollectionSelectable = function (collectionInstance, options) {
     options = options || {};
     _selected.remove(model);
     _setModelSelectableOptions.call(this, model, options);
+    this.trigger('change change:remove', model, this);
   };
 
   this.unSelectAll = function () {
