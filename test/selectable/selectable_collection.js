@@ -173,7 +173,59 @@ describe('Collection Selectable', function () {
     });
   });
 
+  describe('testing events', function(){
+    it('should trigger a change event when something was selected ', function(){
+      var onSelect = jasmine.createSpy();
+      collection.selectable.on('change:add', onSelect);
+      collection.selectable.select(collection.at(0));
+      expect(onSelect).toHaveBeenCalled();
+    });
+
+    it('should trigger a change event when something was unselected ', function(){
+      var onUnSelect = jasmine.createSpy();
+      collection.selectable.on('change:remove', onUnSelect);
+      collection.selectable.select(collection.at(0));
+      collection.selectable.unSelect(collection.at(0));
+      expect(onUnSelect).toHaveBeenCalled();
+    });
+
+    it('should trigger a change event when the model was selected', function(){
+      var onSelect = jasmine.createSpy();
+      var onUnSelect = jasmine.createSpy();
+      collection.selectable.on('change:add', onSelect);
+      collection.selectable.on('change:remove', onUnSelect);
+      collection.at(0).selectable.select();
+      collection.at(0).selectable.unSelect();
+      expect(onSelect).toHaveBeenCalled();
+      expect(onUnSelect).toHaveBeenCalled();
+    });
+
+  });
+
   describe('testing selectable disabled case', function(){
+    it('should call the isDisabled function of the model when a isDisabled function is provided', function(){
+      var m = new DisabledModel(),
+        c = new (mCAP.Collection.extend({model: DisabledModel}))(),
+        s = m.selectable;
+
+      spyOn( m.selectable, 'isDisabled').and.callThrough();
+      c.add(m)
+      c.selectable.getDisabled();
+      expect(s.isDisabled).toHaveBeenCalled();
+    });
+
+    it('should not call the isDisabled function of the model when no isDisabled function is provided', function(){
+      var m = new mCAP.Model(),
+          c = new (mCAP.Collection.extend({model: m}))(),
+          s = m.selectable,
+          sSpy = jasmine.createSpyObj('s', ['isDisabled']);
+
+      spyOn( m.selectable, 'isDisabled').and.callThrough();
+      c.add(m);
+      c.selectable.getDisabled();
+      expect(s.isDisabled).not.toHaveBeenCalled();
+    });
+
     it('should return models where the selectable is disabled', function () {
       var disabledModel = new DisabledModel();
       expect(collection.selectable.getDisabled().length).toBe(0);
@@ -486,8 +538,8 @@ describe('Collection Selectable', function () {
           };
         }
       });
-      var onSelect = jasmine.createSpy('onSelect');
-      var onUnSelect = jasmine.createSpy('onUnSelect');
+      var onSelect = jasmine.createSpy();
+      var onUnSelect = jasmine.createSpy();
       var addModel = new TestModel({uuid: 1});
       var mainCollection = new MainCollection();
 
@@ -511,6 +563,16 @@ describe('Collection Selectable', function () {
       expect(onUnSelect).toHaveBeenCalled();
       mainCollection.selectable.select(preselectModel);
       expect(onSelect).toHaveBeenCalled();
+    });
+
+    it('should set isSelected of model to false when calling unselectAll', function(){
+      collection.selectable.select(collection.at(0));
+      collection.selectable.select(collection.at(1));
+      collection.selectable.select(collection.at(2));
+      collection.selectable.unSelectAll();
+      collection.each(function(model){
+        expect(model.selectable.isSelected()).toBeFalsy();
+      })
     });
   });
 
