@@ -4,8 +4,12 @@ var ModelSelectable = function (modelInstance, options) {
   var _model = modelInstance,
       _selected = options.selected || false;
 
+  this.isInCollection = false;
+
+  this.hasDisabledFn = (typeof options.isDisabled === 'function') || false;
+
   this.isDisabled = function () {
-    if (options.isDisabled) {
+    if (this.hasDisabledFn) {
       return options.isDisabled.apply(modelInstance, arguments);
     }
     return false;
@@ -15,21 +19,24 @@ var ModelSelectable = function (modelInstance, options) {
     return _selected;
   };
 
-  this.select = function (force ) {
-    if (!this.isDisabled() || force) {
-      if (_model.collection && _model.collection.selectable && _model.collection.selectable.isRadio()) {
-        _model.collection.selectable.unSelectAllModels();
-      }
-      this.trigger('change change:select',modelInstance,this);
+  this.select = function (options) {
+    options = options || {};
+    if ( (!this.isDisabled() || options.force) && !this.isSelected()) {
       _selected = true;
-    } else {
-      _selected = false;
+      if(!options.silent){
+        this.trigger('change change:select',modelInstance,this);
+      }
     }
   };
 
-  this.unSelect = function () {
-    this.trigger('change change:unselect',modelInstance,this);
-    _selected = false;
+  this.unSelect = function (options) {
+    options = options || {};
+    if(this.isSelected()){
+      _selected = false;
+      if(!options.silent){
+        this.trigger('change change:unselect',modelInstance,this);
+      }
+    }
   };
 
   this.toggleSelect = function () {
@@ -40,9 +47,11 @@ var ModelSelectable = function (modelInstance, options) {
     }
   };
 
-  (function _main () {
+  var main = function(){
     if (!(_model instanceof Backbone.Model)) {
-      throw new Error('First parameter has to be the instance of a collection');
+      throw new Error('First parameter has to be the instance of a model');
     }
-  }());
+  };
+
+  main.call(this);
 };

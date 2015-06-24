@@ -13,6 +13,19 @@ describe('Model Selectable', function () {
     expect(model.selectable.isSelected()).toBe(true);
   });
 
+  it('should return true when a isDisabled function is defined', function(){
+    var SelectedModel = mCAP.Model.extend({
+      selectableOptions: {isDisabled: function(){return true}}
+    });
+    var model = new SelectedModel();
+    expect(model.selectable.hasDisabledFn).toBeTruthy();
+  });
+
+  it('should return false when no isDisabled function is defined', function(){
+    var model = new mCAP.Model();
+    expect(model.selectable.hasDisabledFn).toBeFalsy();
+  });
+
   it('should be selectable and unselectable', function(){
     var model = new mCAP.Model();
     model.selectable.select();
@@ -48,23 +61,6 @@ describe('Model Selectable', function () {
     model.selectable.select();
     expect(isDisabledFn).toHaveBeenCalledWith();
     expect(model.selectable.isSelected()).toBe(false);
-  });
-
-  it('should unselect all other models if it has a parent collection and radio select is on', function() {
-    var RadioCollection = mCAP.Collection.extend({
-      selectableOptions: {radio: true}
-    });
-    var collection = new RadioCollection();
-    spyOn(collection.selectable, 'unSelectAllModels').and.callThrough();
-    var model1 = collection.add(new mCAP.Model());
-    var model2 = collection.add(new mCAP.Model());
-
-    model1.selectable.select();
-    expect(model1.selectable.isSelected()).toBe(true);
-    model2.selectable.select();
-    expect(collection.selectable.unSelectAllModels).toHaveBeenCalled();
-    expect(model1.selectable.isSelected()).toBe(false);
-    expect(model2.selectable.isSelected()).toBe(true);
   });
 
   it('should throw an error if provided model is not a Backbone model instance', function(){

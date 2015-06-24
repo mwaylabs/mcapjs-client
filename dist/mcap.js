@@ -265,132 +265,216 @@
   
   var CollectionSelectable = function (collectionInstance, options) {
     var _collection = collectionInstance,
-      _selected = options.selected || (options.radio ? new Backbone.Model() : new Backbone.Collection()),
-      _radio = options.radio === true,
-      _addWhenNotInList = true;
+      _options = options || {},
+      _modelHasDisabledFn = true,
+      _isSingleSelection = _options.isSingleSelection || false,
+      _addPreSelectedToCollection = _options.addPreSelectedToCollection || false,
+      _unSelectOnRemove = _options.unSelectOnRemove,
+      _preSelected = options.preSelected,
+      _selected = new Backbone.Collection();
   
-    this.getSelectedModels = function () {
-      var selected = new mCAP.Collection();
-      _collection.models.forEach(function (model) {
-        if (model.selectable && model.selectable.isSelected()) {
-          selected.add(model,{silent:true});
-        }
-      });
-      return selected;
+    var _preselect = function () {
+      if (_preSelected instanceof Backbone.Model) {
+        _isSingleSelection = true;
+        this.preSelectModel(_preSelected);
+      } else if (_preSelected instanceof Backbone.Collection) {
+        _isSingleSelection = false;
+        this.preSelectCollection(_preSelected);
+      } else {
+        throw new Error('The option preSelected has to be either a Backbone Model or Collection');
+      }
     };
   
-    //this method will replace the getSelectedModels method and return a either a model or a collection depending on isRadio
+    var _setModelSelectableOptions = function (model, options) {
+      if(model && model.selectable){
+        var selectedModel = _selected.get(model);
+  
+        if (selectedModel) {
+          if (_collection.get(model)) {
+            model.selectable.isInCollection = true;
+            selectedModel.selectable.isInCollection = true;
+          } else {
+            model.selectable.isInCollection = false;
+            selectedModel.selectable.isInCollection = false;
+          }
+          model.selectable.select(options);
+          selectedModel.selectable.select(options);
+        } else {
+          model.selectable.unSelect(options);
+        }
+  
+        _bindModelOnSelectListener.call(this,model);
+        _bindModelOnUnSelectListener.call(this,model);
+      }
+    };
+  
+    var _bindModelOnSelectListener = function(model){
+      this.listenTo(model.selectable, 'change:select', function(){
+        if(!_selected.get(model)){
+          this.select(model);
+        }
+      }.bind(this));
+    };
+  
+    var _bindModelOnUnSelectListener = function(model){
+      this.listenTo(model.selectable, 'change:unselect', function(){
+        if(_selected.get(model)) {
+          this.unSelect(model);
+        }
+      }.bind(this));
+    };
+  
     this.getSelected = function () {
-      return this.getSelectedModels();
+      return _selected;
     };
   
-    this.getDisabledModels = function () {
-      var disabled = new mCAP.Collection();
-      _collection.models.forEach(function (model) {
-        if (model.selectable && model.selectable.isDisabled()) {
-          disabled.add(model);
-        }
-      });
+    this.getDisabled = function () {
+      var disabled = new Backbone.Collection();
+      if(_modelHasDisabledFn){
+        _collection.each(function (model) {
+          if (model.selectable && model.selectable.isDisabled()) {
+            disabled.add(model);
+          }
+        });
+      }
+  
       return disabled;
     };
   
-    this.allModelsSelected = function () {
-      var disabledModelsAmount = this.getDisabledModels().length;
-      return this.getSelectedModels().length === _collection.length - disabledModelsAmount;
-    };
-  
-    this.allModelsDisabled = function () {
-      var allDisabled = true;
-      _collection.models.forEach(function (model) {
-        if (model.selectable && allDisabled) {
-          allDisabled = model.selectable.isDisabled();
+    /**
+     *
+     * @param model
+     */
+    this.select = function (model, options) {
+      options = options || {};
+      if (model instanceof Backbone.Model) {
+        if (!(model instanceof _collection.model)) {
+          model = new _collection.model(model.toJSON());
         }
-      });
-      return allDisabled;
-    };
   
-    this.toggleSelectAllModels = function () {
-      if (this.allModelsSelected()) {
-        this.unSelectAllModels();
-      } else {
-        this.selectAllModels();
-      }
-    };
-  
-    this.selectAllModels = function () {
-      _collection.models.forEach(function (model) {
-        if (model.selectable) {
-          model.selectable.select();
+        if (!model.selectable || (model.selectable.isDisabled() && !options.force)) {
+          return;
         }
-      });
-    };
   
-    var selectModel = function (model, force) {
-      if (model.get(model.idAttribute)) {
-        var modelToSelect = _collection.get(model);
-        if (!modelToSelect && _addWhenNotInList) {
-          //Adds model to the Collction when it is not already in the list
-          modelToSelect = _collection.add(model, {silent: true});
+        if (_isSingleSelection) {
+          this.unSelectAll();
         }
-        if (modelToSelect && modelToSelect.selectable) {
-          modelToSelect.selectable.select(force);
-        }
-      }
-    };
   
-    this.select = function (selected, force) {
-      if (selected instanceof Backbone.Collection) {
-        selected.models.forEach(function (model) {
-          selectModel(model, force);
+        model.on('change', function(model){
+          var selectedModel = _selected.get(model);
+          if(model.id){
+            selectedModel.set(model.toJSON());
+          } else {
+            this.unSelect(selectedModel);
+          }
         }, this);
-      } else if (selected instanceof Backbone.Model) {
-        selectModel(selected, force);
+  
+        _selected.add(model);
+        _setModelSelectableOptions.call(this, model, options);
+        this.trigger('change change:add', model, this);
+      } else {
+        throw new Error('The first argument has to be a Backbone Model');
       }
+    };
+  
+    this.selectAll = function () {
+      _collection.each(function (model) {
+        this.select(model);
+      }, this);
+    };
+  
+    this.unSelect = function (model, options) {
+      options = options || {};
+      _selected.remove(model);
+      _setModelSelectableOptions.call(this, model, options);
+      this.trigger('change change:remove', model, this);
+    };
+  
+    this.unSelectAll = function () {
+      var selection = this.getSelected().clone();
+      selection.each(function (model) {
+        this.unSelect(model);
+      },this);
+    };
+  
+    this.toggleSelectAll = function () {
+      if (this.allSelected()) {
+        this.unSelectAll();
+      } else {
+        this.selectAll();
+      }
+    };
+  
+    this.allSelected = function () {
+      var disabledModelsAmount = this.getDisabled().length;
+      return this.getSelected().length === _collection.length - disabledModelsAmount;
+    };
+  
+    this.allDisabled = function () {
+      return this.getDisabled().length === _collection.length;
+    };
+  
+    this.isSingleSelection = function () {
+      return _isSingleSelection;
     };
   
     this.reset = function () {
-      this.unSelectAllModels();
-      this.select(_selected, true);
+      this.unSelectAll();
+      _preselect.call(this);
     };
   
-    this.unSelectAllModels = function () {
-      this.getSelectedModels().forEach(function (model) {
-        model.selectable.unSelect();
-      });
-    };
-  
-    this.isRadio = function () {
-      return _radio;
-    };
-  
-    (function _main(self) {
-      if (!(_collection instanceof Backbone.Collection)) {
-        throw new Error('CollectionSelectable: First parameter has to be the instance of a collection');
-      }
-      if (!(_selected instanceof Backbone.Collection || _selected instanceof Backbone.Model)) {
-        throw new Error('CollectionSelectable: Selected attribute has to be a collection or a model!');
+    this.preSelectModel = function (model) {
+      if (!_collection.get(model) && _addPreSelectedToCollection) {
+        _collection.add(model);
       }
   
-      _radio = _selected instanceof Backbone.Model;
+      this.select(model, {force: true, silent: true});
+    };
   
-      _selected.on('add', function () {
-        self.select(_selected, true);
+    this.preSelectCollection = function (collection) {
+      collection.each(function (model) {
+        this.preSelectModel(model);
       }, this);
+  
+      collection.on('add', function (model) {
+        this.preSelectModel(model);
+      }, this);
+  
+      collection.on('remove', function (model) {
+        this.unSelect(model);
+      }, this);
+  
+    };
+  
+  
+    var main = function(){
+      if(!(_collection instanceof Backbone.Collection)){
+        throw new Error('The first parameter has to be from type Backbone.Collection');
+      }
   
       _collection.on('add', function (model) {
-        self.select(_selected, true);
+        _modelHasDisabledFn = model.selectable.hasDisabledFn;
+        _setModelSelectableOptions.call(this,model);
+      }, this);
   
-        if (model && model.selectable) {
-          model.selectable.on('change:select', function () {
-            self.trigger('change change:add', model, self);
-          }, this);
-  
-          model.selectable.on('change:unselect', function () {
-            self.trigger('change change:remove', model, self);
-          }, this);
+      _collection.on('remove', function (model) {
+        if (_unSelectOnRemove) {
+          this.unSelect(model);
         }
       }, this);
-    }(this));
+  
+      _collection.on('reset', function () {
+        if (_unSelectOnRemove) {
+          this.unSelectAll();
+        }
+      }, this);
+  
+      if (_preSelected) {
+        _preselect.call(this);
+      }
+    };
+  
+    main.call(this);
   
   };
   
@@ -401,8 +485,12 @@
     var _model = modelInstance,
         _selected = options.selected || false;
   
+    this.isInCollection = false;
+  
+    this.hasDisabledFn = (typeof options.isDisabled === 'function') || false;
+  
     this.isDisabled = function () {
-      if (options.isDisabled) {
+      if (this.hasDisabledFn) {
         return options.isDisabled.apply(modelInstance, arguments);
       }
       return false;
@@ -412,21 +500,24 @@
       return _selected;
     };
   
-    this.select = function (force ) {
-      if (!this.isDisabled() || force) {
-        if (_model.collection && _model.collection.selectable && _model.collection.selectable.isRadio()) {
-          _model.collection.selectable.unSelectAllModels();
-        }
-        this.trigger('change change:select',modelInstance,this);
+    this.select = function (options) {
+      options = options || {};
+      if ( (!this.isDisabled() || options.force) && !this.isSelected()) {
         _selected = true;
-      } else {
-        _selected = false;
+        if(!options.silent){
+          this.trigger('change change:select',modelInstance,this);
+        }
       }
     };
   
-    this.unSelect = function () {
-      this.trigger('change change:unselect',modelInstance,this);
-      _selected = false;
+    this.unSelect = function (options) {
+      options = options || {};
+      if(this.isSelected()){
+        _selected = false;
+        if(!options.silent){
+          this.trigger('change change:unselect',modelInstance,this);
+        }
+      }
     };
   
     this.toggleSelect = function () {
@@ -437,11 +528,13 @@
       }
     };
   
-    (function _main () {
+    var main = function(){
       if (!(_model instanceof Backbone.Model)) {
-        throw new Error('First parameter has to be the instance of a collection');
+        throw new Error('First parameter has to be the instance of a model');
       }
-    }());
+    };
+  
+    main.call(this);
   };
   /*jshint unused:false */
   var ModelSelectable = ModelSelectable || {},
@@ -733,6 +826,7 @@
     model: mCAP.Model,
   
     constructor: function () {
+      var superConstructor = Backbone.Collection.prototype.constructor.apply(this, arguments);
       if (this.selectable) {
         this.selectable = new SelectableFactory(this,  _.result(this,'selectableOptions'));
       }
@@ -745,7 +839,7 @@
         this.setEndpoint(this.endpoint);
       }
   
-      return Backbone.Collection.prototype.constructor.apply(this, arguments);
+      return superConstructor;
     },
   
     setEndpoint: function (endpoint) {
