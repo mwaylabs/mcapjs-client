@@ -424,11 +424,14 @@
     };
   
     this.preSelectModel = function (model) {
-      if (!_collection.get(model) && _addPreSelectedToCollection) {
-        _collection.add(model);
-      }
+      if (model.id) {
   
-      this.select(model, {force: true, silent: true});
+        if (!_collection.get(model) && _addPreSelectedToCollection) {
+          _collection.add(model);
+        }
+  
+        this.select(model, {force: true, silent: true});
+      }
     };
   
     this.preSelectCollection = function (collection) {
