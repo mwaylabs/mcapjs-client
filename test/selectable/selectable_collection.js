@@ -71,6 +71,26 @@ describe('Collection Selectable', function () {
       expect(__selectedCount()).toBe(1);
     });
 
+    it('should not preselect a model without an id', function () {
+      var preselectModel = new TestModel();
+      var preselect = new mCAP.Collection([preselectModel]);
+      var MainCollection = mCAP.Collection.extend({
+        selectableOptions: function () {
+          return {
+            preSelected: preselect,
+            addPreSelectedToCollection: false
+          };
+        }
+      });
+      var addModel = new TestModel({uuid:1});
+      var mainCollection = new MainCollection();
+
+      expect(mainCollection.selectable.getSelected().length).toBe(0);
+      mainCollection.selectable.select(addModel);
+      expect(mainCollection.selectable.getSelected().length).toBe(1);
+      expect(mainCollection.selectable.getSelected().first().cid).not.toBe(preselectModel.cid);
+    });
+
     it('should unselect models', function () {
       collection.selectable.select(collection.at(0));
       expect(__selectedCount()).toBe(1);
