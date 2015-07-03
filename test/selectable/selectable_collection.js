@@ -319,7 +319,7 @@ describe('Collection Selectable', function () {
       expect(mainCollection.selectable.getSelected().first() instanceof TestModel).toBe(true);
     });
 
-    it('should remove the model of the selection when model is collection is cleared', function () {
+    it('should remove the model from the selection when model is cleared', function () {
       var MainCollection = mCAP.Collection.extend({
         selectableOptions: {isSingleSelection: true},
         model: TestModel
@@ -330,6 +330,26 @@ describe('Collection Selectable', function () {
       mainCollection.selectable.select(mainCollection.at(0));
       expect(mainCollection.selectable.getSelected().length).toBe(1);
       selectModel.clear();
+      expect(mainCollection.selectable.getSelected().length).toBe(0);
+    });
+
+    it('should remove the model from the selection when the id of the model is set to null or emptystring', function () {
+      var MainCollection = mCAP.Collection.extend({
+        selectableOptions: {isSingleSelection: true},
+        model: TestModel
+      });
+      var mainCollection = new MainCollection();
+      var selectModel = new TestModel({uuid: 123});
+      mainCollection.add(selectModel);
+      mainCollection.selectable.select(mainCollection.at(0));
+      expect(mainCollection.selectable.getSelected().length).toBe(1);
+      selectModel.set('uuid', null);
+      expect(mainCollection.selectable.getSelected().length).toBe(0);
+
+      selectModel.set('uuid', 123);
+      mainCollection.selectable.select(mainCollection.at(0));
+      expect(mainCollection.selectable.getSelected().length).toBe(1);
+      selectModel.set('uuid', '');
       expect(mainCollection.selectable.getSelected().length).toBe(0);
     });
 

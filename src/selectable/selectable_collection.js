@@ -97,12 +97,10 @@ var CollectionSelectable = function (collectionInstance, options) {
         this.unSelectAll();
       }
 
-      model.on('change', function(model){
-        var selectedModel = _selected.get(model);
-        if(model.id){
-          selectedModel.set(model.toJSON());
-        } else {
-          this.unSelect(selectedModel);
+      model.on('change', function(model, opts){
+        opts = opts || {};
+       if(opts.unset || !model.id || model.id.length<1){
+          this.unSelect(model);
         }
       }, this);
 
