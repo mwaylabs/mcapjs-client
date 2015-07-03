@@ -61,6 +61,13 @@ var CollectionSelectable = function (collectionInstance, options) {
     }.bind(this));
   };
 
+  var _updateSelectedModel = function(model){
+    var selectedModel = this.getSelected().get(model);
+    if(selectedModel){
+      selectedModel.set(model.toJSON());
+    }
+  };
+
   this.getSelected = function () {
     return _selected;
   };
@@ -190,6 +197,11 @@ var CollectionSelectable = function (collectionInstance, options) {
     _collection.on('add', function (model) {
       _modelHasDisabledFn = model.selectable.hasDisabledFn;
       _setModelSelectableOptions.call(this,model);
+
+      if(_preSelected){
+        model.on('change', _updateSelectedModel, this);
+        _updateSelectedModel.call(this,model);
+      }
     }, this);
 
     _collection.on('remove', function (model) {

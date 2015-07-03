@@ -44,7 +44,7 @@ describe('Collection Selectable', function () {
       expect(collection.at(0).selectable.isSelected()).toBeTruthy();
     });
 
-    it('should convert the model that is selected to the type of the colelction model type when the type differs ', function () {
+    it('should convert the model that is selected to the type of the collection model type when the type differs ', function () {
       var preselect = new mCAP.Collection([new Backbone.Model({uuid: 1}), new TestModel({uuid: 2})]);
       var MainCollection = mCAP.Collection.extend({
         selectableOptions: function () {
@@ -61,6 +61,30 @@ describe('Collection Selectable', function () {
       collection.selectable.select(collection.get(1));
       collection.get(1).set('name', 'b');
       expect(collection.selectable.getSelected().get(1).get('name')).toEqual('b');
+
+      var addModel = new mCAP.Model({uuid:100});
+      collection.add(addModel);
+      collection.selectable.select(addModel);
+      addModel.set('name','c');
+      expect(collection.selectable.getSelected().get(100).get('name')).toEqual('c');
+    });
+
+    it('should update the preselectedModel values when a model is added to the collection', function(){
+      var preSelectModel = new mCAP.Model({uuid:100});
+      var preSelectedCollection = new (mCAP.Collection.extend({
+        selectableOptions: function(){
+          return {
+            preSelected: preSelectModel
+          }
+        }
+      }));
+      var addModel = new mCAP.Model({uuid:100, name:'Max'});
+
+      preSelectedCollection.add(addModel);
+
+      expect(preSelectedCollection.selectable.getSelected().get(100).get('name')).toEqual('Max');
+      addModel.set('surName','Musterman');
+      expect(preSelectedCollection.selectable.getSelected().get(100).get('surName')).toEqual('Musterman');
     });
 
     it('should select models without an idAttribute', function () {
