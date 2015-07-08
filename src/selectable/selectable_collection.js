@@ -61,6 +61,27 @@ var CollectionSelectable = function (collectionInstance, options) {
     }.bind(this));
   };
 
+  var _updatePreSelectedModel = function(preSelectedModel, model){
+    if(_preSelected){
+      if(this.isSingleSelection()){
+        _preSelected = model;
+      } else {
+        _preSelected.remove(preSelectedModel, {silent: true});
+        _preSelected.add(model, {silent: true});
+      }
+    }
+  };
+
+  var _updateSelectedModel = function(model){
+    var selectedModel = this.getSelected().get(model);
+    if(selectedModel){
+      _selected.remove(selectedModel, {silent: true});
+      _selected.add(model, {silent: true});
+      _updatePreSelectedModel.call(this,selectedModel, model);
+      _setModelSelectableOptions.call(this,model,{silent: true});
+    }
+  };
+
   this.getSelected = function () {
     return _selected;
   };
@@ -97,12 +118,10 @@ var CollectionSelectable = function (collectionInstance, options) {
         this.unSelectAll();
       }
 
-      model.on('change', function(model){
-        var selectedModel = _selected.get(model);
-        if(model.id){
-          selectedModel.set(model.toJSON());
-        } else {
-          this.unSelect(selectedModel);
+      model.on('change', function(model, opts){
+        opts = opts || {};
+       if(opts.unset || !model.id || model.id.length<1){
+          this.unSelect(model);
         }
       }, this);
 
@@ -144,6 +163,7 @@ var CollectionSelectable = function (collectionInstance, options) {
 
   this.allSelected = function () {
     var disabledModelsAmount = this.getDisabled().length;
+
     return this.getSelected().length === _collection.length - disabledModelsAmount;
   };
 
@@ -195,17 +215,24 @@ var CollectionSelectable = function (collectionInstance, options) {
     _collection.on('add', function (model) {
       _modelHasDisabledFn = model.selectable.hasDisabledFn;
       _setModelSelectableOptions.call(this,model);
+      _updateSelectedModel.call(this,model);
     }, this);
 
     _collection.on('remove', function (model) {
       if (_unSelectOnRemove) {
         this.unSelect(model);
+      } else {
+        _setModelSelectableOptions.call(this,model);
       }
     }, this);
 
     _collection.on('reset', function () {
       if (_unSelectOnRemove) {
         this.unSelectAll();
+      } else {
+        this.getSelected().each(function(model){
+          _setModelSelectableOptions.call(this,model);
+        }, this);
       }
     }, this);
 
