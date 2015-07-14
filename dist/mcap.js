@@ -1461,6 +1461,14 @@
       return (this.get('readonly') || this.get('locked'));
     },
   
+    getFullName: function(){
+      if(this.get('givenName') && this.get('surname')){
+        return this.get('givenName')+' '+this.get('surname');
+      } else {
+        return false;
+      }
+    },
+  
     initialize: function () {
       this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
       mCAP.currentOrganization.on('change', function () {
