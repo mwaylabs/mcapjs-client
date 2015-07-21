@@ -95,6 +95,8 @@ var User = mCAP.Model.extend({
   getFullName: function(){
     if(this.get('givenName') && this.get('surname')){
       return this.get('givenName')+' '+this.get('surname');
+    } else if(this.get('name')){
+      return this.get('name');
     } else {
       return false;
     }
