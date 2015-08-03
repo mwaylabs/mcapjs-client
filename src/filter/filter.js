@@ -94,6 +94,15 @@ var Filter = function () {
         type: 'null',
         fieldName: fieldName
       });
+    },
+
+    dateRange: function(fieldName, min, max){
+      return returnNullOrObjectFor(max, returnNullOrObjectFor(min, {
+        type: 'dateRange',
+        fieldName: fieldName,
+        min: min,
+        max: max
+      }));
     }
   };
 
