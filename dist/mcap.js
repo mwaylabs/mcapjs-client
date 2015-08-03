@@ -182,6 +182,7 @@
   
     this.setLimit = function(limit){
       _limit = limit;
+      _offset = _offset || 0;
     };
   
     this.setTotalAmount = function (totalAmount) {
@@ -1474,6 +1475,8 @@
     getFullName: function(){
       if(this.get('givenName') && this.get('surname')){
         return this.get('givenName')+' '+this.get('surname');
+      } else if(this.get('name')){
+        return this.get('name');
       } else {
         return false;
       }
@@ -1731,22 +1734,20 @@
   }, {
     requestNewPassword: function (userName, organizationName) {
       return mCAP.Utils.request({
-        url: mCAP.Utils.getUrl('/gofer/security/rest/users/createPasswordResetRequest'),
-        params: {
+        url: mCAP.Utils.getUrl('/gofer/security/rest/users/requestNewPassword'),
+        data: {
           userIdentifier: userName,
           organizationName: organizationName
         },
         type: 'PUT'
       });
     },
-    resetPassword: function (userIdentifier, organizationName, newPassword, requestUuid, options) {
+    resetPassword: function (newPassword, requestUuid, options) {
       var config = {
-        url: mCAP.Utils.getUrl('/gofer/security/rest/users/resetPassword'),
-        params: {
+        url: mCAP.Utils.getUrl('/gofer/security/rest/users/resetPasswordSafely'),
+        data: {
           newPassword: newPassword,
-          organizationName: organizationName,
-          requestUuid: requestUuid,
-          userIdentifier: userIdentifier
+          requestUuid: requestUuid
         },
         type: 'PUT'
       };

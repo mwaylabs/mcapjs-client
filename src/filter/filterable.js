@@ -76,6 +76,7 @@ var Filterable = function (collectionInstance, options) {
 
   this.setLimit = function(limit){
     _limit = limit;
+    _offset = _offset || 0;
   };
 
   this.setTotalAmount = function (totalAmount) {
