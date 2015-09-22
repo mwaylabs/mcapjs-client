@@ -41,10 +41,6 @@
   // @include ./security/countries.js
   // @include ./security/organization.js
   // @include ./security/organizations.js
-  // @include ./security/role.js
-  // @include ./security/roles.js
-  // @include ./security/member.js
-  // @include ./security/members.js
   // @include ./security/group.js
   // @include ./security/groups.js
   // @include ./security/user.js

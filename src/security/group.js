@@ -1,3 +1,45 @@
+var UsersAndGroupsHolderModel = mCAP.Model.extend({
+
+  endpoint: 'gofer/form/rest/enumerables/paginatedPairs/roles',
+
+  prepare: function(){
+    return {
+      users:new mCAP.Users(),
+      groups:new mCAP.Groups()
+    };
+  },
+
+  setReferencedCollections: function(attrs){
+
+    var users = _.findWhere(attrs,{type:'USER'}),
+      groups = _.findWhere(attrs,{type:'GROUP'});
+
+    if(users || groups){
+      if (!(attrs.users instanceof mCAP.Users) && this.get('users') && users) {
+        this.get('users').add(_.where(attrs,{type:'USER'}));
+      }
+
+      if (!(attrs.groups instanceof mCAP.Groups) && this.get('groups') && groups) {
+        this.get('groups').add(_.where(attrs,{type:'GROUP'}));
+      }
+      return;
+    } else {
+      return attrs;
+    }
+  },
+
+  parse: function () {
+    var data = mCAP.Model.prototype.parse.apply(this,arguments);
+    return this.setReferencedCollections(data);
+  },
+
+  set: function (key, val, options) {
+    key = this.setReferencedCollections(key);
+    return mCAP.Model.prototype.set.apply(this, [key, val, options]);
+  }
+
+});
+
 var Group = mCAP.Model.extend({
 
   endpoint: 'gofer/security/rest/groups',
@@ -21,8 +63,8 @@ var Group = mCAP.Model.extend({
 
   prepare: function(){
     return {
-      roles:new mCAP.Roles(),
-      members:new mCAP.Members()
+      roles:new UsersAndGroupsHolderModel(),
+      members:new UsersAndGroupsHolderModel()
     };
   },
 
@@ -30,45 +72,40 @@ var Group = mCAP.Model.extend({
     if(!attributes.organizationUuid || attributes.organizationUuid.length<1){
       return 'Missing organization uuid';
     }
-    this.attributes.version++;
   },
 
   beforeSave: function(data){
-    var roles = [],
-      members = [];
-
     if(data.roles){
-      data.roles.each(function(roleModel){
-        roles.push(roleModel.id);
-      });
+      data.roles = _.union(this.get('roles').get('users').pluck('uuid'),this.get('roles').get('groups').pluck('uuid'));
     }
 
     if(data.members){
-      data.members.each(function(memberModel){
-        members.push(memberModel.id);
-      });
+      data.members = _.union(this.get('members').get('users').pluck('uuid'),this.get('members').get('groups').pluck('uuid'));
     }
 
-    data.roles = roles;
-    data.members = members;
     return data;
   },
 
   setReferencedCollections: function(attrs){
 
-    if(attrs.roles && !(attrs.roles instanceof mCAP.Roles) && this.get('roles')){
-      attrs.roles.forEach(function(role){
-        this.get('roles').add({uuid:role});
-      },this);
+    if(attrs.rolesObjects){
+      this.get('roles').set(attrs.rolesObjects);
+      delete attrs.rolesObjects;
       delete attrs.roles;
     }
 
-    if(attrs.members && !(attrs.members instanceof mCAP.Members) && this.get('members')){
-      attrs.members.forEach(function(member){
-        this.get('members').add({uuid:member});
-      },this);
+    if(attrs.membersObjects){
+      this.get('members').set(attrs.membersObjects);
+      delete attrs.membersObjects;
       delete attrs.members;
     }
+
+    //if(attrs.members && !(attrs.members instanceof mCAP.Members) && this.get('members')){
+    //  attrs.members.forEach(function(member){
+    //    this.get('members').add(member);
+    //  },this);
+    //  delete attrs.members;
+    //}
 
     return attrs;
   },
