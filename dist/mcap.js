@@ -1431,6 +1431,31 @@
       return mCAP.Model.prototype.set.apply(this,[key, val, options]);
     },
   
+    resetPassword: function(){
+      var options = {
+        url: this.getEndpoint() + '/createPasswordResetRequest',
+        type: 'PUT',
+        params: {
+          userIdentifier: this.get('name'),
+          organizationName: mCAP.currentOrganization.get('uniqueName')
+        },
+        instance: this
+      };
+      return window.mCAP.Utils.request(options);
+    },
+  
+    changePassword: function(newPassword){
+      var options = {
+          url: this.getEndpoint() + '/' + this.get('uuid') + '/changePassword',
+          type: 'PUT',
+          data: {
+            newPassword: newPassword
+          },
+          instance: this
+        };
+      return window.mCAP.Utils.request(options);
+    },
+  
     isLocked: function(){
       return (this.get('readonly') || this.get('locked'));
     },
