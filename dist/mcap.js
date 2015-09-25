@@ -1472,14 +1472,16 @@
   
     initialize: function () {
       this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
-      mCAP.currentOrganization.on('change', function () {
-        if(!this.get('organization').get('uuid')){
-          this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
+      mCAP.currentOrganization.once('change:uuid', function (model) {
+        if(model.id){
+          this.get('organization').set('uuid', model.id);
         }
       }, this);
   
-      this.once('change', function (model) {
-        this.get('groups').setUserId(model.id);
+      this.once('change:uuid', function (model) {
+        if(model.id) {
+          this.get('groups').setUserId(model.id);
+        }
       }, this);
     }
   
