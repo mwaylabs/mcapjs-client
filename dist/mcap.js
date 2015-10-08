@@ -1362,8 +1362,7 @@
         'activated': true,
         'version': 0,
         'aclEntries': [],
-        'groups': null,
-        'roles': null
+        'groups': null
       };
     },
   
@@ -1372,10 +1371,6 @@
         groups: new mCAP.UserGroups(),
         organization: new mCAP.Organization()
       };
-    },
-  
-    validate: function () {
-      this.attributes.version++;
     },
   
     beforeSave: function (attributes) {
@@ -1478,6 +1473,7 @@
         }
       }, this);
   
+      this.get('groups').setUserId(this.id);
       this.once('change:uuid', function (model) {
         if(model.id) {
           this.get('groups').setUserId(model.id);
