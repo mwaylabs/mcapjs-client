@@ -9,11 +9,11 @@ var EnumerableCollection = mCAP.Collection.extend({
     return [];
   },
   parse: function (resp) {
-    var appTypes = [];
+    var enums = [];
     _.each(resp.data, function (type) {
-      appTypes.push({key: type.value});
+      enums.push({key: type.value});
     });
-    return appTypes;
+    return enums;
   },
   toJSON: function () {
     return this.pluck('key');
