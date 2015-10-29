@@ -18,6 +18,7 @@ var Filterable = function (collectionInstance, options) {
   this.filterValues = options.filterValues || {};
   this.customUrlParams = options.customUrlParams || {};
   this.fields = options.fields;
+  this.filterIsSet = false;
 
   this.getRequestParams = function (method, model, options) {
     options.params = options.params || {};
@@ -131,6 +132,9 @@ var Filterable = function (collectionInstance, options) {
         throw new Error('Filter named \'' + key + '\' not found, did you add it to filterValues of the model?');
       }
     }, this);
+
+    this.filterIsSet = true;
+
   };
 
   this.getFilters = function () {
@@ -142,6 +146,7 @@ var Filterable = function (collectionInstance, options) {
   this.resetFilters = function () {
     this.filterValues = _initialFilterValues ? JSON.parse(JSON.stringify(_initialFilterValues)) : _initialFilterValues;
     this.customUrlParams = _initialCustomUrlParams;
+    this.filterIsSet = false;
   };
 
   (function _main() {
