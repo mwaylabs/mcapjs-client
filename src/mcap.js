@@ -36,7 +36,6 @@
   // @include ./model/component.js
   // @include ./collection/collection.js
   // @include ./collection/enumerable_collection.js
-  // @include ./filter/filter.js
   // @include ./application/application.js
   // @include ./security/countries.js
   // @include ./security/organization.js
@@ -59,6 +58,10 @@
   // @include ./push/push_apps.js
   // @include ./push/mcap_push.js
   // @include ./push/push_notification.js
+
+  // @include ./filter/filter.js
+  // @include ./filter/filter_holder_model.js
+  // @include ./filter/filter_holders_collection.js
 
 
   root.mCAP = mCAP;

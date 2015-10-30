@@ -17,7 +17,8 @@ var Groups = mCAP.Collection.extend({
         uuid: '',
         systemPermission: false,
         members: [],
-        strictSearch: false
+        strictSearch: false,
+        organizationUuid: ''
       },
       customUrlParams:{
         getNonpagedCount:true
@@ -39,6 +40,7 @@ var Groups = mCAP.Collection.extend({
         }
         filters.push(filter.string('members',this.filterValues.members));
         filters.push(filter.string('uuid',this.filterValues.uuid));
+        filters.push(filter.string('organizationUuid',this.filterValues.organizationUuid));
         return filter.and(filters);
       }
     };

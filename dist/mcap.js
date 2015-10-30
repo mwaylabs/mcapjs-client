@@ -124,6 +124,7 @@
     this.filterValues = options.filterValues || {};
     this.customUrlParams = options.customUrlParams || {};
     this.fields = options.fields;
+    this.filterIsSet = false;
   
     this.getRequestParams = function (method, model, options) {
       options.params = options.params || {};
@@ -220,8 +221,6 @@
     };
   
     this.setSortOrder = function (sortOrder) {
-      // TODO: persist sortOrder here
-      // ....
       _page = 1;
       _sortOrder = sortOrder;
     };
@@ -239,6 +238,9 @@
           throw new Error('Filter named \'' + key + '\' not found, did you add it to filterValues of the model?');
         }
       }, this);
+  
+      this.filterIsSet = true;
+  
     };
   
     this.getFilters = function () {
@@ -250,6 +252,7 @@
     this.resetFilters = function () {
       this.filterValues = _initialFilterValues ? JSON.parse(JSON.stringify(_initialFilterValues)) : _initialFilterValues;
       this.customUrlParams = _initialCustomUrlParams;
+      this.filterIsSet = false;
     };
   
     (function _main() {
@@ -917,11 +920,11 @@
       return [];
     },
     parse: function (resp) {
-      var appTypes = [];
+      var enums = [];
       _.each(resp.data, function (type) {
-        appTypes.push({key: type.value});
+        enums.push({key: type.value});
       });
-      return appTypes;
+      return enums;
     },
     toJSON: function () {
       return this.pluck('key');
@@ -947,118 +950,6 @@
   
   mCAP.EnumerableCollection = EnumerableCollection;
   
-  
-  var Filter = function () {
-    // If it is an invalid value return null otherwise the provided object
-    var returnNullOrObjectFor = function (value, object) {
-      return (_.isUndefined(value) || value === null || value === '' || value.length===0 || (_.isArray(value) && _.compact(value).length===0)) ? null : object;
-    };
-  
-    // See https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filter
-    // for more information about mCAP filter api
-    return {
-      containsString: function (fieldName, value) {
-        return returnNullOrObjectFor(value, {
-          type: 'containsString',
-          fieldName: fieldName,
-          contains: value
-        });
-      },
-  
-      string: function (fieldName, value) {
-        return returnNullOrObjectFor(value, {
-          type: 'string',
-          fieldName: fieldName,
-          value: value
-        });
-      },
-  
-      and: function (filters) {
-        return this.logOp(filters, 'AND');
-      },
-  
-      nand: function (filters) {
-        return this.logOp(filters, 'NAND');
-      },
-  
-      or: function (filters) {
-        return this.logOp(filters, 'OR');
-      },
-  
-      logOp: function (filters, operator) {
-        filters = _.without(filters, null); // Removing null values from existing filters
-  
-        return filters.length === 0 ? null : { // Ignore logOps with empty filters
-          type: 'logOp',
-          operation: operator,
-          filters: filters
-        };
-      },
-  
-      boolean: function (fieldName, value) {
-        return returnNullOrObjectFor(value, {
-          type: 'boolean',
-          fieldName: fieldName,
-          value: value
-        });
-      },
-  
-      stringMap: function (fieldName, key, value) {
-        if(value === '%%'){
-          value = '';
-        }
-        return returnNullOrObjectFor(value, {
-          type: 'stringMap',
-          fieldName: fieldName,
-          value: value,
-          key: key
-        });
-      },
-  
-      stringEnum: function (fieldName, values) {
-        return returnNullOrObjectFor(values, {
-          type: 'stringEnum',
-          fieldName: fieldName,
-          values: _.flatten(values)
-        });
-      },
-  
-      long: function (fieldName, value) {
-        return returnNullOrObjectFor(value, {
-          type: 'long',
-          fieldName: fieldName,
-          value: value
-        });
-      },
-  
-      like: function (fieldName, value) {
-        return returnNullOrObjectFor(value, {
-          type: 'like',
-          fieldName: fieldName,
-          like: value
-        });
-      },
-  
-      notNull: function (fieldName) {
-        return returnNullOrObjectFor(true, {
-          type: 'null',
-          fieldName: fieldName
-        });
-      },
-  
-      dateRange: function(fieldName, min, max){
-        return returnNullOrObjectFor(max, returnNullOrObjectFor(min, {
-          type: 'dateRange',
-          fieldName: fieldName,
-          min: min,
-          max: max
-        }));
-      }
-    };
-  
-  };
-  
-  mCAP.Filter = Filter;
   
   var Application = mCAP.Model.extend({
   
@@ -1274,7 +1165,8 @@
           uuid: '',
           systemPermission: false,
           members: [],
-          strictSearch: false
+          strictSearch: false,
+          organizationUuid: ''
         },
         customUrlParams:{
           getNonpagedCount:true
@@ -1296,6 +1188,7 @@
           }
           filters.push(filter.string('members',this.filterValues.members));
           filters.push(filter.string('uuid',this.filterValues.uuid));
+          filters.push(filter.string('organizationUuid',this.filterValues.organizationUuid));
           return filter.and(filters);
         }
       };
@@ -2504,6 +2397,256 @@
     return this;
   };
   
+
+  var Filter = function () {
+    // If it is an invalid value return null otherwise the provided object
+    var returnNullOrObjectFor = function (value, object) {
+      return (_.isUndefined(value) || value === null || value === '' || value.length===0 || (_.isArray(value) && _.compact(value).length===0)) ? null : object;
+    };
+  
+    // See https://wiki.mwaysolutions.com/confluence/display/mCAPTECH/mCAP+REST+API#mCAPRESTAPI-Filter
+    // for more information about mCAP filter api
+    return {
+      containsString: function (fieldName, value) {
+        return returnNullOrObjectFor(value, {
+          type: 'containsString',
+          fieldName: fieldName,
+          contains: value
+        });
+      },
+  
+      string: function (fieldName, value) {
+        return returnNullOrObjectFor(value, {
+          type: 'string',
+          fieldName: fieldName,
+          value: value
+        });
+      },
+  
+      and: function (filters) {
+        return this.logOp(filters, 'AND');
+      },
+  
+      nand: function (filters) {
+        return this.logOp(filters, 'NAND');
+      },
+  
+      or: function (filters) {
+        return this.logOp(filters, 'OR');
+      },
+  
+      logOp: function (filters, operator) {
+        filters = _.without(filters, null); // Removing null values from existing filters
+  
+        return filters.length === 0 ? null : { // Ignore logOps with empty filters
+          type: 'logOp',
+          operation: operator,
+          filters: filters
+        };
+      },
+  
+      boolean: function (fieldName, value) {
+        return returnNullOrObjectFor(value, {
+          type: 'boolean',
+          fieldName: fieldName,
+          value: value
+        });
+      },
+  
+      stringMap: function (fieldName, key, value) {
+        if(value === '%%'){
+          value = '';
+        }
+        return returnNullOrObjectFor(value, {
+          type: 'stringMap',
+          fieldName: fieldName,
+          value: value,
+          key: key
+        });
+      },
+  
+      stringEnum: function (fieldName, values) {
+        return returnNullOrObjectFor(values, {
+          type: 'stringEnum',
+          fieldName: fieldName,
+          values: _.flatten(values)
+        });
+      },
+  
+      long: function (fieldName, value) {
+        return returnNullOrObjectFor(value, {
+          type: 'long',
+          fieldName: fieldName,
+          value: value
+        });
+      },
+  
+      like: function (fieldName, value) {
+        return returnNullOrObjectFor(value, {
+          type: 'like',
+          fieldName: fieldName,
+          like: value
+        });
+      },
+  
+      notNull: function (fieldName) {
+        return returnNullOrObjectFor(true, {
+          type: 'null',
+          fieldName: fieldName
+        });
+      },
+  
+      dateRange: function(fieldName, min, max){
+        return returnNullOrObjectFor(max, returnNullOrObjectFor(min, {
+          type: 'dateRange',
+          fieldName: fieldName,
+          min: min,
+          max: max
+        }));
+      }
+    };
+  
+  };
+  
+  mCAP.Filter = Filter;
+  
+  /**
+   * Created by zarges on 19/10/15.
+   */
+  var FilterHolder = mCAP.Model.extend({
+  
+    endpoint: 'gofer/filter/rest/filterHolders',
+  
+    defaults: function () {
+      return {
+        aclEntries: [],
+        filter: null,
+        group: '',
+        name: '',
+        version: 0,
+        filterValues: {},
+        customUrlParams: {}
+      };
+    },
+  
+    _parseFilterToValuesAndUrlParams: function (filter, result) {
+      result = result || {};
+      if (filter.type === 'logOp') {
+        filter.filters.forEach(function (filter) {
+          this._parseFilterToValuesAndUrlParams(filter, result);
+        }, this);
+        return result;
+      } else {
+        if (filter.fieldName === '__filterValues__') {
+          result.filterValues = JSON.parse(filter.value);
+        }
+        if (filter.fieldName === '__customUrlParams__') {
+          result.customUrlParams = JSON.parse(filter.value);
+        }
+        return result;
+      }
+    },
+  
+    parse: function () {
+      var parsed = mCAP.Model.prototype.parse.apply(this, arguments),
+          data = parsed.data || parsed,
+          result = this._parseFilterToValuesAndUrlParams(data.filter, {});
+  
+      if (result.filterValues) {
+        data.filterValues = result.filterValues;
+      }
+      if (result.customUrlParams) {
+        data.customUrlParams = result.customUrlParams;
+      }
+  
+      return data;
+    },
+  
+    beforeSave: function (attrs) {
+      var currentUserUuid = mCAP.authenticatedUser.get('uuid');
+      if (currentUserUuid) {
+        attrs.aclEntries.push(currentUserUuid + ':rw');
+      }
+      attrs.version += 1;
+  
+      var filters = [];
+      if (_.size(attrs.filterValues) > 0) {
+        var filterValuesFilter = (new mCAP.Filter()).string('__filterValues__', JSON.stringify(attrs.filterValues));
+        filters.push(filterValuesFilter);
+      }
+      if (_.size(attrs.customUrlParams) > 0) {
+        var customUrlParamsFilter = (new mCAP.Filter()).string('__customUrlParams__', JSON.stringify(attrs.customUrlParams));
+        filters.push(customUrlParamsFilter);
+      }
+      if (filters.length > 0) {
+        attrs.filter = (new mCAP.Filter()).or(filters);
+      }
+  
+      delete attrs.totalAmount;
+      delete attrs.filterValues;
+      delete attrs.customUrlParams;
+      return attrs;
+    },
+  
+    isValid: function () {
+      var name = this.get('name'),
+        filterValues = this.get('filterValues'),
+        urlParams = this.get('customUrlParams');
+  
+      return (name && name.length > 0 && ( (filterValues && _.size(filterValues) > 0) || (urlParams && _.size(urlParams) > 0) ) );
+    }
+  
+  });
+  
+  mCAP.FilterHolder = FilterHolder;
+  /**
+   * Created by zarges on 19/10/15.
+   */
+  var FilterHolders = mCAP.Collection.extend({
+  
+    endpoint: 'gofer/filter/rest/filterHolders',
+  
+    model: mCAP.FilterHolder,
+  
+    filterableOptions: function () {
+      return {
+        sortOrder: '+name',
+        filterValues: {
+          type: ''
+        },
+        customUrlParams: {
+          getNonpagedCount: true
+        },
+        filterDefinition: function () {
+          var filter = new mCAP.Filter();
+          return filter.string('group', this.filterValues.type);
+        }
+      };
+    },
+  
+    parse: function (rsp) {
+      return rsp.data.items;
+    },
+  
+    getType: function(){
+      return this._type;
+    },
+  
+    constructor: function (models, opts) {
+      var constructor = mCAP.Collection.prototype.constructor.apply(this, arguments);
+      if (_.isString(opts)) {
+        this.filterable.setFilters({type: opts});
+        this._type = opts;
+        this.on('add', function(model){
+          model.set({'group': opts});
+        });
+      }
+      return constructor;
+    }
+  
+  });
+  
+  mCAP.FilterHolders = FilterHolders;
 
 
   root.mCAP = mCAP;

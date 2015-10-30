@@ -76,6 +76,14 @@
       return window.mCAP.Group;
     })
 
+    .service('MCAPFilterHolder', function(){
+      return window.mCAP.FilterHolder;
+    })
+
+    .service('MCAPFilterHolders', function(){
+      return window.mCAP.FilterHolders;
+    })
+
     .service('MCAP', function () {
       return window.mCAP;
     })
