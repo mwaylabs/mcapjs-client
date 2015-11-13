@@ -91,8 +91,10 @@ var Model = Backbone.Model.extend({
     // For standalone models, parse the response
     if (response && response.data && response.data.results && response.data.results.length >= 0 && typeof response.data.results[0] !== 'undefined') {
       return response.data.results[0];
-      // If Model is embedded in collection, it's already parsed correctly
+    } else if(response.data){
+      return response.data;
     } else {
+      // If Model is embedded in collection, it's already parsed correctly
       return response;
     }
   },
