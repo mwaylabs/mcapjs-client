@@ -292,17 +292,17 @@ describe("mCAP Model", function () {
     var parse11_1 = {data: parse11_2};
 
     expect(model.parse()).toEqual(void 0);
-    expect(model.parse(parse1_1)).toEqual(parse1_1);
-    expect(model.parse(parse2_1)).toEqual(parse2_1);
-    expect(model.parse(parse3_1)).toEqual(parse3_1);
-    expect(model.parse(parse4_1)).toEqual(parse4_1);
-    expect(model.parse(parse5_1)).toEqual(parse5_1);
-    expect(model.parse(parse6_1)).toEqual(parse6_1);
-    expect(model.parse(parse7_1)).toEqual(parse7_1);
-    expect(model.parse(parse8_1)).toEqual(parse8_1);
-    expect(model.parse(parse9_1)).toEqual(parse9_1);
-    expect(model.parse(parse10_1)).toEqual(parse10_1);
-    expect(model.parse(parse11_1)).toEqual(parse11_1);
+    expect(model.parse(parse1_1)).toEqual(parse1_1.data);
+    expect(model.parse(parse2_1)).toEqual(parse2_1.data);
+    expect(model.parse(parse3_1)).toEqual(parse3_1.data);
+    expect(model.parse(parse4_1)).toEqual(parse4_1.data);
+    expect(model.parse(parse5_1)).toEqual(parse5_1.data);
+    expect(model.parse(parse6_1)).toEqual(parse6_1.data);
+    expect(model.parse(parse7_1)).toEqual(parse7_1.data);
+    expect(model.parse(parse8_1)).toEqual(parse8_1.data);
+    expect(model.parse(parse9_1)).toEqual(parse9_1.data);
+    expect(model.parse(parse10_1)).toEqual(parse10_1.data);
+    expect(model.parse(parse11_1)).toEqual(parse11_1.data);
 
     expect(model.parse({data: {results: [parse1]}})).toEqual(parse1);
     expect(model.parse({data: {results: [parse2]}})).toEqual(parse2);
@@ -310,7 +310,7 @@ describe("mCAP Model", function () {
     expect(model.parse({data: {results: [parse4]}})).toEqual(parse4);
     expect(model.parse({data: {results: [parse5]}})).toEqual(parse5);
     expect(model.parse({data: {results: [parse6]}})).toEqual(parse6);
-    expect(model.parse({data: {results: [parse7]}})).toEqual({data: {results: [parse7]}});
+    expect(model.parse({data: {results: [parse7]}})).toEqual({results: [parse7]});
     expect(model.parse({data: {results: [parse8]}})).toEqual(parse8);
     expect(model.parse({data: {results: [parse9]}})).toEqual(parse9);
     expect(model.parse({data: {results: [parse10]}})).toEqual(parse10);
