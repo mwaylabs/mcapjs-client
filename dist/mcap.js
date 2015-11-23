@@ -681,10 +681,10 @@
       // For standalone models, parse the response
       if (response && response.data && response.data.results && response.data.results.length >= 0 && typeof response.data.results[0] !== 'undefined') {
         return response.data.results[0];
-        // If Model is embedded in collection, it's already parsed correctly
-      } else if(response.data){
+      } else if(response && response.data){
         return response.data;
       } else {
+        // If Model is embedded in collection, it's already parsed correctly
         return response;
       }
     },
@@ -1142,6 +1142,11 @@
           this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
         }
       },this);
+    },
+  
+    isSystemGroup: function(){
+      var groupType = this.get('groupType');
+      return groupType === 'SYSTEM_GROUP' || groupType === 'SYSTEM_PERMISSION';
     }
   
   });
@@ -1165,7 +1170,7 @@
         filterValues: {
           name: '',
           uuid: '',
-          systemPermission: false,
+          groupType: '',
           members: [],
           strictSearch: false,
           organizationUuid: ''
@@ -1173,7 +1178,7 @@
         customUrlParams:{
           getNonpagedCount:true
         },
-        fields:['uuid','name','description','readonly'],
+        fields:['uuid','name','description','readonly','groupType'],
         filterDefinition: function () {
           var filter = new mCAP.Filter();
   
@@ -1185,56 +1190,31 @@
             filters.push(filter.containsString('name', this.filterValues.name));
           }
   
-          if (this.filterValues.systemPermission !== true) {
-            filters.push(filter.boolean('systemPermission', this.filterValues.systemPermission));
+          if (this.filterValues.groupType === '') {
+            filters.push(filter.stringEnum('groupType', ['GROUP','SYSTEM_GROUP']));
+          } else {
+            filters.push(filter.stringEnum('groupType', this.filterValues.groupType));
           }
+  
           filters.push(filter.string('members',this.filterValues.members));
           filters.push(filter.string('uuid',this.filterValues.uuid));
           filters.push(filter.string('organizationUuid',this.filterValues.organizationUuid));
           return filter.and(filters);
         }
       };
-    }
-  
-  });
-  
-  var UserGroups = Groups.extend({
-  
-    constructor: function(args){
-      if(args && args.userId){
-        this.setUserId(args.userId);
-      }
-      return Groups.prototype.constructor.apply(this,arguments);
     },
-  
-    setUserId: function(id){
-      this.setEndpoint('gofer/security/rest/users/'+id+'/groups');
-    },
-  
-    parse:function(resp){
-      return resp.data.groups;
-    },
-  
-    create:function(){
-      throw new Error('This method is not supported. Add all models to this collection by calling the add method and call the method save afterwards');
-    },
-  
-    save:function(){
-      var groups = _.pluck(this.models, 'id');
-  
-      return Backbone.ajax({
-        url: _.result(this,'url'),
-        data: groups,
-        type: 'PUT',
-        instance: this,
-        success:function(){}
+    systemGroupIsSelected: function(){
+      var systemGroupInSelection = false;
+      this.selectable.getSelected().each(function(model){
+        if(!systemGroupInSelection){
+          systemGroupInSelection = model.isSystemGroup();
+        }
       });
+      return systemGroupInSelection;
     }
-  
   });
   
   mCAP.Groups = Groups;
-  mCAP.UserGroups = UserGroups;
   
   var User = mCAP.Model.extend({
   
@@ -1263,21 +1243,21 @@
   
     prepare: function () {
       return {
-        groups: new mCAP.UserGroups(),
+        groups: new mCAP.Groups(),
         organization: new mCAP.Organization()
       };
     },
   
     beforeSave: function (attributes) {
-      delete attributes.groups;
-      delete attributes.roles;
-      delete attributes.authenticated;
+      attributes.roles = this.get('groups').pluck('uuid');
       attributes.organizationUuid = this.get('organization').get('uuid');
+  
+      delete attributes.groups;
       delete attributes.organization;
+      delete attributes.authenticated;
       if (attributes.password === '' || attributes.password === null) {
         delete attributes.password;
       }
-  
       if (attributes.phone === '' || attributes.phone === null) {
         delete attributes.phone;
       }
@@ -1285,25 +1265,21 @@
       return attributes;
     },
   
-    save: function () {
-      var self = this;
-      return mCAP.Model.prototype.save.apply(this, arguments).then(function (userModel) {
-        return self.get('groups').save().then(function () {
-          return userModel;
-        });
-      });
-    },
-  
-  
     setReferencedCollections: function(obj){
       if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
         this.get('organization').set(obj.organization);
         delete obj.organization;
       }
   
-      if(obj.groups && !(obj.groups instanceof mCAP.Groups) && this.get('groups')){
-        this.get('groups').add(obj.groups);
-        delete obj.groups;
+      if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){
+        this.get('groups').add(obj.rolesObjects);
+        delete obj.rolesObjects;
+        delete obj.roles;
+      }
+  
+      if( obj.roles && !(obj.roles instanceof mCAP.Groups) && this.get('groups')){
+        this.get('groups').add(obj.roles);
+        delete obj.roles;
       }
   
       return obj;
@@ -1365,13 +1341,6 @@
       mCAP.currentOrganization.once('change:uuid', function (model) {
         if(model.id){
           this.get('organization').set('uuid', model.id);
-        }
-      }, this);
-  
-      this.get('groups').setUserId(this.id);
-      this.once('change:uuid', function (model) {
-        if(model.id) {
-          this.get('groups').setUserId(model.id);
         }
       }, this);
     }
