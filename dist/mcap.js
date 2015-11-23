@@ -1366,19 +1366,34 @@
       return {
         sortOrder:'+name',
         filterValues: {
+          search: '',
+          strictSearch: false,
           name: ''
         },
         customUrlParams:{
           getNonpagedCount:true
         },
         filterDefinition: function () {
-          var filter = new mCAP.Filter();
-          return filter.or([
-            filter.containsString('name', this.filterValues.name),
-            filter.containsString('givenName', this.filterValues.name),
-            filter.containsString('surname', this.filterValues.name),
-            filter.containsString('email', this.filterValues.name)
-          ]);
+          var filter = new mCAP.Filter(),
+              generalFilters = [],
+              searchFilters;
+  
+          if(this.filterValues.strictSearch){
+            generalFilters.push(filter.string('name', this.filterValues.name));
+          } else {
+            generalFilters.push(filter.containsString('name', this.filterValues.name));
+          }
+  
+          searchFilters = [
+            filter.containsString('name', this.filterValues.search),
+            filter.containsString('givenName', this.filterValues.search),
+            filter.containsString('surname', this.filterValues.search),
+            filter.containsString('email', this.filterValues.search)
+          ];
+  
+          generalFilters.push(filter.or(searchFilters));
+  
+          return filter.and(generalFilters);
         }
       };
     }
