@@ -25,21 +25,21 @@ var User = mCAP.Model.extend({
 
   prepare: function () {
     return {
-      groups: new mCAP.UserGroups(),
+      groups: new mCAP.Groups(),
       organization: new mCAP.Organization()
     };
   },
 
   beforeSave: function (attributes) {
-    delete attributes.groups;
-    delete attributes.roles;
-    delete attributes.authenticated;
+    attributes.roles = this.get('groups').pluck('uuid');
     attributes.organizationUuid = this.get('organization').get('uuid');
+
+    delete attributes.groups;
     delete attributes.organization;
+    delete attributes.authenticated;
     if (attributes.password === '' || attributes.password === null) {
       delete attributes.password;
     }
-
     if (attributes.phone === '' || attributes.phone === null) {
       delete attributes.phone;
     }
@@ -47,25 +47,21 @@ var User = mCAP.Model.extend({
     return attributes;
   },
 
-  save: function () {
-    var self = this;
-    return mCAP.Model.prototype.save.apply(this, arguments).then(function (userModel) {
-      return self.get('groups').save().then(function () {
-        return userModel;
-      });
-    });
-  },
-
-
   setReferencedCollections: function(obj){
     if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
       this.get('organization').set(obj.organization);
       delete obj.organization;
     }
 
-    if(obj.groups && !(obj.groups instanceof mCAP.Groups) && this.get('groups')){
-      this.get('groups').add(obj.groups);
-      delete obj.groups;
+    if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){
+      this.get('groups').add(obj.rolesObjects);
+      delete obj.rolesObjects;
+      delete obj.roles;
+    }
+
+    if( obj.roles && !(obj.roles instanceof mCAP.Groups) && this.get('groups')){
+      this.get('groups').add(obj.roles);
+      delete obj.roles;
     }
 
     return obj;
@@ -127,13 +123,6 @@ var User = mCAP.Model.extend({
     mCAP.currentOrganization.once('change:uuid', function (model) {
       if(model.id){
         this.get('organization').set('uuid', model.id);
-      }
-    }, this);
-
-    this.get('groups').setUserId(this.id);
-    this.once('change:uuid', function (model) {
-      if(model.id) {
-        this.get('groups').setUserId(model.id);
       }
     }, this);
   }
