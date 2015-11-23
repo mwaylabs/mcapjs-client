@@ -15,7 +15,7 @@ var Groups = mCAP.Collection.extend({
       filterValues: {
         name: '',
         uuid: '',
-        systemPermission: false,
+        groupType: '',
         members: [],
         strictSearch: false,
         organizationUuid: ''
@@ -23,7 +23,7 @@ var Groups = mCAP.Collection.extend({
       customUrlParams:{
         getNonpagedCount:true
       },
-      fields:['uuid','name','description','readonly'],
+      fields:['uuid','name','description','readonly','groupType'],
       filterDefinition: function () {
         var filter = new mCAP.Filter();
 
@@ -35,9 +35,12 @@ var Groups = mCAP.Collection.extend({
           filters.push(filter.containsString('name', this.filterValues.name));
         }
 
-        if (this.filterValues.systemPermission !== true) {
-          filters.push(filter.boolean('systemPermission', this.filterValues.systemPermission));
+        if (this.filterValues.groupType === '') {
+          filters.push(filter.stringEnum('groupType', ['GROUP','SYSTEM_GROUP']));
+        } else {
+          filters.push(filter.stringEnum('groupType', this.filterValues.groupType));
         }
+
         filters.push(filter.string('members',this.filterValues.members));
         filters.push(filter.string('uuid',this.filterValues.uuid));
         filters.push(filter.string('organizationUuid',this.filterValues.organizationUuid));
@@ -78,7 +81,14 @@ var UserGroups = Groups.extend({
       type: 'PUT',
       instance: this,
       success:function(){}
+  systemGroupIsSelected: function(){
+    var systemGroupInSelection = false;
+    this.selectable.getSelected().each(function(model){
+      if(!systemGroupInSelection){
+        systemGroupInSelection = model.isSystemGroup();
+      }
     });
+    return systemGroupInSelection;
   }
 
 });

@@ -127,6 +127,11 @@ var Group = mCAP.Model.extend({
         this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
       }
     },this);
+  },
+
+  isSystemGroup: function(){
+    var groupType = this.get('groupType');
+    return groupType === 'SYSTEM_GROUP' || groupType === 'SYSTEM_PERMISSION';
   }
 
 });
