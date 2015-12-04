@@ -79,9 +79,11 @@ var AuthenticatedUser = mCAP.User.extend({
     return this.setReferencedCollections(parsedResp);
   },
   initialize: function () {
-    this.once('change:uuid', function () {
-      this.get('preferences').setUserId(this.id);
-      this.set('authenticated',true);
+    this.on('change:'+this.idAttribute, function (model) {
+      if(model && model.id){
+        this.get('preferences').setUserId(model.id);
+        this.set('authenticated',true);
+      }
     }, this);
   }
 });
