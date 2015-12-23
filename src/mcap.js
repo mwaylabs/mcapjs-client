@@ -38,7 +38,9 @@
   // @include ./collection/enumerable_collection.js
   // @include ./application/application.js
   // @include ./security/countries.js
+  // @include ./security/passcode_policy.js
   // @include ./security/organization.js
+  // @include ./security/current_organization.js
   // @include ./security/organizations.js
   // @include ./security/group.js
   // @include ./security/groups.js
