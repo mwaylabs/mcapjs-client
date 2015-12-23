@@ -978,27 +978,240 @@
   });
   
   mCAP.Countries = Countries;
+  var PasscodePolicy = mCAP.Model.extend({
+  
+    defaults: function(){
+      return {
+        allowSimplePassword: false,
+        maximumPasswordAge: 0,
+        minimumNumbersOfDigits: 0,
+        minimumNumbersOfLowerCaseLetters: 0,
+        minimumNumbersOfUpperCaseLetters: 0,
+        minimumPasswordLength: 8,
+        requiredNumbersOfSymbols: 0
+      };
+    },
+  
+    _test: function(val, regex, amount){
+      if(amount === 0){
+        return true;
+      } else {
+        var match = val.match(regex);
+        return match && match.length>=amount;
+      }
+    },
+  
+    hasEnoughLowerCaseLetters: function(val){
+      var minLowerCase = this.get('minimumNumbersOfLowerCaseLetters');
+      return this._test(val,/[a-z]/g,minLowerCase);
+    },
+    hasEnoughUpperCaseLetters: function(val){
+      var minUpperCase = this.get('minimumNumbersOfUpperCaseLetters');
+      return this._test(val,/[A-Z]/g,minUpperCase);
+    },
+    hasEnoughDigits: function(val){
+      var minDigits = this.get('minimumNumbersOfDigits');
+      return this._test(val,/[0-9]/g,minDigits);
+    },
+    hasEnoughSymbols: function(val){
+      var minSymbols = this.get('requiredNumbersOfSymbols');
+      return this._test(val,/\W/g,minSymbols);
+    },
+    isLongEnough: function(val){
+      var minLength = this.get('minimumPasswordLength');
+      return val.length>=minLength;
+    },
+    isSimple: function(val, user){
+      var currentOrganisation = window.mCAP.currentOrganization,
+        checkUser = user || window.mCAP.authenticatedUser;
+  
+      if(currentOrganisation.get('uuid') && checkUser.get('name')){
+        var orgaName = currentOrganisation.get('uniqueName'),
+          userName = checkUser.get('name');
+  
+        return val === orgaName || val === userName;
+      } else {
+        return false;
+      }
+    },
+    violatesSimpleRestriction: function(val, checkUser){
+      if(!this.get('allowSimplePassword')){
+        return this.isSimple(val, checkUser);
+      } else {
+        return false;
+      }
+    },
+    getExamplePassword: function () {
+      var letters = 'abcdefghijklmnopqrstuvwxyz',
+        numbers = '0123456789',
+        symbols = '!"§$%&/()=?€@+*#,;-',
+        minNumOfDigits = this.get('minimumNumbersOfDigits'),
+        minNumOfLowerCaseLetters = this.get('minimumNumbersOfLowerCaseLetters'),
+        minNumOfUpperCaseLetters = this.get('minimumNumbersOfUpperCaseLetters'),
+        minNumOfSymbols = this.get('requiredNumbersOfSymbols'),
+        minLength = this.get('minimumPasswordLength'),
+        password = '';
+  
+      for (var a = 0; a < minNumOfDigits; a++) {
+        password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+      }
+  
+      for (var b = 0; b < minNumOfSymbols; b++) {
+        password += symbols.charAt(Math.floor(Math.random() * symbols.length));
+      }
+  
+      for (var c = 0; c < minNumOfUpperCaseLetters; c++) {
+        password += letters.charAt(Math.floor(Math.random() * letters.length)).toUpperCase();
+      }
+  
+      for (var d = 0; d < minNumOfLowerCaseLetters; d++) {
+        password += letters.charAt(Math.floor(Math.random() * letters.length));
+      }
+  
+      if (password.length < minLength) {
+        var fillUpLength = minLength - password.length;
+        for (var e = 0; e < fillUpLength; e++) {
+          password += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
+      }
+  
+      return _.shuffle(password.split('')).join('');
+    }
+  });
+  
+  mCAP.PasscodePolicy = PasscodePolicy;
+  
   var Organization = mCAP.Model.extend({
   
     endpoint: 'gofer/security/rest/organizations',
   
-    defaults: {
-      'uuid': null,
-      'name': null,
-      'uniqueName': null,
-      'address': null,
-      'billingSettings': null,
-      'technicalPerson': null,
-      'assetPath': null,
-      'reportLocaleString': null,
-      'defaultRoles': null,
-      'version': null,
-      'effectivePermissions': null
+    defaults: function () {
+      return {
+        name: '',
+        uniqueName: ''
+      };
+    },
+  
+    prepare: function () {
+      return {
+        passcodePolicy: new mCAP.PasscodePolicy(),
+        user: new ( mCAP.User.extend({
+          prepare: function () {
+            return {
+              groups: new mCAP.Groups()
+            };
+          },
+          initialize: function () {}
+        }) )()
+      };
+    },
+  
+    beforeSave: function (attrs) {
+      attrs.passwordPolicy = this.get('passcodePolicy').toJSON();
+      delete attrs.passcodePolicy;
+  
+      if (this.isNew()) {
+        attrs.orgaName = attrs.uniqueName;
+        attrs.orgaFullName = attrs.name;
+        attrs.orgaContactName = this.get('user').getFullName();
+        attrs.orgaContactEMail = this.get('user').get('email');
+  
+        attrs.orgaAdminUser = this.get('user').get('name');
+        attrs.orgaAdminGivenName = this.get('user').get('givenName');
+        attrs.orgaAdminSurName = this.get('user').get('surname');
+        attrs.orgaAdminPwd = this.get('user').get('password');
+        attrs.orgaAdminEmail = this.get('user').get('email');
+      }
+  
+      delete attrs.user;
+  
+      return attrs;
+    },
+  
+    setReferencedCollections: function (attrs) {
+  
+      if (attrs.passwordPolicy && !(attrs.passwordPolicy instanceof mCAP.PasscodePolicy) && this.get('passcodePolicy')) {
+        this.get('passcodePolicy').set(attrs.passwordPolicy);
+        delete attrs.passwordPolicy;
+      }
+  
+      if (attrs.createdUser) {
+        this.get('user').set('uuid', attrs.createdUser);
+      }
+  
+      return attrs;
+    },
+  
+    set: function (key, val, options) {
+      key = this.setReferencedCollections(key);
+      return mCAP.Model.prototype.set.apply(this, [key, val, options]);
+    },
+  
+    parse: function () {
+      var data = mCAP.Model.prototype.parse.apply(this, arguments);
+      if(data.orgaId){
+        data.uuid = data.orgaId;
+        delete data.orgaId;
+      }
+      if(data.orgaName){
+        data.uniqueName = data.orgaName;
+        delete data.orgaName;
+      }
+      return this.setReferencedCollections(data);
+    },
+  
+    save: function () {
+      var endPoint = this.getEndpoint();
+      if (this.isNew()) {
+        this.setEndpoint('relution/api/v1/wizard');
+      }
+      return mCAP.Model.prototype.save.apply(this, arguments).then(function (model) {
+        this.setEndpoint(endPoint);
+        return model;
+      }.bind(this));
+    },
+  
+    destroy: function () {
+      var endPoint = this.getEndpoint();
+      this.setEndpoint('relution/api/v1/cleanup');
+      return mCAP.Model.prototype.destroy.apply(this, arguments).then(function (model) {
+        this.setEndpoint(endPoint);
+        return model;
+      }.bind(this));
     }
   
   });
   
   mCAP.Organization = Organization;
+  
+  var CurrentOrganization = mCAP.Organization.extend({
+  
+    sync: function(){
+      var fetchArgs = arguments;
+      if (!this.get('uuid')) {
+        var dfd = new window.Backbone.$.Deferred();
+        mCAP.currentOrganization.once('change:uuid', function () {
+          this.initialize();
+          mCAP.Organization.prototype.sync.apply(this, fetchArgs).then(
+            function (rspModel) {
+              dfd.resolve(rspModel);
+            },
+            function (rsp) {
+              dfd.reject(rsp);
+            });
+        }, this);
+        return dfd.promise();
+      } else {
+        return mCAP.Organization.prototype.sync.apply(this, arguments);
+      }
+    },
+  
+    initialize: function(){
+      this.set('uuid', mCAP.currentOrganization.get('uuid'));
+    }
+  });
+  
+  mCAP.CurrentOrganization = CurrentOrganization;
   
   var Organizations = mCAP.Collection.extend({
   
@@ -1008,6 +1221,40 @@
   
     parse: function (resp) {
       return resp.data.items;
+    },
+  
+    filterableOptions: function(){
+      return {
+        sortOrder:'+name',
+        filterValues: {
+          search: '',
+          strictSearch: false,
+          name: ''
+        },
+        customUrlParams:{
+          getNonpagedCount:true
+        },
+        filterDefinition: function () {
+          var filter = new mCAP.Filter(),
+            generalFilters = [],
+            searchFilters;
+  
+          if(this.filterValues.strictSearch){
+            generalFilters.push(filter.string('uniqueName', this.filterValues.name));
+          } else {
+            generalFilters.push(filter.containsString('uniqueName', this.filterValues.name));
+          }
+  
+          searchFilters = [
+            filter.containsString('name', this.filterValues.search),
+            filter.containsString('uniqueName', this.filterValues.search)
+          ];
+  
+          generalFilters.push(filter.or(searchFilters));
+  
+          return filter.and(generalFilters);
+        }
+      };
     }
   
   });
@@ -1297,6 +1544,20 @@
       return mCAP.Model.prototype.set.apply(this,[key, val, options]);
     },
   
+    loginAs: function(){
+      var options = {
+        url: 'gofer/security-login-as',
+        type: 'GET',
+        //jshint -W106
+        params: {
+          j_user_uuid: this.get('uuid')
+        },
+        //jshint +W106
+        instance: this
+      };
+      return window.mCAP.Utils.request(options);
+    },
+  
     resetPassword: function(){
       var options = {
         url: this.getEndpoint() + '/createPasswordResetRequest',
@@ -1368,7 +1629,8 @@
         filterValues: {
           search: '',
           strictSearch: false,
-          name: ''
+          name: '',
+          organisationUuid: ''
         },
         customUrlParams:{
           getNonpagedCount:true
@@ -1383,6 +1645,8 @@
           } else {
             generalFilters.push(filter.containsString('name', this.filterValues.name));
           }
+  
+          generalFilters.push(filter.string('organizationUuid', this.filterValues.organisationUuid));
   
           searchFilters = [
             filter.containsString('name', this.filterValues.search),
