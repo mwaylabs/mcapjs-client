@@ -48,8 +48,16 @@
       return window.mCAP.Countries;
     })
 
+    .service('MCAPCurrentOrganization', function(){
+      return window.mCAP.CurrentOrganization;
+    })
+
     .service('MCAPOrganization', function(){
       return window.mCAP.Organization;
+    })
+
+    .service('MCAPOrganizations', function(){
+      return window.mCAP.Organizations;
     })
 
     .service('MCAPUsers', function(){

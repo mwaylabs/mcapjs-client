@@ -44,7 +44,9 @@ module.exports = function(config) {
       'src/filter/filter.js',
       'src/application/**/*.js',
       'src/security/countries.js',
+      'src/security/passcode_policy.js',
       'src/security/organization.js',
+      'src/security/current_organization.js',
       'src/security/organizations.js',
       'src/security/role.js',
       'src/security/roles.js',
@@ -84,7 +86,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-    
+
     },
 
 

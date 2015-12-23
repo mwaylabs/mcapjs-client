@@ -79,6 +79,20 @@ var User = mCAP.Model.extend({
     return mCAP.Model.prototype.set.apply(this,[key, val, options]);
   },
 
+  loginAs: function(){
+    var options = {
+      url: 'gofer/security-login-as',
+      type: 'GET',
+      //jshint -W106
+      params: {
+        j_user_uuid: this.get('uuid')
+      },
+      //jshint +W106
+      instance: this
+    };
+    return window.mCAP.Utils.request(options);
+  },
+
   resetPassword: function(){
     var options = {
       url: this.getEndpoint() + '/createPasswordResetRequest',
