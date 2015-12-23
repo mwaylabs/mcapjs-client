@@ -42,7 +42,7 @@ describe("mCAP.authentication logout", function () {
     }).always(function(data){
       expect(mCAP.authentication.get('user').get('name')).toBe('');
       expect(mCAP.authentication.get('user').get('uuid')).toBeNull();
-      expect(mCAP.authentication.get('user').get('organization').get('uuid')).toBeNull();
+      expect(mCAP.authentication.get('user').get('organization').get('uuid')).toBeUndefined();
       expect(mCAP.authentication.get('authenticated')).toBeFalsy();
     });
 

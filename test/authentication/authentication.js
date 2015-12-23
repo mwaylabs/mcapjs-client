@@ -15,7 +15,7 @@ describe("mCAP.authentication", function () {
     expect(mCAP.Model.prototype.isPrototypeOf(mCAP.authentication)).toBeTruthy();
     expect(Backbone.Model.prototype.isPrototypeOf(mCAP.authentication)).toBeTruthy();
     expect(mCAP.authentication.get('user').get('uuid')).toBeNull();
-    expect(mCAP.authentication.get('user').get('organization').get('uuid')).toBeNull();
+    expect(mCAP.authentication.get('user').get('organization').get('uuid')).toBeUndefined();
     expect(mCAP.authentication.endpoint).toEqual('gofer/security/rest/auth/');
     expect(mCAP.authentication.url()).toEqual('http://www.mcap.com/gofer/security/rest/auth/');
 
