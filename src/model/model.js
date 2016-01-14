@@ -27,8 +27,7 @@ var Model = Backbone.Model.extend({
      * Instead of super apply we use the whole backbone constructor implementation because we need to inject
      * code inbetween which is hard to implement otherwise
      */
-    var attrs = attributes || {},
-      nested = {};
+    var attrs = attributes || {};
 
     options = options || {};
     this.cid = _.uniqueId('c');
@@ -36,17 +35,20 @@ var Model = Backbone.Model.extend({
     if (options.collection) {
       this.collection = options.collection;
     }
-    nested = this.prepare();
+    this._setNesting(attrs, options);
+    this.changed = {};
+    this.initialize.apply(this, arguments);
+  },
+  _setNesting: function(attrs, options){
+    options = options || {};
+    var nested = this.prepare();
     this.set(nested);
     if (options.parse) {
       attrs = this.parse(attrs, options) || {};
     }
     attrs = _.defaults({}, attrs, nested, _.result(this, 'defaults'));
     this.set(attrs, options);
-    this.changed = {};
-    this.initialize.apply(this, arguments);
   },
-
   //This method has to return an object!
   //You can do some initialisation stuff e.g. create referenced models or collections
   prepare: function () {
@@ -170,6 +172,12 @@ var Model = Backbone.Model.extend({
     var save = Backbone.Model.prototype.save.apply(this, arguments);
     this.attributes = orgAttributes;
     return save;
+  },
+
+  clear: function(options){
+    var superClear = Backbone.Model.prototype.clear.apply(this, arguments);
+    this._setNesting({},options);
+    return superClear;
   },
 
   _triggerEvent: function (eventName, args) {
