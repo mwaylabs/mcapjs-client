@@ -41,12 +41,12 @@ var PasscodePolicy = mCAP.Model.extend({
     var minLength = this.get('minimumPasswordLength');
     return val.length>=minLength;
   },
-  isSimple: function(val, user){
-    var currentOrganisation = window.mCAP.currentOrganization,
+  isSimple: function(val, user, organisation){
+    var checkOrganisation = organisation || window.mCAP.currentOrganization,
       checkUser = user || window.mCAP.authenticatedUser;
 
-    if(currentOrganisation.get('uuid') && checkUser.get('name')){
-      var orgaName = currentOrganisation.get('uniqueName'),
+    if(checkOrganisation.get('uniqueName') && checkUser.get('name')){
+      var orgaName = checkOrganisation.get('uniqueName'),
         userName = checkUser.get('name');
 
       return val === orgaName || val === userName;
@@ -54,9 +54,9 @@ var PasscodePolicy = mCAP.Model.extend({
       return false;
     }
   },
-  violatesSimpleRestriction: function(val, checkUser){
+  violatesSimpleRestriction: function(val, checkUser, checkOrganisation){
     if(!this.get('allowSimplePassword')){
-      return this.isSimple(val, checkUser);
+      return this.isSimple(val, checkUser, checkOrganisation);
     } else {
       return false;
     }
