@@ -15,7 +15,7 @@ var PasscodePolicy = mCAP.Model.extend({
   _test: function(val, regex, amount){
     if(amount === 0){
       return true;
-    } else {
+    } else if(val){
       var match = val.match(regex);
       return match && match.length>=amount;
     }
@@ -39,7 +39,7 @@ var PasscodePolicy = mCAP.Model.extend({
   },
   isLongEnough: function(val){
     var minLength = this.get('minimumPasswordLength');
-    return val.length>=minLength;
+    return val && val.length>=minLength;
   },
   isSimple: function(val, user, organisation){
     var checkOrganisation = organisation || window.mCAP.currentOrganization,
