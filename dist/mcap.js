@@ -1333,8 +1333,9 @@
   
     prepare: function(){
       return {
-        roles:new UsersAndGroupsHolderModel(),
-        members:new UsersAndGroupsHolderModel()
+        roles: new UsersAndGroupsHolderModel(),
+        members: new UsersAndGroupsHolderModel(),
+        organization: new mCAP.Organization()
       };
     },
   
@@ -1345,6 +1346,9 @@
     },
   
     beforeSave: function(data){
+      data.organizationUuid = this.get('organization').get('uuid');
+      delete data.organization;
+  
       if(data.roles){
         data.roles = _.union(this.get('roles').get('users').pluck('uuid'),this.get('roles').get('groups').pluck('uuid'));
       }
@@ -1357,6 +1361,10 @@
     },
   
     setReferencedCollections: function(attrs){
+      if(attrs.organization && !(attrs.organization instanceof mCAP.Organization) && this.get('organization')){
+        this.get('organization').set(attrs.organization);
+        delete attrs.organization;
+      }
   
       if(attrs.rolesObjects){
         this.get('roles').set(attrs.rolesObjects);
@@ -1391,10 +1399,10 @@
     },
   
     initialize: function(){
-      this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
+      this.get('organization').set({uuid:mCAP.currentOrganization.get('uuid')});
       mCAP.currentOrganization.on('change',function(){
-        if(!this.get('organizationUuid')){
-          this.set('organizationUuid',mCAP.currentOrganization.get('uuid'));
+        if(!this.get('organization').get('uuid')){
+          this.get('organization').set({uuid:mCAP.currentOrganization.get('uuid')});
         }
       },this);
     },
