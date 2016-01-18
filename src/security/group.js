@@ -65,7 +65,7 @@ var Group = mCAP.Model.extend({
     return {
       roles: new UsersAndGroupsHolderModel(),
       members: new UsersAndGroupsHolderModel(),
-      organization: new mCap.Organization()
+      organization: new mCAP.Organization()
     };
   },
 
