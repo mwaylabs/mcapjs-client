@@ -61,7 +61,7 @@ var Group = mCAP.Model.extend({
     };
   },
 
-  prepare: function(){ // todo 1 es soll ein Organisation model geben
+  prepare: function(){
     return {
       roles: new UsersAndGroupsHolderModel(),
       members: new UsersAndGroupsHolderModel(),
@@ -75,7 +75,7 @@ var Group = mCAP.Model.extend({
     }
   },
 
-  beforeSave: function(data){ //todo 3 umgekehrt zu schritt 2: json soll wieder uuid haben und kein model, bevor es zum server geschickt wird
+  beforeSave: function(data){
     data.organizationUuid = this.get('organization').get('uuid');
     delete data.organization;
 
@@ -91,7 +91,6 @@ var Group = mCAP.Model.extend({
   },
 
   setReferencedCollections: function(attrs){
-    // todo 2   neues organisation model muss mit organisation verknüpft werden: uuid string in model konvertieren und danach string löschen
     if(attrs.organization && !(attrs.organization instanceof mCAP.Organization) && this.get('organization')){
       this.get('organization').set(attrs.organization);
       delete attrs.organization;
