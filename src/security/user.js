@@ -14,7 +14,6 @@ var User = mCAP.Model.extend({
       'phone': null,
       'country': null,
       'password': '',
-      'organization': null,
       'locked': false,
       'activated': true,
       'version': 0,
@@ -48,9 +47,9 @@ var User = mCAP.Model.extend({
   },
 
   setReferencedCollections: function(obj){
-    if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
-      this.get('organization').set(obj.organization);
-      delete obj.organization;
+    if(obj.organizationUuid){
+      this.get('organization').set({uuid: attrs.organizationUuid});
+      delete obj.organizationUuid;
     }
 
     if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){

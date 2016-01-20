@@ -1319,7 +1319,6 @@
         uuid: null,
         name: '',
         version: 0,
-        organizationUuid: null,
         description: null,
         roles: null,
         members: null,
@@ -1361,9 +1360,9 @@
     },
   
     setReferencedCollections: function(attrs){
-      if(attrs.organization && !(attrs.organization instanceof mCAP.Organization) && this.get('organization')){
-        this.get('organization').set(attrs.organization);
-        delete attrs.organization;
+      if(attrs.organizationUuid){
+        this.get('organization').set({uuid:attrs.organizationUuid});
+        delete attrs.organizationUuid;
       }
   
       if(attrs.rolesObjects){
@@ -1495,7 +1494,6 @@
         'phone': null,
         'country': null,
         'password': '',
-        'organization': null,
         'locked': false,
         'activated': true,
         'version': 0,
@@ -1529,9 +1527,9 @@
     },
   
     setReferencedCollections: function(obj){
-      if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
-        this.get('organization').set(obj.organization);
-        delete obj.organization;
+      if(obj.organizationUuid){
+        this.get('organization').set({uuid: attrs.organizationUuid});
+        delete obj.organizationUuid;
       }
   
       if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){
