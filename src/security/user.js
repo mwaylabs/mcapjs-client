@@ -47,9 +47,9 @@ var User = mCAP.Model.extend({
   },
 
   setReferencedCollections: function(obj){
-    if(obj.organizationUuid){
-      this.get('organization').set({uuid: attrs.organizationUuid});
-      delete obj.organizationUuid;
+    if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
+      this.get('organization').set(obj.organization);
+      delete obj.organization;
     }
 
     if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){
