@@ -129,13 +129,19 @@ var User = mCAP.Model.extend({
     }
   },
 
+  _setDefaultOrgaUuid: function () {
+    var organization = this.get('organization'),
+      organizationUuid = organization.get('uuid'),
+      currentOrganizationUuid = mCAP.currentOrganization.get('uuid');
+
+    if (!organizationUuid && currentOrganizationUuid) {
+      organization.set('uuid', currentOrganizationUuid);
+    }
+  },
+
   initialize: function () {
-    this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
-    mCAP.currentOrganization.once('change:uuid', function (model) {
-      if(model.id){
-        this.get('organization').set('uuid', model.id);
-      }
-    }, this);
+    this._setDefaultOrgaUuid();
+    mCAP.currentOrganization.once('change:uuid', this._setDefaultOrgaUuid, this);
   }
 
 });
