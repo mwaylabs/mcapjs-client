@@ -46,19 +46,20 @@ var User = mCAP.Model.extend({
     return attributes;
   },
 
-  setReferencedCollections: function(obj){
-    if(obj.organizationUuid){
-      this.get('organization').set({uuid:obj.organizationUuid});
+  setReferencedCollections: function (obj) {
+    if (obj.organizationUuid) {
+      console.log('SETR', obj.organizationUuid)
+      this.get('organization').set({uuid: obj.organizationUuid});
       delete obj.organizationUuid;
     }
 
-    if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){
+    if (obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')) {
       this.get('groups').add(obj.rolesObjects);
       delete obj.rolesObjects;
       delete obj.roles;
     }
 
-    if( obj.roles && !(obj.roles instanceof mCAP.Groups) && this.get('groups')){
+    if (obj.roles && !(obj.roles instanceof mCAP.Groups) && this.get('groups')) {
       this.get('groups').add(obj.roles);
       delete obj.roles;
     }
@@ -71,12 +72,12 @@ var User = mCAP.Model.extend({
     return this.setReferencedCollections(data);
   },
 
-  set: function(key, val, options){
+  set: function (key, val, options) {
     key = this.setReferencedCollections(key);
-    return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+    return mCAP.Model.prototype.set.apply(this, [key, val, options]);
   },
 
-  loginAs: function(){
+  loginAs: function () {
     var options = {
       url: this.getEndpoint() + 'gofer/security-login-as',
       type: 'GET',
@@ -90,7 +91,7 @@ var User = mCAP.Model.extend({
     return window.mCAP.Utils.request(options);
   },
 
-  resetPassword: function(){
+  resetPassword: function () {
     var options = {
       url: this.getEndpoint() + '/createPasswordResetRequest',
       type: 'PUT',
@@ -103,26 +104,26 @@ var User = mCAP.Model.extend({
     return window.mCAP.Utils.request(options);
   },
 
-  changePassword: function(newPassword){
+  changePassword: function (newPassword) {
     var options = {
-        url: this.getEndpoint() + '/' + this.get('uuid') + '/changePassword',
-        type: 'PUT',
-        data: {
-          newPassword: newPassword
-        },
-        instance: this
-      };
+      url: this.getEndpoint() + '/' + this.get('uuid') + '/changePassword',
+      type: 'PUT',
+      data: {
+        newPassword: newPassword
+      },
+      instance: this
+    };
     return window.mCAP.Utils.request(options);
   },
 
-  isLocked: function(){
+  isLocked: function () {
     return (this.get('readonly') || this.get('locked'));
   },
 
-  getFullName: function(){
-    if(this.get('givenName') && this.get('surname')){
-      return this.get('givenName')+' '+this.get('surname');
-    } else if(this.get('name')){
+  getFullName: function () {
+    if (this.get('givenName') && this.get('surname')) {
+      return this.get('givenName') + ' ' + this.get('surname');
+    } else if (this.get('name')) {
       return this.get('name');
     } else {
       return false;
