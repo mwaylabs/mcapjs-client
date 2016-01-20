@@ -49,7 +49,6 @@ var Group = mCAP.Model.extend({
       uuid: null,
       name: '',
       version: 0,
-      organizationUuid: null,
       description: null,
       roles: null,
       members: null,
@@ -91,9 +90,9 @@ var Group = mCAP.Model.extend({
   },
 
   setReferencedCollections: function(attrs){
-    if(attrs.organization && !(attrs.organization instanceof mCAP.Organization) && this.get('organization')){
-      this.get('organization').set(attrs.organization);
-      delete attrs.organization;
+    if(attrs.organizationUuid){
+      this.get('organization').set({uuid:attrs.organizationUuid});
+      delete attrs.organizationUuid;
     }
 
     if(attrs.rolesObjects){
@@ -128,18 +127,24 @@ var Group = mCAP.Model.extend({
     return this.setReferencedCollections(attrs);
   },
 
-  initialize: function(){
-    this.get('organization').set({uuid:mCAP.currentOrganization.get('uuid')});
-    mCAP.currentOrganization.on('change',function(){
-      if(!this.get('organization').get('uuid')){
-        this.get('organization').set({uuid:mCAP.currentOrganization.get('uuid')});
-      }
-    },this);
-  },
-
   isSystemGroup: function(){
     var groupType = this.get('groupType');
     return groupType === 'SYSTEM_GROUP' || groupType === 'SYSTEM_PERMISSION';
+  },
+
+  _setDefaultOrgaUuid: function () {
+    var organization = this.get('organization'),
+      organizationUuid = organization.get('uuid'),
+      currentOrganizationUuid = mCAP.currentOrganization.get('uuid');
+
+    if (!organizationUuid && currentOrganizationUuid) {
+      organization.set('uuid', currentOrganizationUuid);
+    }
+  },
+
+  initialize: function(){
+    this._setDefaultOrgaUuid();
+    mCAP.currentOrganization.once('change:uuid', this._setDefaultOrgaUuid, this);
   }
 
 });

@@ -1319,7 +1319,6 @@
         uuid: null,
         name: '',
         version: 0,
-        organizationUuid: null,
         description: null,
         roles: null,
         members: null,
@@ -1361,9 +1360,9 @@
     },
   
     setReferencedCollections: function(attrs){
-      if(attrs.organization && !(attrs.organization instanceof mCAP.Organization) && this.get('organization')){
-        this.get('organization').set(attrs.organization);
-        delete attrs.organization;
+      if(attrs.organizationUuid){
+        this.get('organization').set({uuid:attrs.organizationUuid});
+        delete attrs.organizationUuid;
       }
   
       if(attrs.rolesObjects){
@@ -1398,18 +1397,24 @@
       return this.setReferencedCollections(attrs);
     },
   
-    initialize: function(){
-      this.get('organization').set({uuid:mCAP.currentOrganization.get('uuid')});
-      mCAP.currentOrganization.on('change',function(){
-        if(!this.get('organization').get('uuid')){
-          this.get('organization').set({uuid:mCAP.currentOrganization.get('uuid')});
-        }
-      },this);
-    },
-  
     isSystemGroup: function(){
       var groupType = this.get('groupType');
       return groupType === 'SYSTEM_GROUP' || groupType === 'SYSTEM_PERMISSION';
+    },
+  
+    _setDefaultOrgaUuid: function () {
+      var organization = this.get('organization'),
+        organizationUuid = organization.get('uuid'),
+        currentOrganizationUuid = mCAP.currentOrganization.get('uuid');
+  
+      if (!organizationUuid && currentOrganizationUuid) {
+        organization.set('uuid', currentOrganizationUuid);
+      }
+    },
+  
+    initialize: function(){
+      this._setDefaultOrgaUuid();
+      mCAP.currentOrganization.once('change:uuid', this._setDefaultOrgaUuid, this);
     }
   
   });
@@ -1495,7 +1500,6 @@
         'phone': null,
         'country': null,
         'password': '',
-        'organization': null,
         'locked': false,
         'activated': true,
         'version': 0,
@@ -1528,19 +1532,19 @@
       return attributes;
     },
   
-    setReferencedCollections: function(obj){
-      if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
-        this.get('organization').set(obj.organization);
-        delete obj.organization;
+    setReferencedCollections: function (obj) {
+      if (obj.organizationUuid) {
+        this.get('organization').set({uuid: obj.organizationUuid});
+        delete obj.organizationUuid;
       }
   
-      if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){
+      if (obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')) {
         this.get('groups').add(obj.rolesObjects);
         delete obj.rolesObjects;
         delete obj.roles;
       }
   
-      if( obj.roles && !(obj.roles instanceof mCAP.Groups) && this.get('groups')){
+      if (obj.roles && !(obj.roles instanceof mCAP.Groups) && this.get('groups')) {
         this.get('groups').add(obj.roles);
         delete obj.roles;
       }
@@ -1550,19 +1554,17 @@
   
     parse: function (resp) {
       var data = resp.data || resp;
-      this.get('organization').set('uuid', data.organizationUuid);
-      delete data.organizationUuid;
       return this.setReferencedCollections(data);
     },
   
-    set: function(key, val, options){
+    set: function (key, val, options) {
       key = this.setReferencedCollections(key);
-      return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+      return mCAP.Model.prototype.set.apply(this, [key, val, options]);
     },
   
-    loginAs: function(){
+    loginAs: function () {
       var options = {
-        url: 'gofer/security-login-as',
+        url: this.getEndpoint() + 'gofer/security-login-as',
         type: 'GET',
         //jshint -W106
         params: {
@@ -1574,7 +1576,7 @@
       return window.mCAP.Utils.request(options);
     },
   
-    resetPassword: function(){
+    resetPassword: function () {
       var options = {
         url: this.getEndpoint() + '/createPasswordResetRequest',
         type: 'PUT',
@@ -1587,39 +1589,45 @@
       return window.mCAP.Utils.request(options);
     },
   
-    changePassword: function(newPassword){
+    changePassword: function (newPassword) {
       var options = {
-          url: this.getEndpoint() + '/' + this.get('uuid') + '/changePassword',
-          type: 'PUT',
-          data: {
-            newPassword: newPassword
-          },
-          instance: this
-        };
+        url: this.getEndpoint() + '/' + this.get('uuid') + '/changePassword',
+        type: 'PUT',
+        data: {
+          newPassword: newPassword
+        },
+        instance: this
+      };
       return window.mCAP.Utils.request(options);
     },
   
-    isLocked: function(){
+    isLocked: function () {
       return (this.get('readonly') || this.get('locked'));
     },
   
-    getFullName: function(){
-      if(this.get('givenName') && this.get('surname')){
-        return this.get('givenName')+' '+this.get('surname');
-      } else if(this.get('name')){
+    getFullName: function () {
+      if (this.get('givenName') && this.get('surname')) {
+        return this.get('givenName') + ' ' + this.get('surname');
+      } else if (this.get('name')) {
         return this.get('name');
       } else {
         return false;
       }
     },
   
+    _setDefaultOrgaUuid: function () {
+      var organization = this.get('organization'),
+        organizationUuid = organization.get('uuid'),
+        currentOrganizationUuid = mCAP.currentOrganization.get('uuid');
+  
+      if (!organizationUuid && currentOrganizationUuid) {
+        organization.set('uuid', currentOrganizationUuid);
+      }
+    },
+  
     initialize: function () {
-      this.get('organization').set('uuid', mCAP.currentOrganization.get('uuid'));
-      mCAP.currentOrganization.once('change:uuid', function (model) {
-        if(model.id){
-          this.get('organization').set('uuid', model.id);
-        }
-      }, this);
+      this._setDefaultOrgaUuid();
+      mCAP.currentOrganization.once('change:uuid', this._setDefaultOrgaUuid, this);
     }
   
   });
