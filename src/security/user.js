@@ -78,7 +78,7 @@ var User = mCAP.Model.extend({
 
   loginAs: function(){
     var options = {
-      url: 'gofer/security-login-as',
+      url: this.getEndpoint() + 'gofer/security-login-as',
       type: 'GET',
       //jshint -W106
       params: {
