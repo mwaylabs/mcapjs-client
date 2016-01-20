@@ -47,9 +47,9 @@ var User = mCAP.Model.extend({
   },
 
   setReferencedCollections: function(obj){
-    if(obj.organization && !(obj.organization instanceof mCAP.Organization) && this.get('organization')){
-      this.get('organization').set(obj.organization);
-      delete obj.organization;
+    if(obj.organizationUuid){
+      this.get('organization').set({uuid:obj.organizationUuid});
+      delete obj.organizationUuid;
     }
 
     if( obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')){
@@ -68,8 +68,6 @@ var User = mCAP.Model.extend({
 
   parse: function (resp) {
     var data = resp.data || resp;
-    this.get('organization').set('uuid', data.organizationUuid);
-    delete data.organizationUuid;
     return this.setReferencedCollections(data);
   },
 
