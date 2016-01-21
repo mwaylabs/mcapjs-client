@@ -18,7 +18,7 @@ var Users = mCAP.Collection.extend({
         search: '',
         strictSearch: false,
         name: '',
-        organizationUuid: ''
+        organisationUuid: ''
       },
       customUrlParams:{
         getNonpagedCount:true
@@ -34,7 +34,7 @@ var Users = mCAP.Collection.extend({
           generalFilters.push(filter.containsString('name', this.filterValues.name));
         }
 
-        generalFilters.push(filter.string('organizationUuid', this.filterValues.organizationUuid));
+        generalFilters.push(filter.string('organizationUuid', this.filterValues.organisationUuid));
 
         searchFilters = [
           filter.containsString('name', this.filterValues.search),
