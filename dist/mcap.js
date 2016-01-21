@@ -1654,7 +1654,7 @@
           search: '',
           strictSearch: false,
           name: '',
-          organisationUuid: ''
+          organizationUuid: ''
         },
         customUrlParams:{
           getNonpagedCount:true
@@ -1670,7 +1670,7 @@
             generalFilters.push(filter.containsString('name', this.filterValues.name));
           }
   
-          generalFilters.push(filter.string('organizationUuid', this.filterValues.organisationUuid));
+          generalFilters.push(filter.string('organizationUuid', this.filterValues.organizationUuid));
   
           searchFilters = [
             filter.containsString('name', this.filterValues.search),
