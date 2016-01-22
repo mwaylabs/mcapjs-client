@@ -1564,7 +1564,7 @@
   
     loginAs: function () {
       var options = {
-        url: this.getEndpoint() + 'gofer/security-login-as',
+        url: '/gofer/security-login-as',
         type: 'GET',
         //jshint -W106
         params: {
