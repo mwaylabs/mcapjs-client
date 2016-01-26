@@ -23,7 +23,7 @@ var Groups = mCAP.Collection.extend({
       customUrlParams:{
         getNonpagedCount:true
       },
-      fields:['uuid','name','description','readonly','groupType'],
+      fields:['uuid','name','description','readonly','groupType','organizationUuid'],
       filterDefinition: function () {
         var filter = new mCAP.Filter();
 

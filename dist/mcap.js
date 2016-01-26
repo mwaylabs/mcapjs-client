@@ -1446,7 +1446,7 @@
         customUrlParams:{
           getNonpagedCount:true
         },
-        fields:['uuid','name','description','readonly','groupType'],
+        fields:['uuid','name','description','readonly','groupType','organizationUuid'],
         filterDefinition: function () {
           var filter = new mCAP.Filter();
   
@@ -1539,6 +1539,10 @@
       }
   
       if (obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')) {
+        obj.rolesObjects.forEach(function(role){
+          role.organizationUuid = this.get('organization').get('uuid');
+        }.bind(this));
+  
         this.get('groups').add(obj.rolesObjects);
         delete obj.rolesObjects;
         delete obj.roles;

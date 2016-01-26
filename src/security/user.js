@@ -53,6 +53,10 @@ var User = mCAP.Model.extend({
     }
 
     if (obj.rolesObjects && !(obj.rolesObjects instanceof mCAP.Groups) && this.get('groups')) {
+      obj.rolesObjects.forEach(function(role){
+        role.organizationUuid = this.get('organization').get('uuid');
+      }.bind(this));
+
       this.get('groups').add(obj.rolesObjects);
       delete obj.rolesObjects;
       delete obj.roles;
