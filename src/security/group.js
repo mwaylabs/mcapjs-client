@@ -2,34 +2,39 @@ var UsersAndGroupsHolderModel = mCAP.Model.extend({
 
   endpoint: 'gofer/form/rest/enumerables/paginatedPairs/roles',
 
-  prepare: function(){
+  prepare: function () {
     return {
-      users:new mCAP.Users(),
-      groups:new mCAP.Groups()
+      users: new mCAP.Users(),
+      groups: new mCAP.Groups()
     };
   },
 
-  setReferencedCollections: function(attrs){
+  setReferencedCollections: function (attrs) {
 
-    var users = _.findWhere(attrs,{type:'USER'}),
-      groups = _.findWhere(attrs,{type:'GROUP'});
+    var users = _.where(attrs, {type: 'USER'}),
+      groups = _.where(attrs, {type: 'GROUP'});
 
-    if(users || groups){
-      if (!(attrs.users instanceof mCAP.Users) && this.get('users') && users) {
-        this.get('users').add(_.where(attrs,{type:'USER'}));
-      }
-
-      if (!(attrs.groups instanceof mCAP.Groups) && this.get('groups') && groups) {
-        this.get('groups').add(_.where(attrs,{type:'GROUP'}));
-      }
-      return;
-    } else {
-      return attrs;
+    if (this.get('users') && users.length > 0) {
+      users.forEach(function (user) {
+        user.organizationUuid = this.get('organizationUuid');
+      }, this);
+      this.get('users').add(users);
+      delete attrs.users;
     }
+
+    if (this.get('groups') && groups.length > 0) {
+      groups.forEach(function (group) {
+        group.organizationUuid = this.get('organizationUuid');
+      }, this);
+      this.get('groups').add(_.where(attrs, {type: 'GROUP'}));
+      delete attrs.groups;
+    }
+
+    return attrs;
   },
 
   parse: function () {
-    var data = mCAP.Model.prototype.parse.apply(this,arguments);
+    var data = mCAP.Model.prototype.parse.apply(this, arguments);
     return this.setReferencedCollections(data);
   },
 
@@ -44,7 +49,7 @@ var Group = mCAP.Model.extend({
 
   endpoint: 'gofer/security/rest/groups',
 
-  defaults: function(){
+  defaults: function () {
     return {
       uuid: null,
       name: '',
@@ -60,7 +65,7 @@ var Group = mCAP.Model.extend({
     };
   },
 
-  prepare: function(){
+  prepare: function () {
     return {
       roles: new UsersAndGroupsHolderModel(),
       members: new UsersAndGroupsHolderModel(),
@@ -68,40 +73,42 @@ var Group = mCAP.Model.extend({
     };
   },
 
-  validate: function(attributes){
-    if(!attributes.organizationUuid || attributes.organizationUuid.length<1){
+  validate: function (attributes) {
+    if (!attributes.organizationUuid || attributes.organizationUuid.length < 1) {
       return 'Missing organization uuid';
     }
   },
 
-  beforeSave: function(data){
+  beforeSave: function (data) {
     data.organizationUuid = this.get('organization').get('uuid');
     delete data.organization;
 
-    if(data.roles){
-      data.roles = _.union(this.get('roles').get('users').pluck('uuid'),this.get('roles').get('groups').pluck('uuid'));
+    if (data.roles) {
+      data.roles = _.union(this.get('roles').get('users').pluck('uuid'), this.get('roles').get('groups').pluck('uuid'));
     }
 
-    if(data.members){
-      data.members = _.union(this.get('members').get('users').pluck('uuid'),this.get('members').get('groups').pluck('uuid'));
+    if (data.members) {
+      data.members = _.union(this.get('members').get('users').pluck('uuid'), this.get('members').get('groups').pluck('uuid'));
     }
 
     return data;
   },
 
-  setReferencedCollections: function(attrs){
-    if(attrs.organizationUuid){
-      this.get('organization').set({uuid:attrs.organizationUuid});
+  setReferencedCollections: function (attrs) {
+    if (attrs.organizationUuid) {
+      this.get('organization').set({uuid: attrs.organizationUuid});
       delete attrs.organizationUuid;
     }
 
-    if(attrs.rolesObjects){
+    if (attrs.rolesObjects) {
+      this.get('roles').set('organizationUuid', this.get('organization').get('uuid'));
       this.get('roles').set(attrs.rolesObjects);
       delete attrs.rolesObjects;
       delete attrs.roles;
     }
 
-    if(attrs.membersObjects){
+    if (attrs.membersObjects) {
+      this.get('members').set('organizationUuid', this.get('organization').get('uuid'));
       this.get('members').set(attrs.membersObjects);
       delete attrs.membersObjects;
       delete attrs.members;
@@ -117,9 +124,9 @@ var Group = mCAP.Model.extend({
     return attrs;
   },
 
-  set: function(key, val, options){
+  set: function (key, val, options) {
     key = this.setReferencedCollections(key);
-    return mCAP.Model.prototype.set.apply(this,[key, val, options]);
+    return mCAP.Model.prototype.set.apply(this, [key, val, options]);
   },
 
   parse: function (attrs) {
@@ -127,7 +134,7 @@ var Group = mCAP.Model.extend({
     return this.setReferencedCollections(attrs);
   },
 
-  isSystemGroup: function(){
+  isSystemGroup: function () {
     var groupType = this.get('groupType');
     return groupType === 'SYSTEM_GROUP' || groupType === 'SYSTEM_PERMISSION';
   },
@@ -142,7 +149,7 @@ var Group = mCAP.Model.extend({
     }
   },
 
-  initialize: function(){
+  initialize: function () {
     this._setDefaultOrgaUuid();
     mCAP.currentOrganization.once('change:uuid', this._setDefaultOrgaUuid, this);
   }
