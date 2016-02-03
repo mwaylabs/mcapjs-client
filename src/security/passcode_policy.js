@@ -17,7 +17,10 @@ var PasscodePolicy = mCAP.Model.extend({
       return true;
     } else if(val){
       var match = val.match(regex);
-      return match && match.length>=amount;
+      return !!(match && match.length>=amount);
+    } else {
+      //empty strings, undefined values etc. are not valid
+      return false
     }
   },
 
