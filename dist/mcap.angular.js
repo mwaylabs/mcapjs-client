@@ -106,6 +106,10 @@
 
     .service('MCAPModel', function () {
       return window.mCAP.Model;
+    })
+
+    .service('MCAPPasscodePolicy', function () {
+      return window.mCAP.PasscodePolicy;
     });
 
 
