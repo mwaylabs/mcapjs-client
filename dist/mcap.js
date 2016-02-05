@@ -1008,7 +1008,7 @@
         return !!(match && match.length>=amount);
       } else {
         //empty strings, undefined values etc. are not valid
-        return false
+        return false;
       }
     },
   
