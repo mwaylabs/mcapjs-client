@@ -31,12 +31,13 @@ var AuthenticatedUser = mCAP.User.extend({
     });
   },
   changePassword: function (oldPassword, newPassword) {
-    return Backbone.ajax({
+    return window.mCAP.Utils.request({
       url: this.url()+'/changePassword',
       data: {
         password: oldPassword,
         newPassword: newPassword
       },
+      instance: this,
       type: 'PUT'
     });
   },
