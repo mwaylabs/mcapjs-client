@@ -1189,6 +1189,18 @@
         this.setEndpoint(endPoint);
         return model;
       }.bind(this));
+    },
+  
+    makeLicenseHandshake: function(){
+      var options = {
+        url: this.url() + '/handshake-license',
+        type: 'POST',
+        instance: this
+      };
+      return window.mCAP.Utils.request(options).then(function(rsp){
+        this.set(rsp.data);
+        return this;
+      }.bind(this));
     }
   
   });
