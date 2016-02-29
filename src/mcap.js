@@ -42,6 +42,7 @@
   // @include ./security/organization.js
   // @include ./security/current_organization.js
   // @include ./security/organizations.js
+  // @include ./security/all_organizations.js
   // @include ./security/group.js
   // @include ./security/groups.js
   // @include ./security/user.js
