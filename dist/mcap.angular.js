@@ -60,6 +60,10 @@
       return window.mCAP.Organizations;
     })
 
+    .service('MCAPAllOrganizations', function(){
+      return window.mCAP.AllOrganizations;
+    })
+
     .service('MCAPUsers', function(){
       return window.mCAP.Users;
     })
