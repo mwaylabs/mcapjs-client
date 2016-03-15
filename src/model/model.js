@@ -126,8 +126,10 @@ var Model = Backbone.Model.extend({
     var attributes = this.beforeSave(attr);
 
     var process = function(attribute){
-      if(attribute instanceof Backbone.Model){
+      if(attribute instanceof Backbone.Model && typeof attribute.recursiveBeforeSave === 'function'){
         return attribute.recursiveBeforeSave(attribute.toJSON());
+      } else if(attribute instanceof Backbone.Model && typeof attribute.recursiveBeforeSave !== 'function'){
+        return attribute.toJSON();
       }
       if(attribute instanceof mCAP.EnumerableCollection){
         return attribute.toJSON();
