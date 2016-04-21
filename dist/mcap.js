@@ -1728,9 +1728,6 @@
   });
   
   mCAP.Users = Users;
-  /**
-   * mCAP Authentication
-   */
   var UserPreferences = mCAP.Model.extend({
     hasPreferences: true,
     setUserId: function (userId) {
@@ -1816,6 +1813,9 @@
           this.set('authenticated',true);
         }
       }, this);
+    },
+    hasRoleWithUuid: function(roleUuid) {
+      return !!this.get('groups').findWhere({uuid: roleUuid});
     }
   });
   
