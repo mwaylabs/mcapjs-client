@@ -23,6 +23,22 @@ describe("mCAP.authentication", function () {
 
   });
 
+  it('knows if it has a role it is asked for', function() {
+    var user = new AuthenticatedUser({uuid: '09F40863-DD69-49AE-9F8C-C83EA3BCD6BA'});
+    var groups = new mCAP.Groups([
+      {
+        'uuid':'GROUP_NAME_ONE'
+      },
+      {
+        'uuid':'B39438E3-B60D-4C7B-BE95-B298C20883AC'
+      }
+    ]);
+
+    user.set('groups', groups);
+
+    expect(user.hasRoleWithUuid('GROUP_NAME_ONE')).toBe(true);
+    expect(user.hasRoleWithUuid('GROUP_NAME_TWO')).toBe(false);
+  });
 });
 
 
