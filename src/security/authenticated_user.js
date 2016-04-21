@@ -1,6 +1,3 @@
-/**
- * mCAP Authentication
- */
 var UserPreferences = mCAP.Model.extend({
   hasPreferences: true,
   setUserId: function (userId) {
@@ -86,6 +83,9 @@ var AuthenticatedUser = mCAP.User.extend({
         this.set('authenticated',true);
       }
     }, this);
+  },
+  hasRoleWithUuid: function(roleUuid) {
+    return !!this.get('groups').findWhere({uuid: roleUuid});
   }
 });
 
