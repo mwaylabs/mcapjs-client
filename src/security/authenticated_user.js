@@ -51,7 +51,7 @@ var AuthenticatedUser = mCAP.User.extend({
 
     if (attr.preferences && !(attr.preferences instanceof mCAP.Model) && this.get('preferences')) {
       attr.preferences = _.omit(attr.preferences, function(value, key) {
-        return key.match('^custom') && value === '';
+        return key.match(/^custom/) && value === '';
       });
       this.get('preferences').set(attr.preferences);
       this.get('preferences').hasPreferences = true;
