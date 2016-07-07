@@ -39,6 +39,24 @@ describe("mCAP.authentication", function () {
     expect(user.hasRoleWithUuid('GROUP_NAME_ONE')).toBe(true);
     expect(user.hasRoleWithUuid('GROUP_NAME_TWO')).toBe(false);
   });
+
+  it('ignores custom attributes with empty strings', function() {
+    var user = new AuthenticatedUser({uuid: '09F40863-DD69-49AE-9F8C-C83EA3BCD6BA'});
+    user.set('preferences', new UserPreferences());
+
+    user.setReferencedCollections({
+      preferences: {
+        custom1: '',
+        custom2: 'customValue',
+        nonCustomAttribute: ''
+      }
+    });
+
+    var userPreferences = user.get('preferences');
+    expect(userPreferences.get('custom1')).toBeUndefined();
+    expect(userPreferences.get('custom2')).toBe('customValue');
+    expect(userPreferences.get('nonCustomAttribute')).toBe('');
+  });
 });
 
 
