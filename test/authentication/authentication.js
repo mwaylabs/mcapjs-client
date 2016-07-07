@@ -42,9 +42,8 @@ describe("mCAP.authentication", function () {
 
   it('ignores custom attributes with empty strings', function() {
     var user = new AuthenticatedUser({uuid: '09F40863-DD69-49AE-9F8C-C83EA3BCD6BA'});
-    user.set('preferences', new UserPreferences());
 
-    user.setReferencedCollections({
+    user.set({
       preferences: {
         custom1: '',
         custom2: 'customValue',
