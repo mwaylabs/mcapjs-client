@@ -139,16 +139,6 @@ var Authentication = mCAP.Model.extend({
       return mCAP.authentication;
     });
   },
-  canRegister: function(){
-    return mCAP.Utils.request({
-      url: mCAP.Utils.getUrl('/relution/api/v1/registration/available'),
-      type: 'GET'
-    }).then(function (response) {
-      return response.status === 200;
-    }, function(){
-      return false;
-    });
-  },
   register: function(registrationObj){
     registrationObj = registrationObj || {};
     return mCAP.Utils.request({
