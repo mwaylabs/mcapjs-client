@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.17 - 2016-08-05
+- removes old stuff that is not needed anymore
+- sets library to deprecated
+
 ## 0.0.16 - 2014-07-24
 - update mCAP.PushNotification API
 

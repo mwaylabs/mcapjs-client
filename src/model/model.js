@@ -80,12 +80,12 @@ var Model = Backbone.Model.extend({
 
   setEndpoint: function (endpoint) {
     this.urlRoot = function () {
-      if (mCAP.application.get('baseUrl').slice(-1) === '/' && endpoint[0] === '/') {
-        return mCAP.application.get('baseUrl') + endpoint.substr(1);
-      } else if (mCAP.application.get('baseUrl').slice(-1) !== '/' && endpoint[0] !== '/') {
-        return mCAP.application.get('baseUrl') + '/' + endpoint;
+      if (mCAP.baseUrl.slice(-1) === '/' && endpoint[0] === '/') {
+        return mCAP.baseUrl + endpoint.substr(1);
+      } else if (mCAP.baseUrl.slice(-1) !== '/' && endpoint[0] !== '/') {
+        return mCAP.baseUrl + '/' + endpoint;
       }
-      return mCAP.application.get('baseUrl') + endpoint;
+      return mCAP.baseUrl + endpoint;
     };
   },
 
@@ -193,7 +193,6 @@ var Model = Backbone.Model.extend({
 
   sync: function () {
     if (arguments[2]) {
-      mCAP.Utils.setAuthenticationEvent(arguments[2]);
       //add model instance to request options
       arguments[2].instance = arguments[1];
     }

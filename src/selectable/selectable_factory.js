@@ -1,6 +1,6 @@
 /*jshint unused:false */
-var ModelSelectable = ModelSelectable || {},
-    CollectionSelectable = CollectionSelectable || {};
+var ModelSelectable = mCAP.ModelSelectable || {},
+    CollectionSelectable = mCAP.CollectionSelectable || {};
 
 _.extend(ModelSelectable.prototype, Backbone.Events);
 _.extend(CollectionSelectable.prototype, Backbone.Events);
@@ -14,3 +14,5 @@ var SelectableFactory = function (instance, options) {
     throw new Error('SelectableFactory: instance has to be either a model or a collection');
   }
 };
+
+mCAP.SelectableFactory = SelectableFactory;

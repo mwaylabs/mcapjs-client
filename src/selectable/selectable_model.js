@@ -55,3 +55,5 @@ var ModelSelectable = function (modelInstance, options) {
 
   main.call(this);
 };
+
+mCAP.ModelSelectable = ModelSelectable;

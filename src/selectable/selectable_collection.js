@@ -245,3 +245,5 @@ var CollectionSelectable = function (collectionInstance, options) {
 
 };
 
+mCAP.CollectionSelectable = CollectionSelectable;
+
