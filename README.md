@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/mwaylabs/mcapjs-client.svg)](https://travis-ci.org/mwaylabs/mcapjs-client)
+# This library is deprecated and won't be maintained anymore!
+Please do not use it anymore. For the backbone nested model functionality please refer to our [new library](https://github.com/mwaylabs/uikit)
+
+
 
 # mCAP JavaScript Client Library
 A JavaScript library to develop applications for mCAP. You will find more informations about mCAP [here](http://mobility-platform.com).
