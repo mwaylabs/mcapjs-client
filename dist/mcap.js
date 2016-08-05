@@ -18,26 +18,8 @@
     return sync.apply(Backbone, [method, model, options]);
   };
 
-  mCAP.private = {};
+  mCAP.baseUrl = '';
 
-  //INCLUDE GLOBAL SETTINGS HERE
-  // global mcap constants
-  mCAP.MCAP = 'MCAP';
-  mCAP.APNS = 'APNS';
-  mCAP.GCM = 'GCM';
-  
-  // component types
-  mCAP.ASSET = 'ASSET';
-  mCAP.CHANNEL = 'CHANNEL';
-  mCAP.PIPELINE = 'PIPELINE';
-  mCAP.SERVICE_CONNECTION = 'SERVICE_CONNECTION';
-  mCAP.META_MODEL = 'META_MODEL';
-  mCAP.SCHEDULER_TASK = 'SCHEDULER_TASK';
-  mCAP.PUSH_SERVICE = 'PUSH_SERVICE';
-  
-  mCAP.FILE = 'd5b8e89f-b912-4c93-a419-866445dd3df3';
-  mCAP.FOLDER = '73a7cf45-10b1-4636-84c0-22b5a99692e1';
-  mCAP.STUDIO = 'F4C7059E-B62B-4600-A7BC-B0CC43E75465';
   /**
    * Utils namespace
    * @type {Object}
@@ -48,33 +30,7 @@
     if(endpoint.charAt(0)==='/'){
       endpoint = endpoint.substr(1);
     }
-    return mCAP.application.get('baseUrl') + '/' + endpoint;
-  };
-  
-  /**
-   * Returns the component type enum of the given model
-   * Compare the return value with an mCAP constant/global
-   * @param model
-   * @returns {string}
-   */
-  mCAP.Utils.getComponentType = function (model) {
-    if(mCAP.PushApp.prototype.isPrototypeOf(model)){
-      return mCAP.PUSH_SERVICE;
-    }
-  };
-  
-  
-  mCAP.Utils.setAuthenticationEvent = function(options){
-    var error = options.error;
-    options.error = function(xhr, state, resp){
-      if(xhr.status === 401){
-        mCAP.authentication._triggerEvent('unauthorized', arguments);
-      }
-      if(typeof error === 'function'){
-        error(xhr, state, resp);
-      }
-    };
-    return options;
+    return mCAP.baseUrl + '/' + endpoint;
   };
   /**
    * Send a request to with the given settings
@@ -103,7 +59,6 @@
     return Backbone.ajax(ajaxOptions);
   };
 
-  // INCLUDE PRIVATE VARS HERE
   /*jshint unused:false */
   var Filterable = function (collectionInstance, options) {
   
@@ -512,6 +467,8 @@
   
   };
   
+  mCAP.CollectionSelectable = CollectionSelectable;
+  
   
   /*jshint unused:false */
   var ModelSelectable = function (modelInstance, options) {
@@ -570,9 +527,11 @@
   
     main.call(this);
   };
+  
+  mCAP.ModelSelectable = ModelSelectable;
   /*jshint unused:false */
-  var ModelSelectable = ModelSelectable || {},
-      CollectionSelectable = CollectionSelectable || {};
+  var ModelSelectable = mCAP.ModelSelectable || {},
+      CollectionSelectable = mCAP.CollectionSelectable || {};
   
   _.extend(ModelSelectable.prototype, Backbone.Events);
   _.extend(CollectionSelectable.prototype, Backbone.Events);
@@ -586,8 +545,9 @@
       throw new Error('SelectableFactory: instance has to be either a model or a collection');
     }
   };
+  
+  mCAP.SelectableFactory = SelectableFactory;
 
-  // INCLUDE mCAP PUBLIC VARS HERE
   var SelectableFactory = SelectableFactory || {};
   
   var Model = Backbone.Model.extend({
@@ -670,12 +630,12 @@
   
     setEndpoint: function (endpoint) {
       this.urlRoot = function () {
-        if (mCAP.application.get('baseUrl').slice(-1) === '/' && endpoint[0] === '/') {
-          return mCAP.application.get('baseUrl') + endpoint.substr(1);
-        } else if (mCAP.application.get('baseUrl').slice(-1) !== '/' && endpoint[0] !== '/') {
-          return mCAP.application.get('baseUrl') + '/' + endpoint;
+        if (mCAP.baseUrl.slice(-1) === '/' && endpoint[0] === '/') {
+          return mCAP.baseUrl + endpoint.substr(1);
+        } else if (mCAP.baseUrl.slice(-1) !== '/' && endpoint[0] !== '/') {
+          return mCAP.baseUrl + '/' + endpoint;
         }
-        return mCAP.application.get('baseUrl') + endpoint;
+        return mCAP.baseUrl + endpoint;
       };
     },
   
@@ -783,7 +743,6 @@
   
     sync: function () {
       if (arguments[2]) {
-        mCAP.Utils.setAuthenticationEvent(arguments[2]);
         //add model instance to request options
         arguments[2].instance = arguments[1];
       }
@@ -793,68 +752,6 @@
   });
   
   mCAP.Model = Model;
-  /**
-   * The Component Model - extends the mCAP.Model with a version number
-   */
-  var Component = mCAP.Model.extend({
-  
-    endpoint: '/',
-  
-    defaults: {
-      uuid: null,
-      version: -1
-    },
-  
-    increaseVersionNumber: function () {
-      this.attributes.version += 1;
-    },
-  
-    decreaseVersionNumber: function () {
-      this.attributes.version -= 1;
-    },
-  
-    /**
-     * Update version number on save
-     * @param key
-     * @param val
-     * @param options
-     * @returns {Array}
-     * @private
-     */
-    save: function (key, val, options) {
-      // prepare options
-      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
-      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
-        options = val;
-      }
-      // make sure options are defined
-      options = _.extend({validate: true}, options);
-      // cache success
-      var error = options.error;
-      // cache model
-      var model = this;
-  
-      model.increaseVersionNumber();
-      // overwrite error
-      options.error = function (resp) {
-        model.decreaseVersionNumber();
-        // call cached success
-        if (error) {
-          error(model, resp, options);
-        }
-      };
-  
-      // make sure options are the correct paramater
-      // needs to be == not === because backbone has the same check. If key is undefined the check will fail with === but jshint does not allow == so this is the workaround to   key == null || typeof key === 'object'
-      if (typeof key === 'undefined' || key === void 0 || key === null || typeof key === 'object') {
-        val = options;
-      }
-      return mCAP.Model.prototype.save.call(this, key, val, options);
-    }
-  
-  });
-  
-  mCAP.Component = Component;
   var Filterable = Filterable || {},
     SelectableFactory = SelectableFactory || {};
   
@@ -890,7 +787,7 @@
   
     setEndpoint: function (endpoint) {
       this.url = function(){
-        return URI(mCAP.application.get('baseUrl') + '/' + endpoint).normalize().toString();
+        return URI(mCAP.baseUrl + '/' + endpoint).normalize().toString();
       };
     },
   
@@ -907,7 +804,6 @@
         var params = this.filterable.getRequestParams.apply(this.filterable, arguments);
         options = params;
       }
-      options = mCAP.Utils.setAuthenticationEvent(options);
       return Backbone.Collection.prototype.sync.apply(this, [method, model, options]);
     },
   
@@ -963,6 +859,7 @@
   mCAP.EnumerableCollection = EnumerableCollection;
   
   
+<<<<<<< 84602eeb2627625a6aabb7f509ae07b3d586c3ae
   var Application = mCAP.Model.extend({
   
     defaults: {
@@ -2724,6 +2621,8 @@
     return this;
   };
   
+=======
+>>>>>>> adds new build
 
   var Filter = function () {
     // If it is an invalid value return null otherwise the provided object
