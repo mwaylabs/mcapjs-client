@@ -1,3 +1,5 @@
+var ModelSelectable = window.mCAP.ModelSelectable;
+
 describe('Model Selectable', function () {
 
   it('should be initialized as unselected', function () {

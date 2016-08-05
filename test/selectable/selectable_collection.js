@@ -6,6 +6,8 @@ Function.prototype.bind = Function.prototype.bind || function (thisp) {
     };
   };
 
+var CollectionSelectable = window.mCAP.CollectionSelectable;
+
 describe('Collection Selectable', function () {
 
   var collection;

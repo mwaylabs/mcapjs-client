@@ -1,3 +1,6 @@
+var SelectableFactory = window.mCAP.SelectableFactory;
+
+
 describe('SelectableFactory', function () {
 
   it('has to throw an error is instance is not a mdoel or collection', function(){
