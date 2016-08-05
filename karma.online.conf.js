@@ -15,18 +15,10 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'online.conf.js',
       'bower_components/jquery/dist/*.js',
       'bower_components/underscore/underscore.js',
       'bower_components/backbone/backbone.js',
-      'src/mcap.js',
-      'src/filter/filterable.js',
-      'src/selectable/**/*.js',
-      'src/model/**/*.js',
-      'src/collection/**/*.js',
-      'src/filter/filter.js',
-      'src/application/**/*.js',
-      'src/security/**/*.js',
+      'dist/mcap.js',
       'test/sinon-1.9.1.js',
       'test/**/*.js'
     ],
@@ -42,7 +34,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-    
+
     },
 
 

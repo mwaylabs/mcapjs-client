@@ -33,7 +33,7 @@ var Collection = Backbone.Collection.extend({
 
   setEndpoint: function (endpoint) {
     this.url = function(){
-      return URI(mCAP.application.get('baseUrl') + '/' + endpoint).normalize().toString();
+      return URI(mCAP.baseUrl + '/' + endpoint).normalize().toString();
     };
   },
 
@@ -50,7 +50,6 @@ var Collection = Backbone.Collection.extend({
       var params = this.filterable.getRequestParams.apply(this.filterable, arguments);
       options = params;
     }
-    options = mCAP.Utils.setAuthenticationEvent(options);
     return Backbone.Collection.prototype.sync.apply(this, [method, model, options]);
   },
 
