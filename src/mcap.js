@@ -33,9 +33,6 @@
   // @include ./collection/enumerable_collection.js
 
   // @include ./filter/filter.js
-  // @include ./filter/filter_holder_model.js
-  // @include ./filter/filter_holders_collection.js
-
 
   root.mCAP = mCAP;
 
