@@ -82,6 +82,7 @@
     this.filterIsSet = false;
   
     this.getRequestParams = function (method, model, options) {
+      options = options || {};
       options.params = options.params || {};
   
       if (method === 'read') {
