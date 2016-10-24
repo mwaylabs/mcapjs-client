@@ -6,11 +6,6 @@
 
   Backbone.$ = Backbone.$ || $;
 
-  Backbone.$.ajaxSetup({
-    // send cookies
-    xhrFields: { withCredentials: true }
-  });
-
   Backbone.sync = function (method, model, options) {
     if (_.isUndefined(options.wait)) {
       options.wait = true;
