@@ -64,15 +64,19 @@
         _offset = _limit ? options.offset : false,
         _page = options.page || 1,
         _perPage = options.perPage || 30,
-        _initialFilterValues = options.filterValues ? JSON.parse(JSON.stringify(options.filterValues)) : options.filterValues,
-        _initialCustomUrlParams = _.clone(options.customUrlParams),
+        _initialFilterValues = options.filterValues || {},
+        _initialCustomUrlParams = options.customUrlParams || {},
         _filterDefinition = options.filterDefinition,
         _sortOrder = options.sortOrder,
         _totalAmount,
         _lastFilter;
   
-    this.filterValues = options.filterValues || {};
-    this.customUrlParams = options.customUrlParams || {};
+    var _getClone = function (obj) {
+      return JSON.parse(JSON.stringify(obj));
+    };
+  
+    this.filterValues =  {};
+    this.customUrlParams = {};
     this.fields = options.fields;
     this.filterIsSet = false;
   
@@ -82,6 +86,7 @@
   
       if (method === 'read') {
         // Filter functionality
+        this.filterValues = _.extend({}, this.getInitialFilterValues(), this.filterValues);
         var filter = this.getFilters();
         if (filter) {
           options.params.filter = filter;
@@ -130,6 +135,15 @@
   
         return options;
       }
+    };
+  
+    this.getInitialFilterValues = function () {
+      return _initialFilterValues;
+    };
+  
+    this.setInitialFilterValues = function (filterValues) {
+      _.extend(_initialFilterValues, filterValues);
+      this.filterValues = _.extend({}, _initialFilterValues, this.filterValues);
     };
   
     this.setLimit = function(limit){
@@ -201,8 +215,8 @@
     };
   
     this.resetFilters = function () {
-      this.filterValues = _initialFilterValues ? JSON.parse(JSON.stringify(_initialFilterValues)) : _initialFilterValues;
-      this.customUrlParams = _initialCustomUrlParams;
+      this.filterValues = _getClone(_initialFilterValues);
+      this.customUrlParams = _getClone(_initialCustomUrlParams);
       this.filterIsSet = false;
     };
   
@@ -214,7 +228,17 @@
         throw new Error('First parameter has to be the instance of a collection');
       }
   
-    }());
+      if (options.filterValues) {
+        _initialFilterValues = _getClone(options.filterValues);
+      }
+  
+      if (options.customUrlParams) {
+        _initialCustomUrlParams = _getClone(options.customUrlParams);
+      }
+  
+      this.resetFilters();
+  
+    }.bind(this)());
   };
   /*jshint unused:false */
   
