@@ -60,22 +60,22 @@
     options = options || {};
   
     var _collection = collectionInstance,
-        _limit = options.limit,
-        _offset = _limit ? options.offset : false,
-        _page = options.page || 1,
-        _perPage = options.perPage || 30,
-        _customUrlParams = options.customUrlParams || {},
-        _initialFilterValues = options.filterValues || {},
-        _filterDefinition = options.filterDefinition,
-        _sortOrder = options.sortOrder,
-        _totalAmount,
-        _lastFilter;
+      _limit = options.limit,
+      _offset = _limit ? options.offset : false,
+      _page = options.page || 1,
+      _perPage = options.perPage || 30,
+      _customUrlParams = options.customUrlParams || {},
+      _initialFilterValues = options.filterValues || {},
+      _filterDefinition = options.filterDefinition,
+      _sortOrder = options.sortOrder,
+      _totalAmount,
+      _lastFilter;
   
     var _getClone = function (obj) {
       return JSON.parse(JSON.stringify(obj));
     };
   
-    this.filterValues =  {};
+    this.filterValues = {};
     this.customUrlParams = {};
     this.fields = options.fields;
     this.filterIsSet = false;
@@ -93,7 +93,7 @@
         }
   
         //reset pagination if filter values change
-        if(JSON.stringify(filter) !== JSON.stringify(_lastFilter)){
+        if (JSON.stringify(filter) !== JSON.stringify(_lastFilter)) {
           _page = 1;
         }
         _lastFilter = filter;
@@ -117,17 +117,17 @@
           options.params.offset = _offset;
         }
   
-        if(_limit === false){
+        if (_limit === false) {
           delete options.params.limit;
         }
   
-        if(this.fields){
+        if (this.fields) {
           options.params.field = this.fields;
         }
   
         // Custom URL parameters
         if (this.customUrlParams) {
-          _.extend(options.params, _.result(this,'customUrlParams'));
+          _.extend(options.params, _.result(this, 'customUrlParams'));
         }
   
         //always set non paged parameter
@@ -142,9 +142,9 @@
     };
   
     this.setInitialFilterValues = function (filterValues) {
-      for(var key in filterValues){
+      for (var key in filterValues) {
         // Make sure to overwrite the current filter value when it is an initial filter value
-        if(this.filterValues[key] === _initialFilterValues[key]){
+        if (this.filterValues[key] === _initialFilterValues[key]) {
           this.filterValues[key] = filterValues[key];
         }
       }
@@ -154,7 +154,7 @@
       this.filterValues = _.extend({}, _initialFilterValues, this.filterValues);
     };
   
-    this.setLimit = function(limit){
+    this.setLimit = function (limit) {
       _limit = limit;
       _offset = _offset || 0;
     };
@@ -189,6 +189,10 @@
       return _page;
     };
   
+    this.setPage = function (page) {
+      _page = page;
+    };
+  
     this.getTotalPages = function () {
       return Math.floor(_totalAmount / _perPage);
     };
@@ -204,17 +208,23 @@
     };
   
     this.setFilters = function (filterMap) {
+      options = options || {};
   
       _.forEach(filterMap, function (value, key) {
         if (_.has(this.filterValues, key)) {
           this.filterValues[key] = value;
+          var filterValue = {};
+          filterValue[key] = value;
+          if (_.isUndefined(options.silent) || !options.silent) {
+            collectionInstance.trigger('change:filterValue', filterValue);
+          }
         } else {
           throw new Error('Filter named \'' + key + '\' not found, did you add it to filterValues of the model?');
         }
       }, this);
   
+      this.setPage(1);
       this.filterIsSet = true;
-  
     };
   
     this.getFilters = function () {
@@ -415,7 +425,7 @@
     };
   
     this.unSelectAll = function () {
-      this.getSelected().secureEach(function(model){
+      this.getSelected().secureEach(function (model) {
         this.unSelect(model);
       }, this);
     };
@@ -477,6 +487,37 @@
   
     };
   
+    this.setCollectionFromSelection = function (collection) {
+      var selected = this.getSelected();
+      if (collection instanceof Backbone.Collection) {
+        collection.replace(selected.toJSON());
+      } else {
+        throw new Error('[Selectable] The passed collection is not an instance of mwUI.Backbone.Collection');
+      }
+      return collection;
+    };
+  
+    this.setModelFromSelection = function (model) {
+      var selected = this.getSelected();
+      if (model instanceof Backbone.Model) {
+        if (selected.length === 0) {
+          model.clear();
+        } else {
+          model.set(selected.first().toJSON());
+        }
+      } else {
+        throw new Error('[Selectable] The passed model is not an instance of Backbone.Model');
+      }
+      return model;
+    };
+  
+    this.useSelectionFor = function (modelOrCollection) {
+      if (modelOrCollection instanceof Backbone.Model) {
+        return this.setModelFromSelection(modelOrCollection);
+      } else if (modelOrCollection instanceof Backbone.Collection) {
+        return this.setCollectionFromSelection(modelOrCollection);
+      }
+    };
   
     var main = function () {
       if (!(_collection instanceof Backbone.Collection)) {
