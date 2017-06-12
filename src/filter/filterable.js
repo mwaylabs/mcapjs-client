@@ -133,6 +133,10 @@ var Filterable = function (collectionInstance, options) {
     return _page;
   };
 
+  this.setPage = function (page) {
+    _page = page;
+  };
+
   this.getTotalPages = function () {
     return Math.floor(_totalAmount / _perPage);
   };
