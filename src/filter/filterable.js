@@ -4,22 +4,22 @@ var Filterable = function (collectionInstance, options) {
   options = options || {};
 
   var _collection = collectionInstance,
-      _limit = options.limit,
-      _offset = _limit ? options.offset : false,
-      _page = options.page || 1,
-      _perPage = options.perPage || 30,
-      _customUrlParams = options.customUrlParams || {},
-      _initialFilterValues = options.filterValues || {},
-      _filterDefinition = options.filterDefinition,
-      _sortOrder = options.sortOrder,
-      _totalAmount,
-      _lastFilter;
+    _limit = options.limit,
+    _offset = _limit ? options.offset : false,
+    _page = options.page || 1,
+    _perPage = options.perPage || 30,
+    _customUrlParams = options.customUrlParams || {},
+    _initialFilterValues = options.filterValues || {},
+    _filterDefinition = options.filterDefinition,
+    _sortOrder = options.sortOrder,
+    _totalAmount,
+    _lastFilter;
 
   var _getClone = function (obj) {
     return JSON.parse(JSON.stringify(obj));
   };
 
-  this.filterValues =  {};
+  this.filterValues = {};
   this.customUrlParams = {};
   this.fields = options.fields;
   this.filterIsSet = false;
@@ -37,7 +37,7 @@ var Filterable = function (collectionInstance, options) {
       }
 
       //reset pagination if filter values change
-      if(JSON.stringify(filter) !== JSON.stringify(_lastFilter)){
+      if (JSON.stringify(filter) !== JSON.stringify(_lastFilter)) {
         _page = 1;
       }
       _lastFilter = filter;
@@ -61,17 +61,17 @@ var Filterable = function (collectionInstance, options) {
         options.params.offset = _offset;
       }
 
-      if(_limit === false){
+      if (_limit === false) {
         delete options.params.limit;
       }
 
-      if(this.fields){
+      if (this.fields) {
         options.params.field = this.fields;
       }
 
       // Custom URL parameters
       if (this.customUrlParams) {
-        _.extend(options.params, _.result(this,'customUrlParams'));
+        _.extend(options.params, _.result(this, 'customUrlParams'));
       }
 
       //always set non paged parameter
@@ -86,9 +86,9 @@ var Filterable = function (collectionInstance, options) {
   };
 
   this.setInitialFilterValues = function (filterValues) {
-    for(var key in filterValues){
+    for (var key in filterValues) {
       // Make sure to overwrite the current filter value when it is an initial filter value
-      if(this.filterValues[key] === _initialFilterValues[key]){
+      if (this.filterValues[key] === _initialFilterValues[key]) {
         this.filterValues[key] = filterValues[key];
       }
     }
@@ -98,7 +98,7 @@ var Filterable = function (collectionInstance, options) {
     this.filterValues = _.extend({}, _initialFilterValues, this.filterValues);
   };
 
-  this.setLimit = function(limit){
+  this.setLimit = function (limit) {
     _limit = limit;
     _offset = _offset || 0;
   };

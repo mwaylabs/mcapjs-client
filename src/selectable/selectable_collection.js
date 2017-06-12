@@ -168,7 +168,7 @@ var CollectionSelectable = function (collectionInstance, options) {
   };
 
   this.unSelectAll = function () {
-    this.getSelected().secureEach(function(model){
+    this.getSelected().secureEach(function (model) {
       this.unSelect(model);
     }, this);
   };
