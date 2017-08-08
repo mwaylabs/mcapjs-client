@@ -16,10 +16,8 @@ var CollectionSelectable = function (collectionInstance, options) {
 
   var _preselect = function () {
     if (_preSelected instanceof Backbone.Model) {
-      _isSingleSelection = true;
       this.preSelectModel(_preSelected);
     } else if (_preSelected instanceof Backbone.Collection) {
-      _isSingleSelection = false;
       this.preSelectCollection(_preSelected);
     } else {
       throw new Error('The option preSelected has to be either a Backbone Model or Collection');
@@ -195,6 +193,18 @@ var CollectionSelectable = function (collectionInstance, options) {
     return _isSingleSelection;
   };
 
+  this.setSingleSelection = function (isSingleSelection) {
+    if (_preSelected instanceof Backbone.Model) {
+      if (!isSingleSelection) {
+        throw new Error('isSingleSelection can not be set to false when preselected is a model!');
+      } else {
+        _isSingleSelection = true;
+      }
+    } else {
+      _isSingleSelection = isSingleSelection;
+    }
+  };
+
   this.reset = function () {
     this.unSelectAll();
     _preselect.call(this);
@@ -291,10 +301,16 @@ var CollectionSelectable = function (collectionInstance, options) {
       }
     }, this);
 
+    if(_preSelected instanceof Backbone.Model){
+      this.setSingleSelection(true);
+    } else {
+      this.setSingleSelection(_options.isSingleSelection || false);
+    }
+
     if (_hasPreSelectedItems) {
       _preselect.call(this);
     }
-  };
+  }.bind(this);
 
   main.call(this);
 
