@@ -24,6 +24,10 @@ var Filterable = function (collectionInstance, options) {
   this.fields = options.fields;
   this.filterIsSet = false;
 
+  this.hasFilterChanged = function (filter) {
+    return JSON.stringify(filter) !== JSON.stringify(_lastFilter);
+  };
+
   this.getRequestParams = function (method, model, options) {
     options = options || {};
     options.params = options.params || {};
@@ -151,7 +155,7 @@ var Filterable = function (collectionInstance, options) {
     return _sortOrder;
   };
 
-  this.setFilters = function (filterMap) {
+  this.setFilters = function (filterMap, options) {
     options = options || {};
 
     _.forEach(filterMap, function (value, key) {
@@ -167,7 +171,7 @@ var Filterable = function (collectionInstance, options) {
       }
     }, this);
 
-    this.setPage(1);
+    this.resetPagination();
     this.filterIsSet = true;
   };
 
@@ -180,14 +184,16 @@ var Filterable = function (collectionInstance, options) {
   this.resetFilters = function () {
     this.filterValues = _getClone(_initialFilterValues);
     this.customUrlParams = _customUrlParams;
+    this.resetPagination();
     this.filterIsSet = false;
   };
 
-  (function _main() {
-    // TODO: load persisted filters into this.filterValues and sortOrder here
-    // ....
+  this.resetPagination = function () {
+    this.setPage(options.page || 1);
+  };
 
-    if (!_collection instanceof Backbone.Collection) {
+  (function _main() {
+    if (!(_collection instanceof Backbone.Collection)) {
       throw new Error('First parameter has to be the instance of a collection');
     }
 
@@ -196,6 +202,5 @@ var Filterable = function (collectionInstance, options) {
     }
 
     this.resetFilters();
-
   }.bind(this)());
 };
