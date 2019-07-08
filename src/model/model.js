@@ -151,9 +151,11 @@ var Model = Backbone.Model.extend({
       }
       if(_.isObject(attribute)){
         var obj = {};
-        _.each(attribute, function(item, key){
-          obj[key] = process(item);
-        });
+        for(var key in attribute){
+          if(attribute.hasOwnProperty(key)){
+            obj[key] = process(attribute[key]);
+          }
+        }
         return obj;
       }
       return attribute;
